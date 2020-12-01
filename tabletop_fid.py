@@ -13,7 +13,7 @@ from pulseq_assembler import PSAssembler
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 2.1 # MHz
+    lo_freq = 17.4 # MHz
     tx_t = 1.001 # us
     rx_t = 0.497
     clk_t = 0.007
@@ -26,16 +26,11 @@ if __name__ == "__main__":
     B_per_m_per_current = 0.02 # T/m/A, approximate value for tabletop gradient coil
 
     # values for gpa fhdo
-    gpa_current_per_volt = 3.75 # A/V, theoretical value for gpa fhdo without 2.5 V offset!
+    gpa_current_per_volt = 2.5 # gpa fhdo 6A configuration
     max_dac_voltage = 2.5
 
-    # values for ocra1
-    # max_dac_voltage = 5
-    # gpa_current_per_volt = 3.75 # A/V, fill in value of gradient power amplifier here!
-
     max_Hz_per_m = max_dac_voltage * gpa_current_per_volt * B_per_m_per_current * gamma	
-    # grad_max = max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
-    grad_max = 16 # unrealistic value used only for loopback test
+    grad_max = max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
 
     rf_amp_max = 10 # factor used to normalize RF amplitude, should be max value of system used!
     ps = PSAssembler(rf_center=lo_freq*1e6,
@@ -45,7 +40,7 @@ if __name__ == "__main__":
         clk_t=clk_t,
         tx_t=tx_t,
         grad_t=grad_interval)
-    _, _, cb, readout_samples = ps.assemble('test_gradients.seq')
+    _, _, cb, readout_samples = ps.assemble('tabletop_fid.seq')
 
     exp = ex.Experiment(samples=readout_samples, 
         lo_freq=lo_freq,
@@ -54,7 +49,7 @@ if __name__ == "__main__":
         grad_channels=num_grad_channels,
         grad_t=grad_interval/num_grad_channels,
         assert_errors=False)
-
+        
     exp.define_instructions(cb)
     x = np.linspace(0,2*np.pi, 100)
     ramp_sine = np.sin(2*x)
@@ -68,11 +63,11 @@ if __name__ == "__main__":
         num_calibration_points=10,
         gpa_current_per_volt=gpa_current_per_volt) 
 
-    channel = 0
-    current = 0.0 # ampere
-    dac_code = exp.ampere_to_dac_code(current)
-    dac_code = exp.calculate_corrected_dac_code(channel,dac_code)
-    exp.write_gpa_dac(channel, dac_code)
+    # set all channels back to 0 A
+    for ch in range(4):
+        dac_code = exp.ampere_to_dac_code(0)
+        dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
+        exp.write_gpa_dac(ch, dac_code)      
 
 
     data = exp.run() # Comment out this line to avoid running on the hardware
@@ -81,10 +76,6 @@ if __name__ == "__main__":
 
     # st()    
 
-    # set all channels back to 0 A
-    for ch in range(4):
-        dac_code = exp.ampere_to_dac_code(0)
-        dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
-        exp.write_gpa_dac(ch, dac_code)        
+  
 
  
