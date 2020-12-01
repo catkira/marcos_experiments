@@ -33,13 +33,17 @@ if __name__ == "__main__":
     grad_max = max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
 
     rf_amp_max = 10 # factor used to normalize RF amplitude, should be max value of system used!
+    tx_warmup = 500 # us
+    adc_pad = 0 # padding to prevent junk in rx buffer
     ps = PSAssembler(rf_center=lo_freq*1e6,
         # how many Hz the max amplitude of the RF will produce; i.e. smaller causes bigger RF V to compensate
         rf_amp_max=rf_amp_max,
         grad_max=grad_max,
         clk_t=clk_t,
         tx_t=tx_t,
-        grad_t=grad_interval)
+        grad_t=grad_interval,
+        tx_warmup=tx_warmup,
+        adc_pad=adc_pad)
     _, _, cb, readout_samples = ps.assemble('tabletop_fid.seq')
 
     exp = ex.Experiment(samples=readout_samples, 

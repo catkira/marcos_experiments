@@ -1,7 +1,6 @@
 # Pulseq sequence file
-# Created by MATLAB mr toolbox
 # RF raster time: 1 us
-# Sequence: pi/2 with acquisition
+# Sequence: pi/2 followed by acquisition
 
 [VERSION]
 major 1
@@ -28,7 +27,7 @@ Test 2
 # id num dwell delay freq phase
 # ..  ..    ns    us   Hz   rad
 [ADC]
-1 300 497 0 0 0
+1 1000 497 0 0 0 # 250 us
 
 # Format of delays:
 # id delay (us)
