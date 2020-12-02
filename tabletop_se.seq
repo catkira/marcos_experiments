@@ -15,7 +15,9 @@ Test 2
 [BLOCKS]
 1  0  1   0   0   0  0  0
 2  1  0   0   0   0  0  0
-3  0  0   0   0   0  1  0
+3  0  2   0   0   0  0  0
+4  2  0   0   0   0  0  0
+5  0  0   0   0   0  1  0
 
 
 # Format of RF events:
@@ -23,17 +25,19 @@ Test 2
 # ..        Hz   ....     ....    us   Hz   rad
 [RF]
 1         6 1 2 0 0 0 # 
+2         6 3 4 0 0 0 # 
 
 # Format of ADC events:
 # id num dwell delay freq phase
 # ..  ..    ns    us   Hz   rad
 [ADC]
-1 1000 497 0 0 0 # 250 us
+1 1004 497 0 0 0 # 0.5 ms
 
 # Format of delays:
 # id delay (us)
 [DELAYS]
-1 500
+1 5000
+2 9900
 
 # Sequence Shapes
 [SHAPES]

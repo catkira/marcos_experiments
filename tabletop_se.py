@@ -46,7 +46,7 @@ if __name__ == "__main__":
         grad_t=grad_interval,
         tx_warmup=tx_warmup,
         adc_pad=adc_pad)
-    _, _, cb, readout_samples = ps.assemble('tabletop_fid.seq')
+    _, _, cb, readout_samples = ps.assemble('tabletop_se.seq')
 
     exp = ex.Experiment(samples=readout_samples, 
         lo_freq=lo_freq,
@@ -77,8 +77,8 @@ if __name__ == "__main__":
 
 
     data = exp.run() # Comment out this line to avoid running on the hardware
-    #plt.plot(data.imag)
-    #plt.show()
+    plt.plot((np.sqrt(data.imag**2 + data.real**2)))
+    plt.show()
 
     # st()    
 
