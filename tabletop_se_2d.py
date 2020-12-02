@@ -6,6 +6,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pdb
+import time
 
 import external
 import experiment as ex
@@ -82,12 +83,14 @@ if __name__ == "__main__":
 
     phase_factors = np.linspace(-1,1,90)
     data2d = np.zeros(phase_factors.size,params['readout_number'])
+    tr = 3
     for k, pf in enumerate(phase_factors):
         current_grad_array = ps.grad_arr
         current_grad_array[0] *= pf
         exp.add_grad(ps.grad_arr)        
         
         data2d[k] = exp.run() 
+        time.sleep(tr)
 
     # st()    
 
