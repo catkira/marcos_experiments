@@ -1,6 +1,6 @@
 # Pulseq sequence file
 # RF raster time: 1 us
-# Sequence: pi/2 followed by acquisition
+# Sequence: pi/2, delay, pi, delay, acquisition
 
 [VERSION]
 major 1
@@ -37,7 +37,7 @@ Test 2
 # id delay (us)
 [DELAYS]
 1 5000
-2 9900
+2 4000
 
 # Sequence Shapes
 [SHAPES]
