@@ -54,6 +54,7 @@ if __name__ == "__main__":
         rx_t=rx_t, # TODO: get information from PSAssembler
         grad_channels=num_grad_channels,
         grad_t=grad_interval/num_grad_channels,
+		acq_retry_limit=50000,
         assert_errors=False)
         
     exp.define_instructions(cb)
