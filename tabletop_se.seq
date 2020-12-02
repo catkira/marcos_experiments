@@ -31,7 +31,7 @@ Test 2
 # id num dwell delay freq phase
 # ..  ..    ns    us   Hz   rad
 [ADC]
-1 1004 497 0 0 0 # 0.5 ms
+1 1000 497 0 0 0 # 0.5 ms
 
 # Format of delays:
 # id delay (us)
