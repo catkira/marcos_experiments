@@ -82,7 +82,10 @@ if __name__ == "__main__":
 
 
     data = exp.run() # Comment out this line to avoid running on the hardware
-    plt.plot((np.sqrt(data.imag**2 + data.real**2)))
+    fig, (ax1, ax2) = plt.subplots(2)
+    fig.suptitle('Spin Echo')
+    ax1.plot(np.abs(data))
+    ax2.plot(data.real)
     plt.show()
 
     # st()    
