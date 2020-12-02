@@ -83,14 +83,14 @@ if __name__ == "__main__":
 
     phase_factors = np.linspace(-1,1,90)
     data2d = np.zeros(phase_factors.size,params['readout_number'])
-    tr = 3
+    T_r = 3
     for k, pf in enumerate(phase_factors):
         current_grad_array = ps.grad_arr
         current_grad_array[0] *= pf
-        exp.add_grad(ps.grad_arr)        
+        exp.add_grad(current_grad_array)        
         
         data2d[k] = exp.run() 
-        time.sleep(tr)
+        time.sleep(T_r)
 
     # st()    
 
