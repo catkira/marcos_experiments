@@ -14,7 +14,7 @@ from pulseq_assembler import PSAssembler
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.31 # MHz
+    lo_freq = 17.295 # MHz
     tx_t = 1.001 # us
     rx_t = 0.497
     clk_t = 0.007
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     max_dac_voltage = 2.5
 
     max_Hz_per_m = max_dac_voltage * gpa_current_per_volt * B_per_m_per_current * gamma	
-
+    print('max_Hz_per_m = {:f} MHz/m'.format(max_Hz_per_m/1E6))
 
     grad_max = max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
 
@@ -81,16 +81,18 @@ if __name__ == "__main__":
         dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
         exp.write_gpa_dac(ch, dac_code)      
 
-    phase_factors = np.linspace(-1,1,90)
-    data2d = np.zeros(phase_factors.size,params['readout_number'])
-    T_r = 3
+    phase_factors = np.linspace(-1,1,3)
+    data2d = np.zeros((phase_factors.size,params['readout_number']),dtype=np.complex64)
+    T_r = 1
     current_grad_array = ps.grad_arr
     for k, pf in enumerate(phase_factors):
         current_grad_array[0] = ps.grad_arr[0] * pf
         exp.add_grad(current_grad_array)        
         
-        data2d[k] = exp.run() 
+        data2d[k,:] = exp.run() 
         time.sleep(T_r)
+    plt.imshow(np.abs(data2d), cmap='gray', aspect='auto', interpolation='none')
+    plt.show()
 
     # st()    
 

@@ -33,6 +33,10 @@ Test 2
 [ADC]
 1 5000 497 0 0 0 # 2.5 ms
 
+# id amp rise flat fall delay
+[TRAP]
+1 200000 100 2300 100 0 # 2.5 ms 
+
 # Format of delays:
 # id delay (us)
 [DELAYS]
