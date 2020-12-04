@@ -83,9 +83,13 @@ if __name__ == "__main__":
 
     data = exp.run() # Comment out this line to avoid running on the hardware
     fig, (ax1, ax2) = plt.subplots(2)
-    fig.suptitle('Spin Echo')
-    ax1.plot(np.abs(data))
-    ax2.plot(data.real)
+    fig.suptitle('Spin Echo [n={:d}]'.format(params['readout_number']))
+    rx_dt = np.linspace(0, params['rx_t'] * params['readout_number'], params['readout_number'])  # us    
+    ax1.plot(rx_dt, np.abs(data)*3.3)
+    ax1.set_ylabel('voltage [V]')
+    plt.xlabel('time [us]')
+    ax2.plot(rx_dt, data.real*3.3)
+    ax2.set_ylabel('voltage [V]')
     plt.show()
 
     # st()    

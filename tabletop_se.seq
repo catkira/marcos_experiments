@@ -31,13 +31,13 @@ Test 2
 # id num dwell delay freq phase
 # ..  ..    ns    us   Hz   rad
 [ADC]
-1 10000 497 0 0 0 # 0.5 ms
+1 5000 497 0 0 0 # 2.5 ms
 
 # Format of delays:
 # id delay (us)
 [DELAYS]
 1 5000
-2 4000
+2 4500
 
 # Sequence Shapes
 [SHAPES]
