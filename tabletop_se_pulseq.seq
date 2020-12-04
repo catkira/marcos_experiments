@@ -23,8 +23,8 @@ Name se
 # id amplitude mag_id phase_id delay freq phase
 # ..        Hz   ....     ....    us   Hz   rad
 [RF]
-1         2500 1 2 100 0 0
-2         2500 3 4 100 0 0
+1         2500 1 2 500 0 0
+2         2500 3 4 500 0 0
 
 # Format of trapezoid gradients:
 # id amplitude rise flat fall delay
@@ -42,7 +42,7 @@ Name se
 # Format of delays:
 # id delay (us)
 [DELAYS]
-1 2890
+1 2690
 2 4840
 
 # Sequence Shapes

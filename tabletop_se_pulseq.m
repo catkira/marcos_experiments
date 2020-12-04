@@ -12,10 +12,11 @@ sys = mr.opts('MaxGrad', 500, 'GradUnit', 'mT/m', ...
     'MaxSlew', 500, 'SlewUnit', 'T/m/s', ...
     'rfDeadTime', 500e-6, 'adcDeadTime', 10e-6, 'rfRasterTime', 1.003e-6, ...
     'gradRasterTime',10e-6);
+    % rfDeadTime and adcDeadTime seem to have no effect
 
-%
-rf90 = mr.makeBlockPulse(pi/2, 'duration', 0.1e-3, 'system', system);
-rf180 = mr.makeBlockPulse(pi, 'duration', 0.2e-3, 'system', system);
+% Create HF pulses, 500 us delay for tx gate
+rf90 = mr.makeBlockPulse(pi/2, 'duration', 0.1e-3, 'system', system, 'delay',500e-6);
+rf180 = mr.makeBlockPulse(pi, 'duration', 0.2e-3, 'system', system, 'delay',500e-6);
 
 % Define other gradients and ADC events
 deltak=1/fov;
