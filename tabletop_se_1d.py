@@ -45,8 +45,9 @@ if __name__ == "__main__":
         tx_t=tx_t,
         grad_t=grad_interval,
         tx_warmup=tx_warmup,
-        adc_pad=adc_pad)
-    tx_arr, grad_arr, cb, params = ps.assemble('tabletop_se_1d.seq')
+        adc_pad=adc_pad,
+		rf_delay_preload=True)
+    tx_arr, grad_arr, cb, params = ps.assemble('tabletop_se_pulseq.seq')
 
     # Temporary hack, until next ocra-pulseq update
     if 'rx_t' not in params:
