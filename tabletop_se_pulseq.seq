@@ -1,0 +1,84 @@
+# Pulseq sequence file
+# Created by MATLAB mr toolbox
+
+[VERSION]
+major 1
+minor 3
+revision 0
+
+[DEFINITIONS]
+FOV 0.01 0.01 
+Name se 
+
+# Format of blocks:
+#  #  D RF  GX  GY  GZ ADC EXT
+[BLOCKS]
+1  0  1   0   0   0  0  0
+2  1  0   1   0   0  0  0
+3  0  2   0   0   0  0  0
+4  2  0   0   0   0  0  0
+5  0  0   2   0   0  1  0
+
+# Format of RF events:
+# id amplitude mag_id phase_id delay freq phase
+# ..        Hz   ....     ....    us   Hz   rad
+[RF]
+1         2500 1 2 100 0 0
+2         2500 3 4 100 0 0
+
+# Format of trapezoid gradients:
+# id amplitude rise flat fall delay
+# ..      Hz/m   us   us   us    us
+[TRAP]
+ 1  3.65714e+06 180 1640 180   0
+ 2      3.2e+06 160 4000 160   0
+
+# Format of ADC events:
+# id num dwell delay freq phase
+# ..  ..    ns    us   Hz   rad
+[ADC]
+1 128 31250 160 0 0
+
+# Format of delays:
+# id delay (us)
+[DELAYS]
+1 2890
+2 4840
+
+# Sequence Shapes
+[SHAPES]
+
+shape_id 1
+num_samples 130
+1
+0
+0
+97
+-1
+0
+0
+27
+
+shape_id 2
+num_samples 130
+0
+0
+128
+
+shape_id 3
+num_samples 230
+1
+0
+0
+197
+-1
+0
+0
+27
+
+shape_id 4
+num_samples 230
+0
+0
+228
+
