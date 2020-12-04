@@ -1,0 +1,76 @@
+# Pulseq sequence file
+# RF raster time: 1 us
+# Sequence: pi/2, delay, pi, delay, acquisition
+
+[VERSION]
+major 1
+minor 3
+revision 0
+
+[DEFINITIONS]
+Test 2
+
+# Format of blocks:
+#  D RF  GX  GY  GZ ADC EXT
+[BLOCKS]
+1  0  1   0   0   0  0  0
+2  3  0   0   0   0  0  0
+3  0  0   1   0   0  0  0
+4  3  0   0   0   0  0  0
+5  0  2   0   0   0  0  0
+6  2  0   0   0   0  0  0
+7  0  0   1   0   0  1  0
+
+
+# Format of RF events:
+# id amplitude mag_id phase_id delay freq phase
+# ..        Hz   ....     ....    us   Hz   rad
+[RF]
+1         6 1 2 0 0 0 # 
+2         6 3 4 0 0 0 # 
+
+# Format of ADC events:
+# id num dwell delay freq phase
+# ..  ..    ns    us   Hz   rad
+[ADC]
+1 4000 497 0 0 0 # 2 ms
+
+# id amp rise flat fall delay
+[TRAP]
+1 3000000 100 1800 100 0 # 2 ms 
+
+# Format of delays:
+# id delay (us)
+[DELAYS]
+1 5000
+2 4500
+3 1500
+
+# Sequence Shapes
+[SHAPES]
+
+shape_id 1
+num_samples 100
+1
+0
+0
+97
+
+shape_id 2
+num_samples 100
+0
+0
+98
+
+shape_id 3
+num_samples 200
+1
+0
+0
+197
+
+shape_id 4
+num_samples 200
+0
+0
+198
