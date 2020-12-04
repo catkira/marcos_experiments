@@ -30,6 +30,7 @@ if __name__ == "__main__":
     max_dac_voltage = 2.5
 
     max_Hz_per_m = max_dac_voltage * gpa_current_per_volt * B_per_m_per_current * gamma	
+    print('max_B_per_m = {:f} mT/m'.format(max_Hz_per_m/gamma*1e3))	
     print('max_Hz_per_m = {:f} MHz/m'.format(max_Hz_per_m/1E6))
 
     grad_max = max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
@@ -45,7 +46,8 @@ if __name__ == "__main__":
         tx_t=tx_t,
         grad_t=grad_interval,
         tx_warmup=tx_warmup,
-        adc_pad=adc_pad)
+        adc_pad=adc_pad,
+		rf_delay_preload=True)
     tx_arr, grad_arr, cb, params = ps.assemble('tabletop_se.seq')
 
     # Temporary hack, until next ocra-pulseq update
