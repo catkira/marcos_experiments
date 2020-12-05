@@ -25,7 +25,8 @@ rf180 = mr.makeBlockPulse(pi, 'duration', 0.2e-3, 'sys',sys);
 deltak=1/fov;
 gx = mr.makeTrapezoid('x','FlatArea',Nx*deltak,'FlatTime',4e-3,'system',sys);
 gx.delay = sys.rfDeadTime - gx.riseTime; % assumes rfDeadTime > gx.riseTime !!
-adc = mr.makeAdc(Nx,'Duration',gx.flatTime,'Delay',gx.riseTime,'system',sys);
+oversamplingFactor = 10
+adc = mr.makeAdc(oversamplingFactor*Nx,'Duration',gx.flatTime,'Delay',gx.riseTime,'system',sys);
 gxPre = mr.makeTrapezoid('x','Area',gx.area/2,'Duration',2e-3,'system',sys);
 phaseAreas = ((0:Ny-1)-Ny/2)*deltak;
 

@@ -38,7 +38,7 @@ Name se
 # id num dwell delay freq phase
 # ..  ..    ns    us   Hz   rad
 [ADC]
-1 128 31250 100 0 0
+1 1280 3125 100 0 0
 
 # Format of delays:
 # id delay (us)
