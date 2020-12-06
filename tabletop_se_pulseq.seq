@@ -7,10 +7,9 @@ minor 3
 revision 0
 
 [DEFINITIONS]
-Bandwidth [Hz] 426667 
-FOV 0.01 0.01 
+Bandwidth [Hz] 2.01207e+06 
 Name se 
-Nx 128 
+Nx 5000 
 TE [s] 0.01 
 
 # Format of blocks:
@@ -18,10 +17,9 @@ TE [s] 0.01
 [BLOCKS]
 1  0  1   0   0   0  0  0
 2  1  0   0   0   0  0  0
-3  0  0   1   0   0  0  0
-4  0  2   0   0   0  0  0
-5  2  0   0   0   0  0  0
-6  0  0   2   0   0  1  0
+3  0  2   0   0   0  0  0
+4  2  0   0   0   0  0  0
+5  0  0   0   0   0  1  0
 
 # Format of RF events:
 # id amplitude mag_id phase_id delay freq phase
@@ -30,24 +28,17 @@ TE [s] 0.01
 1         2500 1 2 500 0 0
 2         2500 3 4 500 0 0
 
-# Format of trapezoid gradients:
-# id amplitude rise flat fall delay
-# ..      Hz/m   us   us   us    us
-[TRAP]
- 1  4.94617e+06 150 1200 150   0
- 2  4.26667e+06 130 3000 130 370
-
 # Format of ADC events:
 # id num dwell delay freq phase
 # ..  ..    ns    us   Hz   rad
 [ADC]
-1 1280 2344 130 0 0
+1 5000 497 0 0 0
 
 # Format of delays:
 # id delay (us)
 [DELAYS]
-1 3350
-2 2590
+1 4850
+2 4400
 
 # Sequence Shapes
 [SHAPES]

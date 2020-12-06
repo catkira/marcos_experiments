@@ -2,6 +2,7 @@ addpath('../pulseq/matlab')
 close all
 clear
 gamma = 42.57E6;
+sequencerRasterTime = 7E-9; % make sure all times are a multiple of sequencer raster time
 
 fov=10e-3; Nx=128; Ny=1;       % Define FOV and resolution
 TE=10e-3;
@@ -38,8 +39,8 @@ adc = mr.makeAdc(oversamplingFactor*Nx,'Duration',gx.flatTime,'Delay',gx.riseTim
 
 % Calculate timing
 delayTE1 = ceil((TE/2 - (mr.calcDuration(rf90) - rf90.delay)/2 ...
-    - mr.calcDuration(gxPre))/seq.gradRasterTime ...
-    - (mr.calcDuration(rf180) - rf180.delay)/2)*seq.gradRasterTime;
+    - mr.calcDuration(gxPre)...
+    - (mr.calcDuration(rf180) - rf180.delay)/2)/seq.gradRasterTime)*seq.gradRasterTime;
 delayTE2 = ceil((TE - (mr.calcDuration(rf90)  - rf90.delay)/2 - delayTE1 ...
     - mr.calcDuration(gxPre) - mr.calcDuration(gx)/2 ...
     - mr.calcDuration(rf180))/seq.gradRasterTime)*seq.gradRasterTime;
@@ -58,10 +59,13 @@ end
 
 
 %% prepare sequence export
-seq.setDefinition('FOV', [fov fov]);
 seq.setDefinition('Name', 'se');
+seq.setDefinition('FOV', [fov fov]);
+seq.setDefinition('TE [s]', TE);
+seq.setDefinition('Nx', Nx);
+seq.setDefinition('Bandwidth [Hz]', 1/adc.dwell);
 
 seq.plot();
 
-seq.write('tabletop_se_pulseq.seq')       % Write to pulseq file
-parsemr('tabletop_se_pulseq.seq');
+seq.write('tabletop_se_1d_pulseq.seq')       % Write to pulseq file
+parsemr('tabletop_se_1d_pulseq.seq');
