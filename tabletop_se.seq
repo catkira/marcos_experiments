@@ -24,8 +24,8 @@ Test 2
 # id amplitude mag_id phase_id delay freq phase
 # ..        Hz   ....     ....    us   Hz   rad
 [RF]
-1         6 1 2 0 0 0 # 
-2         6 3 4 0 0 0 # 
+1         2500 1 2 0 0 0 # 
+2         2500 3 4 0 0 0 # 
 
 # Format of ADC events:
 # id num dwell delay freq phase

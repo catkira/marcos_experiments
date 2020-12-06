@@ -23,20 +23,34 @@ if __name__ == "__main__":
     gamma = 42570000 # Hz/T
 
     # value for tabletopMRI  gradient coil
-    B_per_m_per_current = 0.02 # T/m/A, approximate value for tabletop gradient coil
+    grad_B_per_m_per_current = 0.02 # [T/m/A], approximate value for tabletop gradient coil
+    R_coil = 2
+
+    # value for tabletopMRI hf coil
+    hf_B_per_m_current = 2.483E-4 # [T/A] theoretical value
 
     # values for gpa fhdo
     gpa_current_per_volt = 2.5 # gpa fhdo 6A configuration
     max_dac_voltage = 2.5
 
-    max_Hz_per_m = max_dac_voltage * gpa_current_per_volt * B_per_m_per_current * gamma	
-    print('max_B_per_m = {:f} mT/m'.format(max_Hz_per_m/gamma*1e3))	
-    print('max_Hz_per_m = {:f} MHz/m'.format(max_Hz_per_m/1E6))
+    # values for red pitaya 
+    hf_max_dac_voltage = 1 # +-
 
-    grad_max = max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
+    # HF-PA
+    hf_PA_gain = 20 # dB
 
-    rf_amp_max = 10 # factor used to normalize RF amplitude, should be max value of system used!
-    tx_warmup = 500 # us
+    grad_max_Hz_per_m = max_dac_voltage * gpa_current_per_volt * grad_B_per_m_per_current * gamma	
+    print('gradient max_B_per_m = {:f} mT/m'.format(grad_max_Hz_per_m/gamma*1e3))	
+    print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
+
+    #hf_max_Hz_per_m = np.sqrt(1/50 * 10**(hf_PA_gain/10) / R_coil) * hf_B_per_m_current * gamma
+    hf_max_Hz_per_m = 4166 # experimental value
+    print(hf_max_Hz_per_m)
+    print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
+
+    grad_max = grad_max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
+    rf_amp_max = hf_max_Hz_per_m # factor used to normalize RF amplitude, should be max value of system used!
+    tx_warmup = 500 # us # TODO: move this into delay of RF block
     adc_pad = 0 # padding to prevent junk in rx buffer
     ps = PSAssembler(rf_center=lo_freq*1e6,
         # how many Hz the max amplitude of the RF will produce; i.e. smaller causes bigger RF V to compensate
