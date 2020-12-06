@@ -1,20 +1,22 @@
 addpath('../pulseq/matlab')
 close all
 clear
-clf
+gamma = 42.57E6;
 
 fov=10e-3; Nx=128; Ny=1;       % Define FOV and resolution
 TE=10e-3;
 TR=3;                 
 
+gxFlatTime = 3e-3;
+
 % set system limits
-maxGrad = 125 % value for tabletop coils and gpa fhdo
-rfDeadTime = 500e-6 % minicircuits PA needs 500 us to turn on
+maxGrad = 125; % [mT/m], value for tabletop coils and gpa fhdo
+rfDeadTime = 500e-6; % [us], minicircuits PA needs 500 us to turn on
+adcDeadTime = 0;
 sys = mr.opts('MaxGrad', maxGrad, 'GradUnit', 'mT/m', ...
     'MaxSlew', 800, 'SlewUnit', 'T/m/s', ...
-    'rfDeadTime', rfDeadTime, 'adcDeadTime', 10e-6, 'rfRasterTime', 1.003e-6, ...
-    'gradRasterTime',10e-6);
-    % rfDeadTime and adcDeadTime seem to have no effect
+    'rfDeadTime', rfDeadTime, 'adcDeadTime', adcDeadTime, ...
+    'rfRasterTime', 1.003e-6, 'gradRasterTime',10e-6);
 seq=mr.Sequence(sys);              % Create a new sequence object
 
 % Create HF pulses, 500 us delay for tx gate
@@ -23,12 +25,13 @@ rf180 = mr.makeBlockPulse(pi, 'duration', 0.2e-3, 'sys',sys);
 
 % Define other gradients and ADC events
 deltak=1/fov;
-gx = mr.makeTrapezoid('x','FlatArea',Nx*deltak,'FlatTime',4e-3,'system',sys);
+gx = mr.makeTrapezoid('x','FlatArea',Nx*deltak,'FlatTime',gxFlatTime,'sys',sys);
+fprintf('Sequence bandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov);
+fprintf('Pixelbandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov/Nx);
 gx.delay = sys.rfDeadTime - gx.riseTime; % assumes rfDeadTime > gx.riseTime !!
-oversamplingFactor = 10
-adc = mr.makeAdc(oversamplingFactor*Nx,'Duration',gx.flatTime,'Delay',gx.riseTime,'system',sys);
-gxPre = mr.makeTrapezoid('x','Area',gx.area/2,'Duration',2e-3,'system',sys);
-phaseAreas = ((0:Ny-1)-Ny/2)*deltak;
+gxPre = mr.makeTrapezoid('x','Area',gx.area/2,'Duration',gx.flatTime/2,'sys',sys);
+oversamplingFactor = 10;
+adc = mr.makeAdc(oversamplingFactor*Nx,'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
 
 % gradient spoiling
 %gxSpoil=mr.makeTrapezoid('x','Area',2*Nx*deltak,'system',sys);
