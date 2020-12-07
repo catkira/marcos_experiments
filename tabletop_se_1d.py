@@ -52,6 +52,7 @@ if __name__ == "__main__":
     rf_amp_max = hf_max_Hz_per_m # factor used to normalize RF amplitude, should be max value of system used!
     tx_warmup = 0 # already handled by delay in RF block
     adc_pad = 0 # padding to prevent junk in rx buffer
+    grad_pad = 100 # padding to prevent wrong gradient levels at end of block
     ps = PSAssembler(rf_center=lo_freq*1e6,
         # how many Hz the max amplitude of the RF will produce; i.e. smaller causes bigger RF V to compensate
         rf_amp_max=rf_amp_max,
@@ -61,6 +62,7 @@ if __name__ == "__main__":
         grad_t=grad_interval,
         tx_warmup=tx_warmup,
         adc_pad=adc_pad,
+        grad_pad=grad_pad,
 		rf_delay_preload=True)
     tx_arr, grad_arr, cb, params = ps.assemble('tabletop_se_1d_pulseq.seq')
 
