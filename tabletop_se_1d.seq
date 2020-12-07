@@ -33,7 +33,7 @@ Test 2
 # id num dwell delay freq phase
 # ..  ..    ns    us   Hz   rad
 [ADC]
-1 4000 497 0 0 0 # 2 ms
+1 5000 497 0 0 0 # 2 ms
 
 # id amp rise flat fall delay
 [TRAP]

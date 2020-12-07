@@ -13,7 +13,7 @@ from pulseq_assembler import PSAssembler
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.295 # MHz
+    lo_freq = 17.315 # MHz
     tx_t = 1.001 # us
     rx_t = 0.497
     clk_t = 0.007
@@ -50,8 +50,8 @@ if __name__ == "__main__":
 
     grad_max = grad_max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
     rf_amp_max = hf_max_Hz_per_m # factor used to normalize RF amplitude, should be max value of system used!
-    tx_warmup = 500 # us # TODO: move this into delay of RF block
-    adc_pad = 0 # padding to prevent junk in rx buffer
+    tx_warmup = 0 # already handled by delay in RF block
+    adc_pad = 80 # padding to prevent junk in rx buffer
     ps = PSAssembler(rf_center=lo_freq*1e6,
         # how many Hz the max amplitude of the RF will produce; i.e. smaller causes bigger RF V to compensate
         rf_amp_max=rf_amp_max,
@@ -62,7 +62,7 @@ if __name__ == "__main__":
         tx_warmup=tx_warmup,
         adc_pad=adc_pad,
 		rf_delay_preload=True)
-    tx_arr, grad_arr, cb, params = ps.assemble('tabletop_se.seq')
+    tx_arr, grad_arr, cb, params = ps.assemble('tabletop_se_pulseq.seq')
 
     # Temporary hack, until next ocra-pulseq update
     if 'rx_t' not in params:
@@ -78,8 +78,6 @@ if __name__ == "__main__":
         assert_errors=False)
         
     exp.define_instructions(cb)
-    x = np.linspace(0,2*np.pi, 100)
-    ramp_sine = np.sin(2*x)
     exp.add_tx(ps.tx_arr)
     exp.add_grad(ps.grad_arr)
 
@@ -115,7 +113,7 @@ if __name__ == "__main__":
     ax2.plot(t_axis, data.real*3.3)
     ax2.set_ylabel('voltage [V]')
     #f_axis = np.linspace(-1/dt*nSamples,1/dt*nSamples,nSamples)
-    nFFT_window = 100
+    nFFT_window = 127
     f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]
     ax3.plot(f_axis,np.abs(np.fft.fftshift(np.fft.fft(data))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]/np.sqrt(nSamples)))
     plt.show()

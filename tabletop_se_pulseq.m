@@ -5,7 +5,7 @@ gamma = 42.57E6;
 sequencerRasterTime = 7E-9; % make sure all times are a multiple of sequencer raster time
 
 TE = 10E-3;
-Nx = 5000;
+Nx = 256;
 samplingDuration = 2.5e-3;
 
 % set system limits

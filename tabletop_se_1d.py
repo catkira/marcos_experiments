@@ -13,7 +13,7 @@ from pulseq_assembler import PSAssembler
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.295 # MHz
+    lo_freq = 17.315 # MHz
     tx_t = 1.001 # us
     rx_t = 0.497
     clk_t = 0.007
@@ -23,20 +23,34 @@ if __name__ == "__main__":
     gamma = 42570000 # Hz/T
 
     # value for tabletopMRI  gradient coil
-    B_per_m_per_current = 0.02 # T/m/A, approximate value for tabletop gradient coil
+    grad_B_per_m_per_current = 0.02 # [T/m/A], approximate value for tabletop gradient coil
+    R_coil = 2
+
+    # value for tabletopMRI hf coil
+    hf_B_per_m_current = 2.483E-4 # [T/A] theoretical value
 
     # values for gpa fhdo
     gpa_current_per_volt = 2.5 # gpa fhdo 6A configuration
     max_dac_voltage = 2.5
 
-    max_Hz_per_m = max_dac_voltage * gpa_current_per_volt * B_per_m_per_current * gamma	
-    print('max_B_per_m = {:f} mT/m'.format(max_Hz_per_m/gamma*1e3))
-    print('max_Hz_per_m = {:f} MHz/m'.format(max_Hz_per_m/1E6))
+    # values for red pitaya 
+    hf_max_dac_voltage = 1 # +-
 
-    grad_max = max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
+    # HF-PA
+    hf_PA_gain = 20 # dB
 
-    rf_amp_max = 10 # factor used to normalize RF amplitude, should be max value of system used!
-    tx_warmup = 500 # us
+    grad_max_Hz_per_m = max_dac_voltage * gpa_current_per_volt * grad_B_per_m_per_current * gamma	
+    print('gradient max_B_per_m = {:f} mT/m'.format(grad_max_Hz_per_m/gamma*1e3))	
+    print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
+
+    #hf_max_Hz_per_m = np.sqrt(1/50 * 10**(hf_PA_gain/10) / R_coil) * hf_B_per_m_current * gamma
+    hf_max_Hz_per_m = 4166 # experimental value
+    print(hf_max_Hz_per_m)
+    print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
+
+    grad_max = grad_max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
+    rf_amp_max = hf_max_Hz_per_m # factor used to normalize RF amplitude, should be max value of system used!
+    tx_warmup = 0 # already handled by delay in RF block
     adc_pad = 0 # padding to prevent junk in rx buffer
     ps = PSAssembler(rf_center=lo_freq*1e6,
         # how many Hz the max amplitude of the RF will produce; i.e. smaller causes bigger RF V to compensate
@@ -48,7 +62,7 @@ if __name__ == "__main__":
         tx_warmup=tx_warmup,
         adc_pad=adc_pad,
 		rf_delay_preload=True)
-    tx_arr, grad_arr, cb, params = ps.assemble('tabletop_se_pulseq.seq')
+    tx_arr, grad_arr, cb, params = ps.assemble('tabletop_se_1d_pulseq.seq')
 
     # Temporary hack, until next ocra-pulseq update
     if 'rx_t' not in params:
@@ -64,13 +78,10 @@ if __name__ == "__main__":
         assert_errors=False)
         
     exp.define_instructions(cb)
-    x = np.linspace(0,2*np.pi, 100)
-    ramp_sine = np.sin(2*x)
     exp.add_tx(ps.tx_arr)
     exp.add_grad(ps.grad_arr)
 
     # plt.plot(ps.gr_arr[0]);plt.show()
-
 
     exp.calibrate_gpa_fhdo(max_current = 4,
         num_calibration_points=10,
@@ -101,7 +112,7 @@ if __name__ == "__main__":
     ax2.plot(t_axis, data.real*3.3)
     ax2.set_ylabel('voltage [V]')
     #f_axis = np.linspace(-1/dt*nSamples,1/dt*nSamples,nSamples)
-    nFFT_window = 200
+    nFFT_window = 127
     f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]
     ax3.plot(f_axis,np.abs(np.fft.fftshift(np.fft.fft(data))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]/np.sqrt(nSamples)))
     plt.show()
