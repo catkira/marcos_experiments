@@ -83,7 +83,7 @@ if __name__ == "__main__":
     exp.add_tx(ps.tx_arr)
     exp.add_grad(ps.grad_arr)
 
-    # plt.plot(ps.gr_arr[0]);plt.show()
+    # plt.plot(ps.grad_arr[0]);plt.show()
 
     exp.calibrate_gpa_fhdo(max_current = 4,
         num_calibration_points=10,
