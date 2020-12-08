@@ -13,7 +13,7 @@ from pulseq_assembler import PSAssembler
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.315 # MHz
+    lo_freq = 17.30 # MHz
     tx_t = 1.001 # us
     rx_t = 0.497
     clk_t = 0.007
@@ -45,14 +45,13 @@ if __name__ == "__main__":
 
     #hf_max_Hz_per_m = np.sqrt(1/50 * 10**(hf_PA_gain/10) / R_coil) * hf_B_per_m_current * gamma
     hf_max_Hz_per_m = 4166 # experimental value
-    print(hf_max_Hz_per_m)
     print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
 
     grad_max = grad_max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
     rf_amp_max = hf_max_Hz_per_m # factor used to normalize RF amplitude, should be max value of system used!
     tx_warmup = 0 # already handled by delay in RF block
     adc_pad = 0 # padding to prevent junk in rx buffer
-    grad_pad = 100 # padding to prevent wrong gradient levels at end of block
+    grad_pad = 10 # padding to prevent wrong gradient levels at end of block
     ps = PSAssembler(rf_center=lo_freq*1e6,
         # how many Hz the max amplitude of the RF will produce; i.e. smaller causes bigger RF V to compensate
         rf_amp_max=rf_amp_max,
@@ -63,6 +62,7 @@ if __name__ == "__main__":
         tx_warmup=tx_warmup,
         adc_pad=adc_pad,
         grad_pad=grad_pad,
+        addresses_per_grad_sample=1,
 		rf_delay_preload=True)
     tx_arr, grad_arr, cb, params = ps.assemble('tabletop_se_1d_pulseq.seq')
 
@@ -83,7 +83,7 @@ if __name__ == "__main__":
     exp.add_tx(ps.tx_arr)
     exp.add_grad(ps.grad_arr)
 
-    # plt.plot(ps.grad_arr[0]);plt.show()
+    #plt.plot(ps.grad_arr[0]);plt.show()
 
     exp.calibrate_gpa_fhdo(max_current = 4,
         num_calibration_points=10,

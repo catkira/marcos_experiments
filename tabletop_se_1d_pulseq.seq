@@ -34,8 +34,8 @@ TE [s] 0.01
 # id amplitude rise flat fall delay
 # ..      Hz/m   us   us   us    us
 [TRAP]
- 1  4.94617e+06 150 1200 150   0
- 2  4.26667e+06 130 3000 130 370
+ 1  4.94617e+04 150 1200 150   0
+ 2  4.26667e+04 130 3000 130 370
 
 # Format of ADC events:
 # id num dwell delay freq phase
@@ -47,7 +47,7 @@ TE [s] 0.01
 # id delay (us)
 [DELAYS]
 1 3350
-2 4090
+2 4030
 
 # Sequence Shapes
 [SHAPES]
