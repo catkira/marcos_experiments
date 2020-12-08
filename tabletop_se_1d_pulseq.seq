@@ -47,7 +47,7 @@ TE [s] 0.01
 # id delay (us)
 [DELAYS]
 1 3350
-2 3430
+2 3270
 
 # Sequence Shapes
 [SHAPES]

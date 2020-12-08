@@ -42,8 +42,8 @@ delayTE1 = ceil((TE/2 - (mr.calcDuration(rf90) - rf90.delay)/2 ...
     - mr.calcDuration(gxPre)...
     - (mr.calcDuration(rf180) - rf180.delay)/2)/seq.gradRasterTime)*seq.gradRasterTime;
 delayTE2 = ceil((TE/2 - (mr.calcDuration(rf180) - rf180.delay)/2 ...
-    - (mr.calcDuration(gx)- gx.delay)/2 )/seq.gradRasterTime)*seq.gradRasterTime;
-fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
+    - gx.delay)/seq.gradRasterTime)*seq.gradRasterTime;
+fprintf('delay1: %.3f ms delay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 
 % Loop over phase encodes and define sequence blocks
 for i=1:Ny

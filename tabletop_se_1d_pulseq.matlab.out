@@ -7,9 +7,9 @@ Number of events:
    Gz:        0
    ADC:       1
    Delay:     2
-Sequence duration: 0.013210s
-TE: 0.011035s
-TR: 0.013210s
+Sequence duration: 0.013050s
+TE: 0.010875s
+TR: 0.013050s
 Flip angle: 90.00°
 Flip angle: 180.00°
 Unique k-space positions (a.k.a. columns, rows, etc): 236
