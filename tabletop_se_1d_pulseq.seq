@@ -35,7 +35,7 @@ TE [s] 0.01
 # ..      Hz/m   us   us   us    us
 [TRAP]
  1  4.94617e+06 150 1200 150   0
- 2  4.26667e+06 130 3000 130 370
+ 2  4.26667e+06 130 3000 130   0
 
 # Format of ADC events:
 # id num dwell delay freq phase
@@ -46,7 +46,7 @@ TE [s] 0.01
 # Format of delays:
 # id delay (us)
 [DELAYS]
-1 3350
+1 2850
 2 3270
 
 # Sequence Shapes

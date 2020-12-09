@@ -13,7 +13,7 @@ from pulseq_assembler import PSAssembler
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.30 # MHz
+    lo_freq = 17.31 # MHz
     tx_t = 1.001 # us
     rx_t = 0.497
     clk_t = 0.007
