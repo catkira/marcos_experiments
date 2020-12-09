@@ -13,7 +13,7 @@ from pulseq_assembler import PSAssembler
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.308 # MHz
+    lo_freq = 17.30 # MHz
     tx_t = 1.001 # us
     rx_t = 0.497
     clk_t = 0.007
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     hf_PA_gain = 20 # dB
 
     #grad_max_Hz_per_m = max_dac_voltage * gpa_current_per_volt * grad_B_per_m_per_current * gamma	
-    grad_max_Hz_per_m = 15E6 # experimental value
+    grad_max_Hz_per_m = 10E6 # experimental value
     print('gradient max_B_per_m = {:f} mT/m'.format(grad_max_Hz_per_m/gamma*1e3))	
     print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
 
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     rf_amp_max = hf_max_Hz_per_m # factor used to normalize RF amplitude, should be max value of system used!
     tx_warmup = 0 # already handled by delay in RF block
     adc_pad = 80 # padding to prevent junk in rx buffer
-    grad_pad = 100 # padding to prevent wrong gradient levels at end of block
+    grad_pad = 1 # padding to prevent wrong gradient levels at end of block
     ps = PSAssembler(rf_center=lo_freq*1e6,
         # how many Hz the max amplitude of the RF will produce; i.e. smaller causes bigger RF V to compensate
         rf_amp_max=rf_amp_max,
@@ -63,7 +63,8 @@ if __name__ == "__main__":
         tx_warmup=tx_warmup,
         adc_pad=adc_pad,
         grad_pad=grad_pad,
-        addresses_per_grad_sample=1,
+        fix_grad_length=False,
+        addresses_per_grad_sample=3,
 		rf_delay_preload=True)
     tx_arr, grad_arr, cb, params = ps.assemble('tabletop_se_1d_pulseq.seq')
 
@@ -102,12 +103,17 @@ if __name__ == "__main__":
     for ch in range(num_grad_channels):
         dac_code = exp.ampere_to_dac_code(0)
         dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
+        print(dac_code)
         exp.write_gpa_dac(ch, dac_code)  
 
+    data = data[adc_pad:]
+    nSamples = params['readout_number'] - adc_pad
+
     fig, (ax1, ax2, ax3) = plt.subplots(3)
-    fig.suptitle('Spin Echo [n={:d}, lo_freq={:f} Mhz]'.format(params['readout_number'],lo_freq))
+    Noise = np.abs(np.std(np.real(np.fft.fft(data))[120:140]))
+    SNR=np.max(np.abs(np.fft.fft(data)))/Noise
+    fig.suptitle('Spin Echo [n={:d}, lo_freq={:f} Mhz]\nSNR={:f}'.format(nSamples,lo_freq,SNR))
     dt = params['rx_t']
-    nSamples = params['readout_number']
     t_axis = np.linspace(0, dt * nSamples, nSamples)  # us    
     ax1.plot(t_axis, np.abs(data)*3.3)
     ax1.set_ylabel('voltage [V]')
