@@ -7,15 +7,15 @@ Number of events:
    Gz:        0
    ADC:       1
    Delay:     2
-Sequence duration: 0.013050s
+Sequence duration: 0.013040s
 TE: 0.010000s
-TR: 0.013050s
+TR: 0.013040s
 Flip angle: 90.00°
 Flip angle: 180.00°
 Unique k-space positions (a.k.a. columns, rows, etc): 1
 Block timing check failed! Error listing follows:
-   Block:2 total duration:4851us [ type:delay delay:4851us ]
-   Block:4 total duration:4399us [ type:delay delay:4399us ]
+   Block:2 total duration:4881us [ type:delay delay:4881us ]
+   Block:4 total duration:4419us [ type:delay delay:4419us ]
    Block:5 total duration:2499.84us
 Max. Gradient: 0 Hz/m == 0.00 mT/m
 Max. Gradient: 0 Hz/m == 0.00 mT/m

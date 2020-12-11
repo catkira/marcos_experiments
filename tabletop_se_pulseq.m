@@ -17,8 +17,9 @@ sys = mr.opts('rfDeadTime', round(rfDeadTime/sequencerRasterTime)*sequencerRaste
 seq=mr.Sequence(sys);              % Create a new sequence object
 
 % Create HF pulses
-rf90 = mr.makeBlockPulse(pi/2, 'duration', 0.1e-3, 'sys', sys);
-rf180 = mr.makeBlockPulse(pi, 'duration', 0.2e-3, 'sys',sys);
+rf90duration=0.08e-3
+rf90 = mr.makeBlockPulse(pi/2, 'duration', rf90duration, 'sys', sys);
+rf180 = mr.makeBlockPulse(pi, 'duration', rf90duration*2, 'sys',sys);
 
 % ADC event
 adc = mr.makeAdc(Nx,'Duration',round(samplingDuration/Nx/sequencerRasterTime)*Nx*sequencerRasterTime, ...

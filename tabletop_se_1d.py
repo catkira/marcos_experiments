@@ -13,7 +13,7 @@ from pulseq_assembler import PSAssembler
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.303 # MHz
+    lo_freq = 17.286 # MHz
     tx_t = 1.001 # us
     rx_t = 0.497
     clk_t = 0.007
@@ -45,7 +45,7 @@ if __name__ == "__main__":
     print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
 
     #hf_max_Hz_per_m = np.sqrt(1/50 * 10**(hf_PA_gain/10) / R_coil) * hf_B_per_m_current * gamma
-    hf_max_Hz_per_m = 4166 # experimental value
+    hf_max_Hz_per_m = 5400 # experimental value
     print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
 
     grad_max = grad_max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
@@ -98,8 +98,9 @@ if __name__ == "__main__":
         exp.write_gpa_dac(ch, dac_code)      
 
 
-    data = exp.run() # Comment out this line to avoid running on the hardware
+    data, _ = exp.run() # Comment out this line to avoid running on the hardware
     # set all channels back to 0 A
+
     for ch in range(num_grad_channels):
         dac_code = exp.ampere_to_dac_code(0)
         dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
@@ -110,9 +111,7 @@ if __name__ == "__main__":
     nSamples = params['readout_number'] - adc_pad
 
     fig, (ax1, ax2, ax3) = plt.subplots(3)
-    Noise = np.abs(np.std(np.real(np.fft.fft(data))[int(data.size/2)-3:int(data.size/2)+3]))
-    SNR=np.max(np.abs(np.fft.fft(data)))/Noise
-    fig.suptitle('Spin Echo [n={:d}, lo_freq={:f} Mhz]\nSNR={:f}'.format(nSamples,lo_freq,SNR))
+    fig.suptitle('Spin Echo [n={:d}, lo_freq={:f} Mhz]\n'.format(nSamples,lo_freq))
     dt = params['rx_t']
     t_axis = np.linspace(0, dt * nSamples, nSamples)  # us    
     ax1.plot(t_axis, np.abs(data)*3.3)

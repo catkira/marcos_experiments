@@ -13,7 +13,7 @@ from pulseq_assembler import PSAssembler
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.303 # MHz
+    lo_freq = 17.288 # MHz
     tx_t = 1.001 # us
     rx_t = 0.497
     clk_t = 0.007
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
 
     #hf_max_Hz_per_m = np.sqrt(1/50 * 10**(hf_PA_gain/10) / R_coil) * hf_B_per_m_current * gamma
-    hf_max_Hz_per_m = 4166 # experimental value
+    hf_max_Hz_per_m = 4156 # experimental value
     print(hf_max_Hz_per_m)
     print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
 
@@ -95,7 +95,7 @@ if __name__ == "__main__":
         exp.write_gpa_dac(ch, dac_code)      
 
 
-    data = exp.run() # Comment out this line to avoid running on the hardware
+    data, _ = exp.run() # Comment out this line to avoid running on the hardware
     # set all channels back to 0 A
     for ch in range(num_grad_channels):
         dac_code = exp.ampere_to_dac_code(0)
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     ax2.plot(t_axis, data.real*3.3)
     ax2.set_ylabel('voltage [V]')
     #f_axis = np.linspace(-1/dt*nSamples,1/dt*nSamples,nSamples)
-    nFFT_window = 127
+    #nFFT_window = 127
     #f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]
     #ax3.plot(f_axis,np.abs(np.fft.fftshift(np.fft.fft(data))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]/np.sqrt(nSamples)))
     f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))

@@ -9,7 +9,7 @@ revision 0
 [DEFINITIONS]
 Bandwidth [Hz] 42666.7 
 FOV 0.01 0.01 
-Name se 
+Name se_2d 
 Nx 128 
 TE [s] 0.012 
 
@@ -18,10 +18,10 @@ TE [s] 0.012
 [BLOCKS]
 1  0  1   0   0   0  0  0
 2  1  0   0   0   0  0  0
-3  0  0   1   0   0  0  0
+3  0  0   1   2   0  0  0
 4  0  2   0   0   0  0  0
 5  2  0   0   0   0  0  0
-6  0  0   2   0   0  1  0
+6  0  0   3   0   0  1  0
 
 # Format of RF events:
 # id amplitude mag_id phase_id delay freq phase
@@ -35,7 +35,8 @@ TE [s] 0.012
 # ..      Hz/m   us   us   us    us
 [TRAP]
  1  4.94617e+06 150 1200 150   0
- 2  4.26667e+06 130 3000 130   0
+ 2       884354  30 1440  30   0
+ 3  4.26667e+06 130 3000 130   0
 
 # Format of ADC events:
 # id num dwell delay freq phase
