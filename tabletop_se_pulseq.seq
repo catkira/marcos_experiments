@@ -7,9 +7,9 @@ minor 3
 revision 0
 
 [DEFINITIONS]
-Bandwidth [Hz] 102407 
+Bandwidth [Hz] 51203.3 
 Name se 
-Nx 256 
+Nx 128 
 TE [s] 0.01 
 
 # Format of blocks:
@@ -32,7 +32,7 @@ TE [s] 0.01
 # id num dwell delay freq phase
 # ..  ..    ns    us   Hz   rad
 [ADC]
-1 256 9765 0 0 0
+1 128 19530 0 0 0
 
 # Format of delays:
 # id delay (us)

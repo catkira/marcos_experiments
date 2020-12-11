@@ -13,7 +13,7 @@ from pulseq_assembler import PSAssembler
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.30 # MHz
+    lo_freq = 17.303 # MHz
     tx_t = 1.001 # us
     rx_t = 0.497
     clk_t = 0.007
@@ -51,8 +51,8 @@ if __name__ == "__main__":
     grad_max = grad_max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
     rf_amp_max = hf_max_Hz_per_m # factor used to normalize RF amplitude, should be max value of system used!
     tx_warmup = 0 # already handled by delay in RF block
-    adc_pad = 80 # padding to prevent junk in rx buffer
-    grad_pad = 1 # padding to prevent wrong gradient levels at end of block
+    adc_pad = 85 # padding to prevent junk in rx buffer
+    grad_pad = 2 # padding to prevent wrong gradient levels at end of block
     ps = PSAssembler(rf_center=lo_freq*1e6,
         # how many Hz the max amplitude of the RF will produce; i.e. smaller causes bigger RF V to compensate
         rf_amp_max=rf_amp_max,
@@ -87,7 +87,7 @@ if __name__ == "__main__":
 
     #plt.plot(ps.grad_arr[0]);plt.show()
 
-    exp.calibrate_gpa_fhdo(max_current = 4,
+    exp.calibrate_gpa_fhdo(max_current = 5,
         num_calibration_points=10,
         gpa_current_per_volt=gpa_current_per_volt) 
 
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     nSamples = params['readout_number'] - adc_pad
 
     fig, (ax1, ax2, ax3) = plt.subplots(3)
-    Noise = np.abs(np.std(np.real(np.fft.fft(data))[120:140]))
+    Noise = np.abs(np.std(np.real(np.fft.fft(data))[int(data.size/2)-3:int(data.size/2)+3]))
     SNR=np.max(np.abs(np.fft.fft(data)))/Noise
     fig.suptitle('Spin Echo [n={:d}, lo_freq={:f} Mhz]\nSNR={:f}'.format(nSamples,lo_freq,SNR))
     dt = params['rx_t']

@@ -12,7 +12,7 @@ TE: 0.010000s
 TR: 0.012180s
 Flip angle: 90.00°
 Flip angle: 180.00°
-Unique k-space positions (a.k.a. columns, rows, etc): 256
+Unique k-space positions (a.k.a. columns, rows, etc): 640
 Dimensions: 1
    Spatial resolution: 0.08 mm
 Repetitions/slices/contrasts: 1  range: [1 1]

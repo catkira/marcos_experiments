@@ -13,7 +13,7 @@ from pulseq_assembler import PSAssembler
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.31 # MHz
+    lo_freq = 17.303 # MHz
     tx_t = 1.001 # us
     rx_t = 0.497
     clk_t = 0.007
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     grad_max = grad_max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
     rf_amp_max = hf_max_Hz_per_m # factor used to normalize RF amplitude, should be max value of system used!
     tx_warmup = 0 # already handled by delay in RF block
-    adc_pad = 80 # padding to prevent junk in rx buffer
+    adc_pad = 60 # padding to prevent junk in rx buffer
     ps = PSAssembler(rf_center=lo_freq*1e6,
         # how many Hz the max amplitude of the RF will produce; i.e. smaller causes bigger RF V to compensate
         rf_amp_max=rf_amp_max,
@@ -102,10 +102,13 @@ if __name__ == "__main__":
         dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
         exp.write_gpa_dac(ch, dac_code)  
 
+    data = data[adc_pad:]
+    nSamples = params['readout_number'] - adc_pad
+    Noise = np.abs(np.std(np.real(np.fft.fft(data))[int(data.size/2)-3:int(data.size/2)+3]))
+    SNR=np.max(np.abs(np.fft.fft(data)))/Noise
     fig, (ax1, ax2, ax3) = plt.subplots(3)
-    fig.suptitle('Spin Echo [n={:d}, lo_freq={:f} Mhz]'.format(params['readout_number'],lo_freq))
+    fig.suptitle('Spin Echo [n={:d}, lo_freq={:f} Mhz]\nSNR={:f}'.format(nSamples,lo_freq,SNR))
     dt = params['rx_t']
-    nSamples = params['readout_number']
     t_axis = np.linspace(0, dt * nSamples, nSamples)  # us    
     ax1.plot(t_axis, np.abs(data)*3.3)
     ax1.set_ylabel('voltage [V]')
@@ -114,8 +117,10 @@ if __name__ == "__main__":
     ax2.set_ylabel('voltage [V]')
     #f_axis = np.linspace(-1/dt*nSamples,1/dt*nSamples,nSamples)
     nFFT_window = 127
-    f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]
-    ax3.plot(f_axis,np.abs(np.fft.fftshift(np.fft.fft(data))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]/np.sqrt(nSamples)))
+    #f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]
+    #ax3.plot(f_axis,np.abs(np.fft.fftshift(np.fft.fft(data))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]/np.sqrt(nSamples)))
+    f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))
+    ax3.plot(f_axis,np.abs(np.fft.fftshift(np.fft.fft(data))/np.sqrt(nSamples)))
     plt.show()
     fig.tight_layout()
 
