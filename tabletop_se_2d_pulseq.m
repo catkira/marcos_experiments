@@ -4,7 +4,7 @@ clear
 gamma = 42.57E6;
 sequencerRasterTime = 7E-9; % make sure all times are a multiple of sequencer raster time
 
-fov=10e-3; Nx=127; Ny=127;       % Define FOV and resolution
+fov=10e-3; Nx=63; Ny=63;       % Define FOV and resolution
 TE=12e-3;
 TR=5; % not used               
 

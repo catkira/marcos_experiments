@@ -102,7 +102,7 @@ if __name__ == "__main__":
         exp.write_gpa_dac(ch, dac_code)      
 
     phaseOversamplingFactor = 1.3
-    num_phase_steps = int(20 * phaseOversamplingFactor) # should be odd number
+    num_phase_steps = int(127 * phaseOversamplingFactor) # should be odd number
     TR = 5 # not really TR, its TR - sequence time
 
     nSamples = params['readout_number'] - adc_pad
