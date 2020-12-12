@@ -8,22 +8,24 @@ fov=10e-3; Nx=128; Ny=1;       % Define FOV and resolution
 TE=12e-3;
 TR=3;                 
 
-gxFlatTime = 3e-3;
+gxFlatTime = 4e-3;
 
 % set system limits
 maxGrad = 125; % [mT/m], value for tabletop coils and gpa fhdo
 rfDeadTime = 500e-6; % [us], minicircuits PA needs 500 us to turn on
 adcDeadTime = 0;
 sys = mr.opts('MaxGrad', maxGrad, 'GradUnit', 'mT/m', ...
-    'MaxSlew', 800, 'SlewUnit', 'T/m/s', ...
+    'MaxSlew', 300, 'SlewUnit', 'T/m/s', ...
     'rfDeadTime', rfDeadTime, 'adcDeadTime', adcDeadTime, ...
-    'rfRasterTime', 1.003e-6, 'gradRasterTime',10e-6);
+    'rfRasterTime', 1.003e-6, 'gradRasterTime',10.003e-6);
 seq=mr.Sequence(sys);              % Create a new sequence object
 
 % Create HF pulses, 500 us delay for tx gate
-rf90duration=0.06e-3;
-rf90 = mr.makeBlockPulse(pi/2, 'duration', rf90duration, 'sys', sys);
-rf180 = mr.makeBlockPulse(pi, 'duration', rf90duration*2, 'sys',sys);
+rf90duration=0.08e-3;
+rf90 = mr.makeBlockPulse(pi/2, 'duration', rf90duration,...
+    'PhaseOffset', 0, 'sys', sys);
+rf180 = mr.makeBlockPulse(pi, 'duration', rf90duration*2,...
+    'PhaseOffset', pi/2, 'sys',sys);
 
 % Define other gradients and ADC events
 deltak=1/fov;

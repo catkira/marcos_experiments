@@ -10,16 +10,17 @@ import time
 
 import external
 import experiment as ex
+import os
 from pulseq_assembler import PSAssembler
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.286 # MHz
-    tx_t = 1.001 # us
+    lo_freq = 17.295 # MHz
+    tx_t = 0.497 # us
     rx_t = 0.497
     clk_t = 0.007
     num_grad_channels = 3
-    grad_interval = 10.003 # us between [num_grad_channels] channel updates
+    grad_interval = 5.001 # us between [num_grad_channels] channel updates
 
     gamma = 42570000 # Hz/T
 
@@ -41,19 +42,19 @@ if __name__ == "__main__":
     hf_PA_gain = 20 # dB
 
     #grad_max_Hz_per_m = max_dac_voltage * gpa_current_per_volt * grad_B_per_m_per_current * gamma	
-    grad_max_Hz_per_m = 10E6 # experimental value
+    grad_max_Hz_per_m = 13E6 # experimental value
     print('gradient max_B_per_m = {:f} mT/m'.format(grad_max_Hz_per_m/gamma*1e3))	
     print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
 
     #hf_max_Hz_per_m = np.sqrt(1/50 * 10**(hf_PA_gain/10) / R_coil) * hf_B_per_m_current * gamma
-    hf_max_Hz_per_m = 5400 # experimental value
+    hf_max_Hz_per_m = 4200 # experimental value
     print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
 
     grad_max = grad_max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
     rf_amp_max = hf_max_Hz_per_m # factor used to normalize RF amplitude, should be max value of system used!
     tx_warmup = 0 # already handled by delay in RF block
     adc_pad = 85 # padding to prevent junk in rx buffer
-    grad_pad = 2 # padding to prevent wrong gradient levels at end of block
+    grad_pad = 1 # padding to prevent wrong gradient levels at end of block
     ps = PSAssembler(rf_center=lo_freq*1e6,
         # how many Hz the max amplitude of the RF will produce; i.e. smaller causes bigger RF V to compensate
         rf_amp_max=rf_amp_max,
@@ -68,6 +69,8 @@ if __name__ == "__main__":
         addresses_per_grad_sample=3,
 		rf_delay_preload=True)
     tx_arr, grad_arr, cb, params = ps.assemble('tabletop_se_2d_pulseq.seq')
+
+    #ps.sequence()
 
     # Temporary hack, until next ocra-pulseq update
     if 'rx_t' not in params:
@@ -98,7 +101,8 @@ if __name__ == "__main__":
         dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
         exp.write_gpa_dac(ch, dac_code)      
 
-    num_phase_steps = 127 # should be odd number
+    phaseOversamplingFactor = 1.3
+    num_phase_steps = int(63 * phaseOversamplingFactor) # should be odd number
     TR = 5 # not really TR, its TR - sequence time
 
     nSamples = params['readout_number'] - adc_pad
@@ -113,6 +117,7 @@ if __name__ == "__main__":
 
         worked = False        
         while worked == False:
+            time.sleep(TR)
             data, status = exp.run()
             if not 'warnings' in status:
                 worked = True
@@ -144,6 +149,14 @@ if __name__ == "__main__":
         data2d[k,:] = data
 
         time.sleep(TR)
+
+    from datetime import datetime
+    now = datetime.now()
+    current_time = now.strftime("%y-%d-%m %H_%M_%S")
+    filename = f"data2d ben Nx {nSamples} Ny {num_phase_steps} TR {TR} {current_time}.npy"
+    if os.path.exists(filename):
+        os.remove(filename)
+    np.save(filename,data2d)
     plt.figure(1)
     plt.subplot(1, 3, 1)
     plt.imshow(10*np.log(np.abs(data2d)),aspect='auto',interpolation='none')
@@ -151,7 +164,7 @@ if __name__ == "__main__":
     plt.imshow(np.angle(data2d),aspect='auto',interpolation='none')
     plt.subplot(1, 3, 3)
     img = np.abs(np.fft.fftshift(np.fft.fft2(np.fft.fftshift(data2d))))
-    plt.imshow(img, aspect='auto',cmap='gray')
+    plt.imshow(img, aspect='auto',cmap='gray',interpolation='none')
     plt.show()
     
     # st()    
