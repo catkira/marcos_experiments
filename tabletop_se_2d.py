@@ -70,6 +70,8 @@ if __name__ == "__main__":
 		rf_delay_preload=True)
     tx_arr, grad_arr, cb, params = ps.assemble('tabletop_se_2d_pulseq.seq')
 
+    ps.sequence()
+
     # Temporary hack, until next ocra-pulseq update
     if 'rx_t' not in params:
         params['rx_t'] = rx_t    

@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-file0d = 'data ben Nx 128 20-12-12 16_07_20.npz'
-file1d = 'data1d ben Nx 256 20-12-12 16_05_28.npz'
+file0d = 'data ben Nx 128 20-12-12 16_26_56.npz'
+file1d = 'data1d ben Nx 256 20-12-12 16_24_31.npz'
 file2d = 'data2d ben Nx 166 Ny 66 TR 5 20-12-12 15_47_17.npy'
 
 def plot0d():
