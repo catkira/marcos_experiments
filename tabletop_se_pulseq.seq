@@ -10,7 +10,7 @@ revision 0
 Bandwidth [Hz] 51203.3 
 Name se 
 Nx 128 
-TE [s] 0.01 
+TE [s] 0.012 
 
 # Format of blocks:
 #  #  D RF  GX  GY  GZ ADC EXT
@@ -37,8 +37,8 @@ TE [s] 0.01
 # Format of delays:
 # id delay (us)
 [DELAYS]
-1 4881
-2 4419
+1 5881
+2 5419
 
 # Sequence Shapes
 [SHAPES]

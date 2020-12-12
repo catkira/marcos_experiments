@@ -7,22 +7,24 @@ Number of events:
    Gz:        0
    ADC:       1
    Delay:     2
-Sequence duration: 0.014180s
-TE: 0.012000s
-TR: 0.014180s
+Sequence duration: 0.014802s
+TE: 0.012002s
+TR: 0.014802s
 Flip angle: 90.00°
 Flip angle: 180.00°
-Unique k-space positions (a.k.a. columns, rows, etc): 128
+Unique k-space positions (a.k.a. columns, rows, etc): 256
 Dimensions: 1
    Spatial resolution: 0.08 mm
 Repetitions/slices/contrasts: 1  range: [1 1]
 Cartesian encoding trajectory detected
-Block timing check passed successfully
-Max. Gradient: 4946170 Hz/m == 116.17 mT/m
+Block timing check failed! Error listing follows:
+   Block:2 total duration:3381us [ type:delay delay:3381us ]
+   Block:5 total duration:3661us [ type:delay delay:3661us ]
+Max. Gradient: 4057450 Hz/m == 95.30 mT/m
 Max. Gradient: 0 Hz/m == 0.00 mT/m
 Max. Gradient: 0 Hz/m == 0.00 mT/m
-Max. Slew Rate: 3.29745e+10 Hz/m/s == 774.48 T/m/s
+Max. Slew Rate: 1.26795e+10 Hz/m/s == 297.81 T/m/s
 Max. Slew Rate: 0 Hz/m/s == 0.00 T/m/s
 Max. Slew Rate: 0 Hz/m/s == 0.00 T/m/s
-Max. Absolute Gradient: 4946170 Hz/m == 116.17 mT/m
-Max. Absolute Slew Rate: 3.29745e+10 Hz/m/s == 774.48 T/m/s
+Max. Absolute Gradient: 4057450 Hz/m == 95.30 mT/m
+Max. Absolute Slew Rate: 1.26795e+10 Hz/m/s == 297.81 T/m/s

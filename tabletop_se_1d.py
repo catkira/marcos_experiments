@@ -9,12 +9,13 @@ import pdb
 
 import external
 import experiment as ex
+import os
 from pulseq_assembler import PSAssembler
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.286 # MHz
-    tx_t = 1.001 # us
+    lo_freq = 17.295 # MHz
+    tx_t = 1.003 # us
     rx_t = 0.497
     clk_t = 0.007
     num_grad_channels = 3
@@ -40,12 +41,12 @@ if __name__ == "__main__":
     hf_PA_gain = 20 # dB
 
     #grad_max_Hz_per_m = max_dac_voltage * gpa_current_per_volt * grad_B_per_m_per_current * gamma	
-    grad_max_Hz_per_m = 10E6 # experimental value
+    grad_max_Hz_per_m = 12E6 # experimental value
     print('gradient max_B_per_m = {:f} mT/m'.format(grad_max_Hz_per_m/gamma*1e3))	
     print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
 
     #hf_max_Hz_per_m = np.sqrt(1/50 * 10**(hf_PA_gain/10) / R_coil) * hf_B_per_m_current * gamma
-    hf_max_Hz_per_m = 5400 # experimental value
+    hf_max_Hz_per_m = 4200 # experimental value
     print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
 
     grad_max = grad_max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
@@ -109,10 +110,18 @@ if __name__ == "__main__":
 
     data = data[adc_pad:]
     nSamples = params['readout_number'] - adc_pad
+    dt = params['rx_t']
+    
+    from datetime import datetime
+    now = datetime.now()
+    current_time = now.strftime("%y-%d-%m %H_%M_%S")
+    filename = f"data1d ben Nx {nSamples} {current_time}.npz"
+    if os.path.exists(filename):
+        os.remove(filename)
+    np.savez(filename,data=data,dt=dt,nSamples=int(nSamples),lo_freq=lo_freq,data1d=data)
 
     fig, (ax1, ax2, ax3) = plt.subplots(3)
     fig.suptitle('Spin Echo [n={:d}, lo_freq={:f} Mhz]\n'.format(nSamples,lo_freq))
-    dt = params['rx_t']
     t_axis = np.linspace(0, dt * nSamples, nSamples)  # us    
     ax1.plot(t_axis, np.abs(data)*3.3)
     ax1.set_ylabel('voltage [V]')

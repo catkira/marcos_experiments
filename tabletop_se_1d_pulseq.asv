@@ -17,15 +17,14 @@ adcDeadTime = 0;
 sys = mr.opts('MaxGrad', maxGrad, 'GradUnit', 'mT/m', ...
     'MaxSlew', 300, 'SlewUnit', 'T/m/s', ...
     'rfDeadTime', rfDeadTime, 'adcDeadTime', adcDeadTime, ...
-    'rfRasterTime', 1.003e-6, 'gradRasterTime',10.003e-6);
+    'rfRasterTime', 1.003e-6, 'gradRasterTime',10e-6);
 seq=mr.Sequence(sys);              % Create a new sequence object
 
 % Create HF pulses, 500 us delay for tx gate
-rf90duration=0.08e-3;
+rf90duration=0.06e-3;
 rf90 = mr.makeBlockPulse(pi/2, 'duration', rf90duration,...
     'PhaseOffset', 0, 'sys', sys);
-rf180 = mr.makeBlockPulse(pi, 'duration', rf90duration*2,...
-    'PhaseOffset', pi/2, 'sys',sys);
+rf180 = mr.makeBlockPulse(pi, 'duration', rf90duration*2, 'sys',sys);
 
 % Define other gradients and ADC events
 deltak=1/fov;
@@ -34,7 +33,7 @@ fprintf('Sequence bandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov);
 fprintf('Pixelbandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov/Nx);
 gx.delay = 0; % assumes rfDeadTime > gx.riseTime !!
 gxPre = mr.makeTrapezoid('x','Area',gx.area/2,'Duration',gx.flatTime/2,'sys',sys);
-oversamplingFactor = 2;
+oversamplingFactor = 1;
 adc = mr.makeAdc(oversamplingFactor*Nx,'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
 
 % Calculate timing
