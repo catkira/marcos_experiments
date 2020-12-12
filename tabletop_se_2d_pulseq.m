@@ -4,7 +4,7 @@ clear
 gamma = 42.57E6;
 sequencerRasterTime = 7E-9; % make sure all times are a multiple of sequencer raster time
 
-fov=10e-3; Nx=128; Ny=1;       % Define FOV and resolution
+fov=10e-3; Nx=128; Ny=128;       % Define FOV and resolution
 TE=12e-3;
 TR=5; % not used               
 
@@ -27,13 +27,15 @@ rf180 = mr.makeBlockPulse(pi, 'duration', rf90duration*2,'sys',sys);
 
 % Define other gradients and ADC events
 deltak=1/fov;
-gx = mr.makeTrapezoid('x','FlatArea',Nx*deltak,'FlatTime',gxFlatTime,'sys',sys);
+kWidth = Nx*deltak;
+kHeight = Ny*deltak;
+gx = mr.makeTrapezoid('x','FlatArea',kWidth,'FlatTime',gxFlatTime,'sys',sys);
 fprintf('Sequence bandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov);
 fprintf('Pixelbandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov/Nx);
 gx.delay = 0; % assumes rfDeadTime > gx.riseTime !!
-gxPre = mr.makeTrapezoid('x','Area',gx.area/2,'Duration',gx.flatTime/2,'sys',sys);
+gxPre = mr.makeTrapezoid('x','Area',kWidth/2,'Duration',gx.flatTime/2,'sys',sys);
 gy_area = 1.3e+03; % TODO: calculate this value
-% gy_area = 127*deltak/2; % TODO: this value doesnt work, why?
+% gy_area = kHeight/2; % TODO: this value doesnt work, why?
 gy = mr.makeTrapezoid('y','Area',gy_area,'Duration',gx.flatTime/2,'sys',sys);
 oversamplingFactor = 1;
 adc = mr.makeAdc(oversamplingFactor*Nx,'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
@@ -46,17 +48,13 @@ delayTE2 = ceil((TE/2 - (mr.calcDuration(rf180) - rf180.delay)/2 ...
     - mr.calcDuration(gx)/2 )/seq.gradRasterTime)*seq.gradRasterTime;
 fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 
-% Loop over phase encodes and define sequence blocks
-for i=1:Ny
-    for c=1:length(TE)    
-        seq.addBlock(rf90);
-        seq.addBlock(mr.makeDelay(delayTE1(c)));
-        seq.addBlock(gxPre,gy);
-        seq.addBlock(rf180);
-        seq.addBlock(mr.makeDelay(delayTE2(c)));
-        seq.addBlock(gx,adc);
-    end
-end
+% looping over phase is done in python file
+seq.addBlock(rf90);
+seq.addBlock(mr.makeDelay(delayTE1));
+seq.addBlock(gxPre,gy);
+seq.addBlock(rf180);
+seq.addBlock(mr.makeDelay(delayTE2));
+seq.addBlock(gx,adc);
 
 
 %% prepare sequence export
