@@ -7,21 +7,21 @@ Number of events:
    Gz:        0
    ADC:       1
    Delay:     2
-Sequence duration: 0.014802s
-TE: 0.012002s
-TR: 0.014802s
+Sequence duration: 0.014792s
+TE: 0.011990s
+TR: 0.014792s
 Flip angle: 90.00°
 Flip angle: 180.00°
-Unique k-space positions (a.k.a. columns, rows, etc): 166
+Unique k-space positions (a.k.a. columns, rows, etc): 165
 Unique k-space positions (a.k.a. columns, rows, etc): 1
 Block timing check failed! Error listing follows:
    Block:2 total duration:3381us [ type:delay delay:3381us ]
-   Block:5 total duration:3661us [ type:delay delay:3661us ]
-Max. Gradient: 4057450 Hz/m == 95.30 mT/m
-Max. Gradient: 1349230 Hz/m == 31.69 mT/m
+   Block:5 total duration:3671us [ type:delay delay:3671us ]
+Max. Gradient: 4016300 Hz/m == 94.33 mT/m
+Max. Gradient: 3735490 Hz/m == 87.74 mT/m
 Max. Gradient: 0 Hz/m == 0.00 mT/m
-Max. Slew Rate: 1.26795e+10 Hz/m/s == 297.81 T/m/s
-Max. Slew Rate: 1.22657e+10 Hz/m/s == 288.09 T/m/s
+Max. Slew Rate: 1.27e+10 Hz/m/s == 298.29 T/m/s
+Max. Slew Rate: 1.24516e+10 Hz/m/s == 292.46 T/m/s
 Max. Slew Rate: 0 Hz/m/s == 0.00 T/m/s
-Max. Absolute Gradient: 4275900 Hz/m == 100.43 mT/m
-Max. Absolute Slew Rate: 1.76414e+10 Hz/m/s == 414.35 T/m/s
+Max. Absolute Gradient: 5484939 Hz/m == 128.83 mT/m
+Max. Absolute Slew Rate: 1.76796e+10 Hz/m/s == 415.25 T/m/s

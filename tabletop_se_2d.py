@@ -15,12 +15,12 @@ from pulseq_assembler import PSAssembler
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.300 # MHz
-    tx_t = 1.001 # us
+    lo_freq = 17.295 # MHz
+    tx_t = 0.497 # us
     rx_t = 0.497
     clk_t = 0.007
     num_grad_channels = 3
-    grad_interval = 10.003 # us between [num_grad_channels] channel updates
+    grad_interval = 5.001 # us between [num_grad_channels] channel updates
 
     gamma = 42570000 # Hz/T
 
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     hf_PA_gain = 20 # dB
 
     #grad_max_Hz_per_m = max_dac_voltage * gpa_current_per_volt * grad_B_per_m_per_current * gamma	
-    grad_max_Hz_per_m = 10E6 # experimental value
+    grad_max_Hz_per_m = 13E6 # experimental value
     print('gradient max_B_per_m = {:f} mT/m'.format(grad_max_Hz_per_m/gamma*1e3))	
     print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
 
@@ -70,7 +70,7 @@ if __name__ == "__main__":
 		rf_delay_preload=True)
     tx_arr, grad_arr, cb, params = ps.assemble('tabletop_se_2d_pulseq.seq')
 
-    ps.sequence()
+    #ps.sequence()
 
     # Temporary hack, until next ocra-pulseq update
     if 'rx_t' not in params:
@@ -102,7 +102,7 @@ if __name__ == "__main__":
         exp.write_gpa_dac(ch, dac_code)      
 
     phaseOversamplingFactor = 1.3
-    num_phase_steps = int(51 * phaseOversamplingFactor) # should be odd number
+    num_phase_steps = int(20 * phaseOversamplingFactor) # should be odd number
     TR = 5 # not really TR, its TR - sequence time
 
     nSamples = params['readout_number'] - adc_pad
@@ -117,6 +117,7 @@ if __name__ == "__main__":
 
         worked = False        
         while worked == False:
+            time.sleep(TR)
             data, status = exp.run()
             if not 'warnings' in status:
                 worked = True

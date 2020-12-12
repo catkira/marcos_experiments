@@ -14,7 +14,7 @@ from pulseq_assembler import PSAssembler
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.298 # MHz
+    lo_freq = 17.295 # MHz
     tx_t = 1.003 # us
     rx_t = 0.497
     clk_t = 0.007
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     hf_PA_gain = 20 # dB
 
     #grad_max_Hz_per_m = max_dac_voltage * gpa_current_per_volt * grad_B_per_m_per_current * gamma	
-    grad_max_Hz_per_m = 12E6 # experimental value
+    grad_max_Hz_per_m = 13E6 # experimental value
     print('gradient max_B_per_m = {:f} mT/m'.format(grad_max_Hz_per_m/gamma*1e3))	
     print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
 

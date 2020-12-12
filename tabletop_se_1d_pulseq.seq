@@ -7,7 +7,7 @@ minor 3
 revision 0
 
 [DEFINITIONS]
-Bandwidth [Hz] 64000 
+Bandwidth [Hz] 32000 
 FOV 0.01 0.01 
 Name se 
 Nx 128 
@@ -41,7 +41,7 @@ TE [s] 0.012
 # id num dwell delay freq phase
 # ..  ..    ns    us   Hz   rad
 [ADC]
-1 256 15625 260 0 0
+1 128 31250 260 0 0
 
 # Format of delays:
 # id delay (us)
