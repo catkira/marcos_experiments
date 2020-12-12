@@ -34,7 +34,7 @@ TE [s] 0.012
 # id amplitude rise flat fall delay
 # ..      Hz/m   us   us   us    us
 [TRAP]
- 1  4.70588e+06 140 1220 140   0
+ 1  4.94617e+06 150 1200 150   0
  2       884354  30 1440  30   0
  3  4.26667e+06 130 3000 130   0
 

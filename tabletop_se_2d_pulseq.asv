@@ -32,8 +32,8 @@ fprintf('Sequence bandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov);
 fprintf('Pixelbandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov/Nx);
 gx.delay = 0; % assumes rfDeadTime > gx.riseTime !!
 gxPre = mr.makeTrapezoid('x','Area',gx.area/2,'Duration',gx.flatTime/2,'sys',sys);
-gy_area = 1.3e+03; % TODO: calculate this value
-% gy_area = 127*deltak/2; % TODO: this value doesnt work, why?
+%gy_area = 1.3e+03; % TODO: calculate this value
+% gy_area = 127*deltak/2; % TODO: this value doesnt wor
 gy = mr.makeTrapezoid('y','Area',gy_area,'Duration',gx.flatTime/2,'sys',sys);
 oversamplingFactor = 1;
 adc = mr.makeAdc(oversamplingFactor*Nx,'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
