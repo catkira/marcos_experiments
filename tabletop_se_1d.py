@@ -16,7 +16,6 @@ st = pdb.set_trace
 if __name__ == "__main__":
     lo_freq = 17.295 # MHz
     tx_t = 1.003 # us
-    rx_t = 0.497
     clk_t = 0.007
     num_grad_channels = 3
     grad_interval = 10.003 # us between [num_grad_channels] channel updates
@@ -64,14 +63,9 @@ if __name__ == "__main__":
         tx_warmup=tx_warmup,
         adc_pad=adc_pad,
         grad_pad=grad_pad,
-        fix_grad_length=False,
         addresses_per_grad_sample=3,
 		rf_delay_preload=True)
     tx_arr, grad_arr, cb, params = ps.assemble('tabletop_se_1d_pulseq.seq')
-
-    # Temporary hack, until next ocra-pulseq update
-    if 'rx_t' not in params:
-        params['rx_t'] = rx_t    
 
     exp = ex.Experiment(samples=params['readout_number'], 
         lo_freq=lo_freq,

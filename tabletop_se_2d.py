@@ -17,7 +17,6 @@ st = pdb.set_trace
 if __name__ == "__main__":
     lo_freq = 17.295 # MHz
     tx_t = 0.497 # us
-    rx_t = 0.497
     clk_t = 0.007
     num_grad_channels = 3
     grad_interval = 5.001 # us between [num_grad_channels] channel updates
@@ -65,16 +64,14 @@ if __name__ == "__main__":
         tx_warmup=tx_warmup,
         adc_pad=adc_pad,
         grad_pad=grad_pad,
-        fix_grad_length=False,
         addresses_per_grad_sample=3,
 		rf_delay_preload=True)
     tx_arr, grad_arr, cb, params = ps.assemble('tabletop_se_2d_pulseq.seq')
 
-    #ps.sequence()
-
-    # Temporary hack, until next ocra-pulseq update
-    if 'rx_t' not in params:
-        params['rx_t'] = rx_t    
+    TR = params['TR']
+    Nx = params['Nx']
+    Ny = params['Ny']
+    delayTR = params['delayTR']
 
     exp = ex.Experiment(samples=params['readout_number'], 
         lo_freq=lo_freq,
@@ -101,14 +98,10 @@ if __name__ == "__main__":
         dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
         exp.write_gpa_dac(ch, dac_code)      
 
-    phaseOversamplingFactor = 1.3
-    num_phase_steps = int(63 * phaseOversamplingFactor) # should be odd number
-    TR = 5 # not really TR, its TR - sequence time
-
     nSamples = params['readout_number'] - adc_pad
-    data2d = np.zeros((num_phase_steps,nSamples),dtype=np.complex64)
+    data2d = np.zeros((Ny,nSamples),dtype=np.complex64)
     import copy as cp
-    for k, phase_factor in enumerate(np.linspace(-1,1,num_phase_steps)):
+    for k, phase_factor in enumerate(np.linspace(-1,1,Ny)):
         print('phase step {:d}\n'.format(k))
         local_grad_arr = cp.deepcopy(ps.grad_arr)
         local_grad_arr[1] *= phase_factor
@@ -148,12 +141,12 @@ if __name__ == "__main__":
             fig.tight_layout()
         data2d[k,:] = data
 
-        time.sleep(TR)
+        time.sleep(delayTR)
 
     from datetime import datetime
     now = datetime.now()
     current_time = now.strftime("%y-%d-%m %H_%M_%S")
-    filename = f"data2d ben Nx {nSamples} Ny {num_phase_steps} TR {TR} {current_time}.npy"
+    filename = f"data2d ben Nx {nSamples} Ny {Ny} TR {TR} {current_time}.npy"
     if os.path.exists(filename):
         os.remove(filename)
     np.save(filename,data2d)

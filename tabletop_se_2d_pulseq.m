@@ -5,8 +5,9 @@ gamma = 42.57E6;
 sequencerRasterTime = 7E-9; % make sure all times are a multiple of sequencer raster time
 
 fov=10e-3; Nx=63; Ny=63;       % Define FOV and resolution
-TE=12e-3;
-TR=5; % not used               
+TE=12e-3; % [s]
+TR=5; % [s]     
+oversamplingFactor = 1.3;
 
 gxFlatTime = 4e-3;
 
@@ -40,7 +41,7 @@ gxPre = mr.makeTrapezoid('x','Area',gx.area/2,'Duration',gx.flatTime/2,'sys',sys
 %gy_area = 1.3e+03; % TODO: calculate this value
 gy_area = kHeight/2; % TODO: this value doesnt work, why?
 gy = mr.makeTrapezoid('y','Area',gy_area,'Duration',gx.flatTime/2,'sys',sys);
-oversamplingFactor = 1.3;
+Ny = Ny * oversamplingFactor;
 adc = mr.makeAdc(round(oversamplingFactor*Nx),'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
 
 % Calculate timing
@@ -49,6 +50,7 @@ delayTE1 = ceil((TE/2 - (mr.calcDuration(rf90)-rf90.delay)/2 ...
     - rf180.delay - (mr.calcDuration(rf180)-rf180.delay)/2)/seq.gradRasterTime)*seq.gradRasterTime;
 delayTE2 = ceil((TE/2 - (mr.calcDuration(rf180) - rf180.delay)/2 ...
     - mr.calcDuration(gx)/2 )/seq.gradRasterTime)*seq.gradRasterTime;
+delayTR = TR - TE -rf90.delay -mr.calcDuration(rf90)/2 - mr.calcDuration(gx)/2;
 fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 
 % Phase looping is done in python script
@@ -65,6 +67,7 @@ seq.setDefinition('Name', 'se_2d');
 seq.setDefinition('FOV', [fov fov]);
 seq.setDefinition('TE [s]', TE);
 seq.setDefinition('TR', TR);
+seq.setDefinition('DelayTR', delayTR);
 seq.setDefinition('Nx', Nx);
 seq.setDefinition('Ny', Ny);
 seq.setDefinition('Bandwidth [Hz]', 1/adc.dwell);
