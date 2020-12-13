@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
         worked = False        
         while worked == False:
-            time.sleep(TR)
+            time.sleep(delayTR)
             data, status = exp.run()
             if not 'warnings' in status:
                 worked = True
