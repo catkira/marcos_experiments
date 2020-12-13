@@ -141,8 +141,9 @@ if __name__ == "__main__":
             fig.tight_layout()
         data2d[k,:] = data
         if True:
-            plt.figure(2)
             if k == 0:
+                plt.figure(1)
+                plt.subplot(1, 3, 1)
                 im = plt.imshow(10*np.log(np.abs(data2d)),aspect='auto',interpolation='none')
             else:
                 im.set_data(10*np.log(np.abs(data2d)))
