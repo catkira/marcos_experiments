@@ -15,7 +15,7 @@ from pulseq_assembler import PSAssembler
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.295 # MHz
+    lo_freq = 17.304 # MHz
     tx_t = 0.497 # us
     clk_t = 0.007
     num_grad_channels = 3
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     hf_PA_gain = 20 # dB
 
     #grad_max_Hz_per_m = max_dac_voltage * gpa_current_per_volt * grad_B_per_m_per_current * gamma	
-    grad_max_Hz_per_m = 13E6 # experimental value
+    grad_max_Hz_per_m = 15E6 # experimental value
     print('gradient max_B_per_m = {:f} mT/m'.format(grad_max_Hz_per_m/gamma*1e3))	
     print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
 
@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
     TR = params['TR']
     Nx = params['Nx']
-    Ny = params['Ny']
+    Ny = int(params['Ny'])
     delayTR = params['delayTR']
 
     exp = ex.Experiment(samples=params['readout_number'], 
@@ -144,9 +144,13 @@ if __name__ == "__main__":
             if k == 0:
                 plt.figure(1)
                 plt.subplot(1, 3, 1)
-                im = plt.imshow(10*np.log(np.abs(data2d)),aspect='auto',interpolation='none')
+                im = plt.imshow(10*np.log(np.abs(data2d)),aspect='auto',interpolation='none', origin='lower')
+                plt.ion()
+                plt.show()
+                plt.pause(0.001)
             else:
                 im.set_data(10*np.log(np.abs(data2d)))
+                plt.pause(0.001)
 
         time.sleep(delayTR)
 
@@ -157,9 +161,11 @@ if __name__ == "__main__":
     if os.path.exists(filename):
         os.remove(filename)
     np.save(filename,data2d)
+    plt.close()
+    plt.ioff()
     plt.figure(1)
     plt.subplot(1, 3, 1)
-    plt.imshow(10*np.log(np.abs(data2d)),aspect='auto',interpolation='none')
+    plt.imshow(10*np.log(np.abs(data2d)),aspect='auto',interpolation='none', origin='lower')
     plt.subplot(1, 3, 2)
     plt.imshow(np.angle(data2d),aspect='auto',interpolation='none')
     plt.subplot(1, 3, 3)

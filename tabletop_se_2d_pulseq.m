@@ -4,21 +4,21 @@ clear
 gamma = 42.57E6;
 sequencerRasterTime = 7E-9; % make sure all times are a multiple of sequencer raster time
 
-fov=10e-3; Nx=63; Ny=63;       % Define FOV and resolution
+fov=10e-3; Nx=200; Ny=63;       % Define FOV and resolution
 TE=12e-3; % [s]
 TR=5; % [s]     
-oversamplingFactor = 1.3;
+oversamplingFactor = 1;
 
 gxFlatTime = 4e-3;
 
 % set system limits
-maxGrad = 125; % [mT/m], value for tabletop coils and gpa fhdo
+maxGrad = 200; % [mT/m], value for tabletop coils and gpa fhdo
 rfDeadTime = 500e-6; % [us], minicircuits PA needs 500 us to turn on
 adcDeadTime = 0;
 sys = mr.opts('MaxGrad', maxGrad, 'GradUnit', 'mT/m', ...
     'MaxSlew', 300, 'SlewUnit', 'T/m/s', ...
     'rfDeadTime', rfDeadTime, 'adcDeadTime', adcDeadTime, ...
-    'rfRasterTime', 1.003e-6, 'gradRasterTime',10.003e-6); % TODO: try shorter gradRasterTime
+    'rfRasterTime', 1.003e-6, 'gradRasterTime',2.003e-6); % TODO: try shorter gradRasterTime
 seq=mr.Sequence(sys);              % Create a new sequence object
 
 % Create HF pulses, 500 us delay for tx gate
@@ -38,10 +38,9 @@ fprintf('Sequence bandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov);
 fprintf('Pixelbandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov/Nx);
 gx.delay = 0; % assumes rfDeadTime > gx.riseTime !!
 gxPre = mr.makeTrapezoid('x','Area',gx.area/2,'Duration',gx.flatTime/2,'sys',sys);
-%gy_area = 1.3e+03; % TODO: calculate this value
-gy_area = kHeight/2; % TODO: this value doesnt work, why?
+gy_area = kHeight/2;
 gy = mr.makeTrapezoid('y','Area',gy_area,'Duration',gx.flatTime/2,'sys',sys);
-Ny = Ny * oversamplingFactor;
+Ny = round(Ny * oversamplingFactor);
 adc = mr.makeAdc(round(oversamplingFactor*Nx),'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
 
 % Calculate timing
@@ -67,7 +66,7 @@ seq.setDefinition('Name', 'se_2d');
 seq.setDefinition('FOV', [fov fov]);
 seq.setDefinition('TE [s]', TE);
 seq.setDefinition('TR', TR);
-seq.setDefinition('DelayTR', delayTR);
+seq.setDefinition('delayTR', delayTR);
 seq.setDefinition('Nx', Nx);
 seq.setDefinition('Ny', Ny);
 seq.setDefinition('Bandwidth [Hz]', 1/adc.dwell);

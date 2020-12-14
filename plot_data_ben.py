@@ -4,7 +4,11 @@ import os
 
 file0d = 'data ben Nx 128 20-12-12 16_26_56.npz'
 file1d = 'data1d ben Nx 256 20-12-12 16_24_31.npz'
-file2d = 'data2d ben Nx 166 Ny 66 TR 5 20-12-12 15_47_17.npy'
+#file2d = 'data2d ben Nx 166 Ny 66 TR 5 20-12-12 15_47_17.npy'
+#file2d = 'data2d ben Nx 200 Ny 63 TR 5.0 20-14-12 16_50_05.npy'
+#file2d = 'data2d ben Nx 2000 Ny 63 TR 5.0 20-14-12 18_09_57.npy'  # oversamples image
+file2d = 'data2d ben Nx 2000 Ny 63 TR 5.0 20-14-12 18_28_07.npy'  # oversamples image star
+
 
 def plot0d():
    data0d_dict = np.load(file0d)
@@ -49,7 +53,9 @@ def plot1d():
    fig.tight_layout()
 
 def plot2d():
-   data2d = np.load(file2d)
+   data2dOver = np.load(file2d)
+   import scipy.signal as sig
+   data2d = sig.decimate(data2dOver, 10, axis=1)
    plt.figure(3)
    plt.subplot(1, 3, 1)
    plt.imshow(10*np.log(np.abs(data2d)),aspect='auto',interpolation='none')

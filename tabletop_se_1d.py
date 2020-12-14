@@ -14,7 +14,7 @@ from pulseq_assembler import PSAssembler
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.295 # MHz
+    lo_freq = 17.301 # MHz
     tx_t = 1.003 # us
     clk_t = 0.007
     num_grad_channels = 3
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     rf_amp_max = hf_max_Hz_per_m # factor used to normalize RF amplitude, should be max value of system used!
     tx_warmup = 0 # already handled by delay in RF block
     adc_pad = 85 # padding to prevent junk in rx buffer
-    grad_pad = 2 # padding to prevent wrong gradient levels at end of block
+    grad_pad = 1 # padding to prevent wrong gradient levels at end of block
     ps = PSAssembler(rf_center=lo_freq*1e6,
         # how many Hz the max amplitude of the RF will produce; i.e. smaller causes bigger RF V to compensate
         rf_amp_max=rf_amp_max,
