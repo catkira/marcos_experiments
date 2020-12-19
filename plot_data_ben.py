@@ -56,12 +56,16 @@ def plot2d():
    data2dOver = np.load(file2d)
    import scipy.signal as sig
    data2d = sig.decimate(data2dOver, 10, axis=1)
-   alpha = 0.1
-   window_x = sig.tukey(data2d.shape[0],alpha)[...,None]*np.ones([1,data2d.shape[1]])
-   window_y = np.transpose(sig.tukey(data2d.shape[1],alpha)[...,None]*np.ones([1,data2d.shape[0]]))
-   data2d = np.multiply(data2d,window_x)
-   data2d = np.multiply(data2d,window_y)
-   data2d = data2d - np.mean(data2d)
+   # apodization
+   if True:
+      alpha = 0.1
+      window_x = sig.tukey(data2d.shape[0],alpha)[...,None]*np.ones([1,data2d.shape[1]])
+      window_y = np.transpose(sig.tukey(data2d.shape[1],alpha)[...,None]*np.ones([1,data2d.shape[0]]))
+      data2d = np.multiply(data2d,window_x)
+      data2d = np.multiply(data2d,window_y)
+   # baseline correction
+   if True:
+      data2d = data2d - np.repeat(np.mean(data2d[:,-5:-1],axis=1)[:,np.newaxis],data2d.shape[1],axis=1)
    
    plt.figure(3)
    plt.subplot(1, 3, 1)
