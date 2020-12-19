@@ -6,8 +6,8 @@ file0d = 'data ben Nx 128 20-12-12 16_26_56.npz'
 file1d = 'data1d ben Nx 256 20-12-12 16_24_31.npz'
 #file2d = 'data2d ben Nx 166 Ny 66 TR 5 20-12-12 15_47_17.npy'
 #file2d = 'data2d ben Nx 200 Ny 63 TR 5.0 20-14-12 16_50_05.npy'
-#file2d = 'data2d ben Nx 2000 Ny 63 TR 5.0 20-14-12 18_09_57.npy'  # oversamples image
-file2d = 'data2d ben Nx 2000 Ny 63 TR 5.0 20-14-12 18_28_07.npy'  # oversamples image star
+file2d = 'data2d ben Nx 2000 Ny 63 TR 5.0 20-14-12 18_09_57.npy'  # oversamples image
+#file2d = 'data2d ben Nx 2000 Ny 63 TR 5.0 20-14-12 18_28_07.npy'  # oversamples image star
 
 
 def plot0d():
@@ -56,15 +56,22 @@ def plot2d():
    data2dOver = np.load(file2d)
    import scipy.signal as sig
    data2d = sig.decimate(data2dOver, 10, axis=1)
+   alpha = 0.1
+   window_x = sig.tukey(data2d.shape[0],alpha)[...,None]*np.ones([1,data2d.shape[1]])
+   window_y = np.transpose(sig.tukey(data2d.shape[1],alpha)[...,None]*np.ones([1,data2d.shape[0]]))
+   data2d = np.multiply(data2d,window_x)
+   data2d = np.multiply(data2d,window_y)
+   data2d = data2d - np.mean(data2d)
+   
    plt.figure(3)
    plt.subplot(1, 3, 1)
-   plt.imshow(10*np.log(np.abs(data2d)),aspect='auto',interpolation='none')
+   plt.imshow(10*np.log(np.abs(data2d)),interpolation='none',extent=[0,400,0,400])
    plt.subplot(1, 3, 2)
-   plt.imshow(np.angle(data2d),aspect='auto',interpolation='none')
+   plt.imshow(np.angle(data2d),interpolation='none',extent=[0,400,0,400])
    plt.subplot(1, 3, 3)
    img = np.abs(np.fft.fftshift(np.fft.fft2(np.fft.fftshift(data2d))))
-   plt.imshow(img, aspect='auto',cmap='gray',interpolation='none')
-
+   plt.imshow(img,cmap='gray',interpolation='none',extent=[0,400,0,400])
+   plt.axis('off')
 
 
 plot0d()
