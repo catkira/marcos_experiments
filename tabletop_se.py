@@ -10,7 +10,8 @@ import pdb
 import external
 import experiment as ex
 import os
-from pulseq_assembler import PSAssembler
+#from pulseq_assembler import PSAssembler
+from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
 
 if __name__ == "__main__":
@@ -53,68 +54,81 @@ if __name__ == "__main__":
     rf_amp_max = hf_max_Hz_per_m # factor used to normalize RF amplitude, should be max value of system used!
     tx_warmup = 0 # already handled by delay in RF block
     adc_pad = 85 # padding to prevent junk in rx buffer
-    ps = PSAssembler(rf_center=lo_freq*1e6,
-        # how many Hz the max amplitude of the RF will produce; i.e. smaller causes bigger RF V to compensate
-        rf_amp_max=rf_amp_max,
-        grad_max=grad_max,
-        clk_t=clk_t,
-        tx_t=tx_t,
-        grad_t=grad_interval,
-        tx_warmup=tx_warmup,
-        adc_pad=adc_pad,
-		rf_delay_preload=True)
-    tx_arr, grad_arr, cb, params = ps.assemble('tabletop_se_pulseq.seq')
+    psi = PSInterpreter(rf_center=lo_freq*1e6,
+                        rf_amp_max=rf_amp_max,
+                        grad_t=grad_interval,
+                        grad_max=grad_max) # very large, just for testing
+    od, pd = psi.interpret("tabletop_se_pulseq.seq")            
+    expt = ex.Experiment(lo_freq=lo_freq,
+                         rx_t=pd['rx_t'],
+                         init_gpa=True) 
+    expt.add_flodict(od)
+
+    rxd, msgs = expt.run()
+                                       
+    # ps = PSAssembler(rf_center=lo_freq*1e6,
+    #     # how many Hz the max amplitude of the RF will produce; i.e. smaller causes bigger RF V to compensate
+    #     rf_amp_max=rf_amp_max,
+    #     grad_max=grad_max,
+    #     clk_t=clk_t,
+    #     tx_t=tx_t,
+    #     grad_t=grad_interval,
+    #     tx_warmup=tx_warmup,
+    #     adc_pad=adc_pad,
+	# 	rf_delay_preload=True)
+    # tx_arr, grad_arr, cb, params = ps.assemble('tabletop_se_pulseq.seq')
 
     # Temporary hack, until next ocra-pulseq update
-    if 'rx_t' not in params:
-        params['rx_t'] = rx_t    
+    # if 'rx_t' not in params:
+    #     params['rx_t'] = rx_t    
 
-    exp = ex.Experiment(samples=params['readout_number'], 
-        lo_freq=lo_freq,
-        tx_t=tx_t,
-		rx_t=params['rx_t'],
-        grad_channels=num_grad_channels,
-        grad_t=grad_interval/num_grad_channels,
-		acq_retry_limit=500000,
-        assert_errors=False)
+    # exp = ex.Experiment(samples=params['readout_number'], 
+    #     lo_freq=lo_freq,
+    #     tx_t=tx_t,
+	# 	rx_t=params['rx_t'],
+    #     grad_channels=num_grad_channels,
+    #     grad_t=grad_interval/num_grad_channels,
+	# 	acq_retry_limit=500000,
+    #     assert_errors=False)
         
-    exp.define_instructions(cb)
-    exp.add_tx(ps.tx_arr)
-    exp.add_grad(ps.grad_arr)
+    # exp.define_instructions(cb)
+    # exp.add_tx(ps.tx_arr)
+    # exp.add_grad(ps.grad_arr)
 
     # plt.plot(ps.gr_arr[0]);plt.show()
 
 
-    exp.calibrate_gpa_fhdo(max_current = 2,
-        num_calibration_points=10,
-        gpa_current_per_volt=gpa_current_per_volt) 
+    # exp.calibrate_gpa_fhdo(max_current = 2,
+    #     num_calibration_points=10,
+    #     gpa_current_per_volt=gpa_current_per_volt) 
 
+    # # set all channels back to 0 A
+    # for ch in range(num_grad_channels):
+    #     dac_code = exp.ampere_to_dac_code(0)
+    #     dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
+    #     exp.write_gpa_dac(ch, dac_code)      
+
+
+    # data, _ = exp.run() # Comment out this line to avoid running on the hardware
     # set all channels back to 0 A
-    for ch in range(num_grad_channels):
-        dac_code = exp.ampere_to_dac_code(0)
-        dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
-        exp.write_gpa_dac(ch, dac_code)      
+    # for ch in range(num_grad_channels):
+    #     dac_code = exp.ampere_to_dac_code(0)
+    #     dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
+    #     exp.write_gpa_dac(ch, dac_code)  
 
+    # data = data[adc_pad:]
+    # nSamples = params['readout_number'] - adc_pad
+    # dt = params['rx_t'] 
 
-    data, _ = exp.run() # Comment out this line to avoid running on the hardware
-    # set all channels back to 0 A
-    for ch in range(num_grad_channels):
-        dac_code = exp.ampere_to_dac_code(0)
-        dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
-        exp.write_gpa_dac(ch, dac_code)  
+    # from datetime import datetime
+    # now = datetime.now()
+    # current_time = now.strftime("%y-%d-%m %H_%M_%S")
+    # filename = f"data ben Nx {nSamples} {current_time}.npz"
+    # if os.path.exists(filename):
+    #     os.remove(filename)
+    # np.savez(filename,data=data,dt=dt,nSamples=int(nSamples),lo_freq=lo_freq,data1d=data)    
 
-    data = data[adc_pad:]
-    nSamples = params['readout_number'] - adc_pad
-    dt = params['rx_t'] 
-
-    from datetime import datetime
-    now = datetime.now()
-    current_time = now.strftime("%y-%d-%m %H_%M_%S")
-    filename = f"data ben Nx {nSamples} {current_time}.npz"
-    if os.path.exists(filename):
-        os.remove(filename)
-    np.savez(filename,data=data,dt=dt,nSamples=int(nSamples),lo_freq=lo_freq,data1d=data)    
-
+    data = rxd
     Noise = np.abs(np.std(np.real(np.fft.fft(data))[int(data.size/2)-3:int(data.size/2)+3]))
     SNR=np.max(np.abs(np.fft.fft(data)))/Noise
     fig, (ax1, ax2, ax3) = plt.subplots(3)
@@ -134,7 +148,7 @@ if __name__ == "__main__":
     ax3.plot(f_axis,np.abs(np.fft.fftshift(np.fft.fft(data))/np.sqrt(nSamples)))
     plt.show()
     fig.tight_layout()
-
+    expt.close_server(True) 
     # st()    
 
   
