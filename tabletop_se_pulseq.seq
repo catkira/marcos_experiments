@@ -7,10 +7,10 @@ minor 3
 revision 0
 
 [DEFINITIONS]
-#Bandwidth [Hz] 51203.3 
-#Name se 
-#Nx 128 
-#TE [s] 0.012 
+Bandwidth [Hz] 51203.3
+Name se
+Nx 128
+TE [s] 0.012
 
 # Format of blocks:
 #  #  D RF  GX  GY  GZ ADC EXT
@@ -68,4 +68,3 @@ num_samples 160
 0
 0
 158
-

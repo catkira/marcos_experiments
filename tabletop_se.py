@@ -35,14 +35,14 @@ if __name__ == "__main__":
     gpa_current_per_volt = 2.5 # gpa fhdo 6A configuration
     max_dac_voltage = 2.5
 
-    # values for red pitaya 
+    # values for red pitaya
     hf_max_dac_voltage = 1 # +-
 
     # HF-PA
     hf_PA_gain = 20 # dB
 
-    grad_max_Hz_per_m = max_dac_voltage * gpa_current_per_volt * grad_B_per_m_per_current * gamma	
-    print('gradient max_B_per_m = {:f} mT/m'.format(grad_max_Hz_per_m/gamma*1e3))	
+    grad_max_Hz_per_m = max_dac_voltage * gpa_current_per_volt * grad_B_per_m_per_current * gamma
+    print('gradient max_B_per_m = {:f} mT/m'.format(grad_max_Hz_per_m/gamma*1e3))
     print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
 
     #hf_max_Hz_per_m = np.sqrt(1/50 * 10**(hf_PA_gain/10) / R_coil) * hf_B_per_m_current * gamma
@@ -50,24 +50,25 @@ if __name__ == "__main__":
     print(hf_max_Hz_per_m)
     print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
 
-    grad_max = grad_max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
+    grad_max = grad_max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!
     rf_amp_max = hf_max_Hz_per_m # factor used to normalize RF amplitude, should be max value of system used!
     tx_warmup = 0 # already handled by delay in RF block
-    adc_pad = 85 # padding to prevent junk in rx buffer
+    adc_pad = 10 # padding to prevent junk in rx buffer
     psi = PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=rf_amp_max,
                         grad_t=grad_interval,
                         grad_max=grad_max) # very large, just for testing
-    od, pd = psi.interpret("tabletop_se_pulseq.seq")         
-    od['grad_vy'] = od['grad_vy'][0] + grad_interval/3, od['grad_vy'][1]
-    od['grad_vz'] = od['grad_vz'][0] + 2*grad_interval/3, od['grad_vz'][1]       
+
+    od, pd = psi.interpret("tabletop_se_pulseq.seq")
+
     expt = ex.Experiment(lo_freq=lo_freq,
                          rx_t=pd['rx_t'],
-                         init_gpa=True) 
+                         gpa_fhdo_offset_time=grad_interval/3,
+                         init_gpa=True)
     expt.add_flodict(od)
 
     rxd, msgs = expt.run()
-                                       
+
     # ps = PSAssembler(rf_center=lo_freq*1e6,
     #     # how many Hz the max amplitude of the RF will produce; i.e. smaller causes bigger RF V to compensate
     #     rf_amp_max=rf_amp_max,
@@ -82,9 +83,9 @@ if __name__ == "__main__":
 
     # Temporary hack, until next ocra-pulseq update
     # if 'rx_t' not in params:
-    #     params['rx_t'] = rx_t    
+    #     params['rx_t'] = rx_t
 
-    # exp = ex.Experiment(samples=params['readout_number'], 
+    # exp = ex.Experiment(samples=params['readout_number'],
     #     lo_freq=lo_freq,
     #     tx_t=tx_t,
 	# 	rx_t=params['rx_t'],
@@ -92,7 +93,7 @@ if __name__ == "__main__":
     #     grad_t=grad_interval/num_grad_channels,
 	# 	acq_retry_limit=500000,
     #     assert_errors=False)
-        
+
     # exp.define_instructions(cb)
     # exp.add_tx(ps.tx_arr)
     # exp.add_grad(ps.grad_arr)
@@ -102,13 +103,13 @@ if __name__ == "__main__":
 
     # exp.calibrate_gpa_fhdo(max_current = 2,
     #     num_calibration_points=10,
-    #     gpa_current_per_volt=gpa_current_per_volt) 
+    #     gpa_current_per_volt=gpa_current_per_volt)
 
     # # set all channels back to 0 A
     # for ch in range(num_grad_channels):
     #     dac_code = exp.ampere_to_dac_code(0)
     #     dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
-    #     exp.write_gpa_dac(ch, dac_code)      
+    #     exp.write_gpa_dac(ch, dac_code)
 
 
     # data, _ = exp.run() # Comment out this line to avoid running on the hardware
@@ -116,11 +117,11 @@ if __name__ == "__main__":
     # for ch in range(num_grad_channels):
     #     dac_code = exp.ampere_to_dac_code(0)
     #     dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
-    #     exp.write_gpa_dac(ch, dac_code)  
+    #     exp.write_gpa_dac(ch, dac_code)
 
     # data = data[adc_pad:]
     # nSamples = params['readout_number'] - adc_pad
-    # dt = params['rx_t'] 
+    # dt = params['rx_t']
 
     # from datetime import datetime
     # now = datetime.now()
@@ -128,15 +129,16 @@ if __name__ == "__main__":
     # filename = f"data ben Nx {nSamples} {current_time}.npz"
     # if os.path.exists(filename):
     #     os.remove(filename)
-    # np.savez(filename,data=data,dt=dt,nSamples=int(nSamples),lo_freq=lo_freq,data1d=data)    
+    # np.savez(filename,data=data,dt=dt,nSamples=int(nSamples),lo_freq=lo_freq,data1d=data)
 
-    data = rxd
+    data = rxd['rx0']
+    nSamples = pd['readout_number']#  - adc_pad
     Noise = np.abs(np.std(np.real(np.fft.fft(data))[int(data.size/2)-3:int(data.size/2)+3]))
     SNR=np.max(np.abs(np.fft.fft(data)))/Noise
     fig, (ax1, ax2, ax3) = plt.subplots(3)
     fig.suptitle('Spin Echo [n={:d}, lo_freq={:f} Mhz]\nSNR={:f}'.format(nSamples,lo_freq,SNR))
-    dt = params['rx_t']
-    t_axis = np.linspace(0, dt * nSamples, nSamples)  # us    
+    dt = pd['rx_t']
+    t_axis = np.linspace(0, dt * nSamples, nSamples)  # us
     ax1.plot(t_axis, np.abs(data)*3.3)
     ax1.set_ylabel('voltage [V]')
     ax2.set_xlabel('time [us]')
@@ -150,9 +152,5 @@ if __name__ == "__main__":
     ax3.plot(f_axis,np.abs(np.fft.fftshift(np.fft.fft(data))/np.sqrt(nSamples)))
     plt.show()
     fig.tight_layout()
-    expt.close_server(True) 
-    # st()    
-
-  
-
- 
+    expt.close_server(True)
+    # st()
