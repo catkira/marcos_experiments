@@ -58,7 +58,9 @@ if __name__ == "__main__":
                         rf_amp_max=rf_amp_max,
                         grad_t=grad_interval,
                         grad_max=grad_max) # very large, just for testing
-    od, pd = psi.interpret("tabletop_se_pulseq.seq")            
+    od, pd = psi.interpret("tabletop_se_pulseq.seq")         
+    od['grad_vy'] = od['grad_vy'][0] + grad_interval/3, od['grad_vy'][1]
+    od['grad_vz'] = od['grad_vz'][0] + 2*grad_interval/3, od['grad_vz'][1]       
     expt = ex.Experiment(lo_freq=lo_freq,
                          rx_t=pd['rx_t'],
                          init_gpa=True) 
