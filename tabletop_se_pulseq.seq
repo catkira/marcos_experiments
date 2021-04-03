@@ -11,6 +11,7 @@ revision 0
 #Name se 
 #Nx 128 
 #TE [s] 0.012 
+tx_warmup 500
 
 # Format of blocks:
 #  #  D RF  GX  GY  GZ ADC EXT

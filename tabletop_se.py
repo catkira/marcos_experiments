@@ -15,7 +15,8 @@ from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.301 # MHz
+    #lo_freq = 17.301 # MHz
+    lo_freq = 1 # MHz
     tx_t = 1.001 # us
     rx_t = 0.497
     clk_t = 0.007
@@ -29,7 +30,7 @@ if __name__ == "__main__":
     R_coil = 2
 
     # value for tabletopMRI hf coil
-    hf_B_per_m_current = 2.483E-4 # [T/A] theoretical value
+    hf_B_per_m_current = 2.483E-3 # [T/A] theoretical value
 
     # values for gpa fhdo
     gpa_current_per_volt = 2.5 # gpa fhdo 6A configuration
@@ -56,6 +57,8 @@ if __name__ == "__main__":
     adc_pad = 85 # padding to prevent junk in rx buffer
     psi = PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=rf_amp_max,
+                        rf_ends_zero=True,
+                        tx_t=tx_t,
                         grad_t=grad_interval,
                         grad_max=grad_max) # very large, just for testing
     od, pd = psi.interpret("tabletop_se_pulseq.seq")         
@@ -69,7 +72,7 @@ if __name__ == "__main__":
     rxd, msgs = expt.run()
 
 
-    data = rxd['rx0']/2**24
+    data = rxd['rx0']
     data = data[6:]
     #nSamples = pd['readout_number']   
     nSamples = len(data)
