@@ -10,7 +10,7 @@ import pdb
 import external
 import experiment as ex
 import os
-from pulseq_assembler import PSAssembler
+from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
 
 if __name__ == "__main__":
@@ -52,68 +52,60 @@ if __name__ == "__main__":
     rf_amp_max = hf_max_Hz_per_m # factor used to normalize RF amplitude, should be max value of system used!
     tx_warmup = 0 # already handled by delay in RF block
     adc_pad = 85 # padding to prevent junk in rx buffer
-    grad_pad = 1 # padding to prevent wrong gradient levels at end of block
-    ps = PSAssembler(rf_center=lo_freq*1e6,
-        # how many Hz the max amplitude of the RF will produce; i.e. smaller causes bigger RF V to compensate
-        rf_amp_max=rf_amp_max,
-        grad_max=grad_max,
-        clk_t=clk_t,
-        tx_t=tx_t,
-        grad_t=grad_interval,
-        tx_warmup=tx_warmup,
-        adc_pad=adc_pad,
-        grad_pad=grad_pad,
-        addresses_per_grad_sample=3,
-		rf_delay_preload=True)
-    tx_arr, grad_arr, cb, params = ps.assemble('tabletop_se_1d_pulseq.seq')
+    psi = PSInterpreter(rf_center=lo_freq*1e6,
+                        rf_amp_max=rf_amp_max,
+                        rf_ends_zero=True,
+                        tx_t=tx_t,
+                        grad_t=grad_interval,
+                        grad_max=grad_max)
+    od, pd = psi.interpret("tabletop_se_1d_pulseq.seq")         
+    od['grad_vy'] = od['grad_vy'][0] + grad_interval/3, od['grad_vy'][1]
+    od['grad_vz'] = od['grad_vz'][0] + 2*grad_interval/3, od['grad_vz'][1]       
+    expt = ex.Experiment(lo_freq=lo_freq,
+                         rx_t=pd['rx_t'],
+                         init_gpa=True) 
+    expt.add_flodict(od)
 
-    exp = ex.Experiment(samples=params['readout_number'], 
-        lo_freq=lo_freq,
-        tx_t=tx_t,
-		rx_t=params['rx_t'],
-        grad_channels=num_grad_channels,
-        grad_t=grad_interval/num_grad_channels,
-		acq_retry_limit=500000,
-        assert_errors=False)
-        
-    exp.define_instructions(cb)
-    exp.add_tx(ps.tx_arr)
-    exp.add_grad(ps.grad_arr)
+    rxd, msgs = expt.run()
 
     #plt.plot(ps.grad_arr[0]);plt.show()
 
-    exp.calibrate_gpa_fhdo(max_current = 5,
-        num_calibration_points=10,
-        gpa_current_per_volt=gpa_current_per_volt) 
+    # exp.calibrate_gpa_fhdo(max_current = 5,
+    #     num_calibration_points=10,
+    #     gpa_current_per_volt=gpa_current_per_volt) 
 
     # set all channels back to 0 A
-    for ch in range(num_grad_channels):
-        dac_code = exp.ampere_to_dac_code(0)
-        dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
-        exp.write_gpa_dac(ch, dac_code)      
+    # for ch in range(num_grad_channels):
+    #     dac_code = exp.ampere_to_dac_code(0)
+    #     dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
+    #     exp.write_gpa_dac(ch, dac_code)      
 
 
-    data, _ = exp.run() # Comment out this line to avoid running on the hardware
+    # data, _ = exp.run() # Comment out this line to avoid running on the hardware
     # set all channels back to 0 A
 
-    for ch in range(num_grad_channels):
-        dac_code = exp.ampere_to_dac_code(0)
-        dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
-        print(dac_code)
-        exp.write_gpa_dac(ch, dac_code)  
+    # for ch in range(num_grad_channels):
+    #     dac_code = exp.ampere_to_dac_code(0)
+    #     dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
+    #     print(dac_code)
+    #     exp.write_gpa_dac(ch, dac_code)  
 
-    data = data[adc_pad:]
-    nSamples = params['readout_number'] - adc_pad
-    dt = params['rx_t']
+    # data = data[adc_pad:]
+    # nSamples = params['readout_number'] - adc_pad
+    # dt = params['rx_t']
     
-    from datetime import datetime
-    now = datetime.now()
-    current_time = now.strftime("%y-%d-%m %H_%M_%S")
-    filename = f"data1d ben Nx {nSamples} {current_time}.npz"
-    if os.path.exists(filename):
-        os.remove(filename)
-    np.savez(filename,data=data,dt=dt,nSamples=int(nSamples),lo_freq=lo_freq,data1d=data)
+    # from datetime import datetime
+    # now = datetime.now()
+    # current_time = now.strftime("%y-%d-%m %H_%M_%S")
+    # filename = f"data1d ben Nx {nSamples} {current_time}.npz"
+    # if os.path.exists(filename):
+    #     os.remove(filename)
+    # np.savez(filename,data=data,dt=dt,nSamples=int(nSamples),lo_freq=lo_freq,data1d=data)
 
+    data = rxd['rx0']
+    data = data[6:]
+    nSamples = len(data)
+    dt = pd['rx_t']    
     fig, (ax1, ax2, ax3) = plt.subplots(3)
     fig.suptitle('Spin Echo [n={:d}, lo_freq={:f} Mhz]\n'.format(nSamples,lo_freq))
     t_axis = np.linspace(0, dt * nSamples, nSamples)  # us    
