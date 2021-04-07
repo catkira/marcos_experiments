@@ -3,6 +3,8 @@ close all
 clear
 gamma = 42.57E6;
 sequencerRasterTime = 7E-9; % make sure all times are a multiple of sequencer raster time
+grad_interval = 10E-6;
+rf_interval = 1E-6;
 
 fov=10e-3; Nx=200; Ny=63;       % Define FOV and resolution
 TE=12e-3; % [s]
@@ -18,7 +20,7 @@ adcDeadTime = 0;
 sys = mr.opts('MaxGrad', maxGrad, 'GradUnit', 'mT/m', ...
     'MaxSlew', 300, 'SlewUnit', 'T/m/s', ...
     'rfDeadTime', rfDeadTime, 'adcDeadTime', adcDeadTime, ...
-    'rfRasterTime', 1.003e-6, 'gradRasterTime',2.003e-6); % TODO: try shorter gradRasterTime
+    'rfRasterTime', rf_interval, 'gradRasterTime', grad_interval);
 seq=mr.Sequence(sys);              % Create a new sequence object
 
 % Create HF pulses, 500 us delay for tx gate
@@ -70,6 +72,8 @@ seq.setDefinition('delayTR', delayTR);
 seq.setDefinition('Nx', Nx);
 seq.setDefinition('Ny', Ny);
 seq.setDefinition('Bandwidth [Hz]', 1/adc.dwell);
+seq.setDefinition('grad_interval]', grad_interval);
+seq.setDefinition('rf_interval]', rf_interval);
 
 seq.plot();
 

@@ -4,7 +4,7 @@
 [VERSION]
 major 1
 minor 3
-revision 0
+revision 1
 
 [DEFINITIONS]
 Bandwidth [Hz] 50000 
@@ -14,7 +14,9 @@ Nx 200
 Ny 63 
 TE [s] 0.012 
 TR 5 
-delayTR 4.98482 
+delayTR 4.98481 
+grad_interval] 1e-05 
+rf_interval] 1e-06 
 
 # Format of blocks:
 #  #  D RF  GX  GY  GZ ADC EXT
@@ -37,21 +39,21 @@ delayTR 4.98482
 # id amplitude rise flat fall delay
 # ..      Hz/m   us   us   us    us
 [TRAP]
- 1   7.9978e+06 627  746 627   0
- 2  1.68647e+06 132 1736 132   0
- 3        5e+06 393 4000 393   0
+ 1   8.0292e+06 630  740 630   0
+ 2  1.69355e+06 140 1720 140   0
+ 3        5e+06 400 4000 400   0
 
 # Format of ADC events:
 # id num dwell delay freq phase
 # ..  ..    ns    us   Hz   rad
 [ADC]
-1 200 20000 393 0 0
+1 200 20000 400 0 0
 
 # Format of delays:
 # id delay (us)
 [DELAYS]
-1 3381
-2 3527
+1 3380
+2 3520
 
 # Sequence Shapes
 [SHAPES]

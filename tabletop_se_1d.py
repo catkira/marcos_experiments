@@ -6,6 +6,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pdb
+import time
 
 import external
 import experiment as ex
@@ -14,9 +15,8 @@ from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.301 # MHz
-    tx_t = 1.003 # us
-    clk_t = 0.007
+    lo_freq = 17.288 # MHz
+    tx_t = 1 # us
     num_grad_channels = 3
     grad_interval = 10.003 # us between [num_grad_channels] channel updates
 
@@ -58,41 +58,19 @@ if __name__ == "__main__":
                         grad_t=grad_interval,
                         grad_max=grad_max)
     od, pd = psi.interpret("tabletop_se_1d_pulseq.seq")         
-    od['grad_vy'] = od['grad_vy'][0] + grad_interval/3, od['grad_vy'][1]
-    od['grad_vz'] = od['grad_vz'][0] + 2*grad_interval/3, od['grad_vz'][1]       
+    #od['grad_vy'] = od['grad_vy'][0] + grad_interval/3, od['grad_vy'][1]
+    #od['grad_vz'] = od['grad_vz'][0] + 2*grad_interval/3, od['grad_vz'][1]  
+         
     expt = ex.Experiment(lo_freq=lo_freq,
                          rx_t=pd['rx_t'],
-                         init_gpa=True) 
+                         init_gpa=True,
+                         gpa_fhdo_offset_time=grad_interval/3) 
     expt.add_flodict(od)
+
+    expt.gradb.calibrate(channels=[0,1], max_current=6, num_calibration_points=30, averages=5, poly_degree=5)
 
     rxd, msgs = expt.run()
 
-    #plt.plot(ps.grad_arr[0]);plt.show()
-
-    # exp.calibrate_gpa_fhdo(max_current = 5,
-    #     num_calibration_points=10,
-    #     gpa_current_per_volt=gpa_current_per_volt) 
-
-    # set all channels back to 0 A
-    # for ch in range(num_grad_channels):
-    #     dac_code = exp.ampere_to_dac_code(0)
-    #     dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
-    #     exp.write_gpa_dac(ch, dac_code)      
-
-
-    # data, _ = exp.run() # Comment out this line to avoid running on the hardware
-    # set all channels back to 0 A
-
-    # for ch in range(num_grad_channels):
-    #     dac_code = exp.ampere_to_dac_code(0)
-    #     dac_code = exp.calculate_corrected_dac_code(ch,dac_code)
-    #     print(dac_code)
-    #     exp.write_gpa_dac(ch, dac_code)  
-
-    # data = data[adc_pad:]
-    # nSamples = params['readout_number'] - adc_pad
-    # dt = params['rx_t']
-    
     # from datetime import datetime
     # now = datetime.now()
     # current_time = now.strftime("%y-%d-%m %H_%M_%S")
@@ -101,8 +79,7 @@ if __name__ == "__main__":
     #     os.remove(filename)
     # np.savez(filename,data=data,dt=dt,nSamples=int(nSamples),lo_freq=lo_freq,data1d=data)
 
-    data = rxd['rx0']
-    data = data[6:]
+    data = rxd['rx0'][6:]
     nSamples = len(data)
     dt = pd['rx_t']    
     fig, (ax1, ax2, ax3) = plt.subplots(3)

@@ -15,11 +15,9 @@ from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.301 # MHz
+    lo_freq = 17.288 # MHz
     #lo_freq = 1 # MHz  # only for debugging on scope
-    tx_t = 1.001 # us
-    rx_t = 0.497
-    clk_t = 0.007
+    tx_t = 1 # us
     num_grad_channels = 3
     grad_interval = 10.003 # us between [num_grad_channels] channel updates
 
@@ -53,21 +51,19 @@ if __name__ == "__main__":
 
     grad_max = grad_max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
     rf_amp_max = hf_max_Hz_per_m # factor used to normalize RF amplitude, should be max value of system used!
-    tx_warmup = 0 # already handled by delay in RF block
-    adc_pad = 85 # padding to prevent junk in rx buffer
+    #tx_warmup = 0 # already handled by delay in RF block
     psi = PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=rf_amp_max,
-                        rf_ends_zero=True,
                         tx_t=tx_t,
                         grad_t=grad_interval,
                         grad_max=grad_max) # very large, just for testing
     od, pd = psi.interpret("tabletop_se_pulseq.seq")         
-    od['grad_vy'] = od['grad_vy'][0] + grad_interval/3, od['grad_vy'][1]
-    od['grad_vz'] = od['grad_vz'][0] + 2*grad_interval/3, od['grad_vz'][1]       
     expt = ex.Experiment(lo_freq=lo_freq,
                          rx_t=pd['rx_t'],
-                         init_gpa=True) 
+                         init_gpa=True,
+                         gpa_fhdo_offset_time=grad_interval/3) 
     expt.add_flodict(od)
+    expt.gradb.calibrate(channels=[0,1], max_current=6, num_calibration_points=30, averages=5, poly_degree=5)
 
     rxd, msgs = expt.run()
 
