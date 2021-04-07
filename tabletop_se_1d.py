@@ -54,7 +54,6 @@ if __name__ == "__main__":
     adc_pad = 85 # padding to prevent junk in rx buffer
     psi = PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=rf_amp_max,
-                        rf_ends_zero=True,
                         tx_t=tx_t,
                         grad_t=grad_interval,
                         grad_max=grad_max)
