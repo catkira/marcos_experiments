@@ -15,7 +15,7 @@ from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.288 # MHz
+    lo_freq = 17.286 # MHz
     #lo_freq = 1 # MHz  # only for debugging on scope
     tx_t = 1 # us
     num_grad_channels = 3

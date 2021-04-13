@@ -4,14 +4,13 @@
 [VERSION]
 major 1
 minor 3
-revision 0
+revision 1
 
 [DEFINITIONS]
-#Bandwidth [Hz] 51203.3 
-#Name se 
-#Nx 128 
-#TE [s] 0.012 
-tx_warmup 500
+Bandwidth [Hz] 51203.277 
+Name se 
+Nx 128 
+TE [s] 0.012 
 
 # Format of blocks:
 #  #  D RF  GX  GY  GZ ADC EXT
@@ -27,7 +26,7 @@ tx_warmup 500
 # ..        Hz   ....     ....    us   Hz   rad
 [RF]
 1         3125 1 2 500 0 0
-2         3125 3 4 500 0 0
+2         3125 3 4 500 0 1.5708
 
 # Format of ADC events:
 # id num dwell delay freq phase

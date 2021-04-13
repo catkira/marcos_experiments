@@ -6,7 +6,7 @@ sequencerRasterTime = 7E-9; % make sure all times are a multiple of sequencer ra
 grad_interval = 10E-6;
 rf_interval = 1E-6;
 
-fov=10e-3; Nx=200; Ny=63;   % Define FOV and resolution
+fov=10e-3; Nx=200; Nspokes=80;       % Define FOV and resolution
 TE=12e-3; % [s]
 TR=5; % [s]     
 oversamplingFactor = 1;
@@ -34,15 +34,13 @@ rf180 = mr.makeBlockPulse(pi, 'duration', rf90duration*2,...
 % Define other gradients and ADC events
 deltak=1/fov;
 kWidth=deltak*Nx;
-kHeight=deltak*Ny;
 gx = mr.makeTrapezoid('x','FlatArea',kWidth,'FlatTime',gxFlatTime,'sys',sys);
+gy = mr.makeTrapezoid('y','FlatArea',kWidth,'FlatTime',gxFlatTime,'sys',sys);
 fprintf('Sequence bandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov);
 fprintf('Pixelbandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov/Nx);
 gx.delay = 0; % assumes rfDeadTime > gx.riseTime !!
 gxPre = mr.makeTrapezoid('x','Area',gx.area/2,'Duration',gx.flatTime/2,'sys',sys);
-gy_area = kHeight/2;
-gy = mr.makeTrapezoid('y','Area',gy_area,'Duration',gx.flatTime/2,'sys',sys);
-Ny = round(Ny * oversamplingFactor);
+gyPre = mr.makeTrapezoid('y','Area',gx.area/2,'Duration',gx.flatTime/2,'sys',sys);
 adc = mr.makeAdc(round(oversamplingFactor*Nx),'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
 
 % Calculate timing
@@ -57,10 +55,10 @@ fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 % Phase looping is done in python script
 seq.addBlock(rf90);
 seq.addBlock(mr.makeDelay(delayTE1));
-seq.addBlock(gxPre,gy);
+seq.addBlock(gxPre,gyPre);
 seq.addBlock(rf180);
 seq.addBlock(mr.makeDelay(delayTE2));
-seq.addBlock(gx,adc);
+seq.addBlock(gx,gy,adc);
 
 
 %% prepare sequence export
@@ -70,12 +68,12 @@ seq.setDefinition('TE [s]', TE);
 seq.setDefinition('TR', TR);
 seq.setDefinition('delayTR', delayTR);
 seq.setDefinition('Nx', Nx);
-seq.setDefinition('Ny', Ny);
+seq.setDefinition('Nspokes', Nspokes);
 seq.setDefinition('Bandwidth [Hz]', 1/adc.dwell);
 seq.setDefinition('grad_interval]', grad_interval);
 seq.setDefinition('rf_interval]', rf_interval);
 
 seq.plot();
 
-seq.write('tabletop_se_2d_pulseq.seq')       % Write to pulseq file
-parsemr('tabletop_se_2d_pulseq.seq');
+seq.write('tabletop_radial_2d_pulseq.seq')       % Write to pulseq file
+parsemr('tabletop_radial_2d_pulseq.seq');

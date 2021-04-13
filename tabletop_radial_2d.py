@@ -15,7 +15,7 @@ from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.286# MHz
+    lo_freq = 17.286 # MHz
     tx_t = 1 # us
     num_grad_channels = 3
     grad_t = 10 # us between [num_grad_channels] channel updates
@@ -56,11 +56,11 @@ if __name__ == "__main__":
                         tx_t=tx_t,
                         grad_t=grad_t,
                         grad_max=grad_max)
-    od, pd = psi.interpret("tabletop_se_2d_pulseq.seq")   
+    od, pd = psi.interpret("tabletop_radial_2d_pulseq.seq")   
 
     TR = pd['TR']
     Nx = pd['Nx']
-    Ny = int(pd['Ny'])
+    Nspokes = int(pd['Nspokes'])
     delayTR = pd['delayTR']
 
     expt = ex.Experiment(lo_freq=lo_freq,
@@ -73,32 +73,16 @@ if __name__ == "__main__":
 
     adc_pad = 6
     nSamples = pd['readout_number'] - adc_pad
-    data2d = np.zeros((Ny,nSamples),dtype=np.complex64)
+    data2d = np.zeros((Nspokes,nSamples),dtype=np.complex64)
     import copy as cp
-    for k, phase_factor in enumerate(np.linspace(-1,1,Ny)):
-        print('phase step {:d}\n'.format(k))
-        phase_x, phase_y = od['grad_vy']
-        phase_y_new = phase_y * phase_factor
-        expt.add_flodict({'grad_vy':(phase_x,phase_y_new)},append=False)
+    gx_t, gx_a = od['grad_vx']
+    gy_t, gy_a = od['grad_vy']
+    for k, alpha in enumerate(np.linspace(0,np.pi,Nspokes,endpoint=False)):
+        print('angle {:f} deg\n'.format(alpha/(2*np.pi)*360))
+        expt.add_flodict({'grad_vx':(gx_t,gx_a*np.cos(alpha))},append=False)
+        expt.add_flodict({'grad_vy':(gy_t,gy_a*np.sin(alpha))},append=False)
         rxd, msgs = expt.run()
-        data = rxd['rx0'][adc_pad:]
-        if False:
-            fig, (ax1, ax2, ax3) = plt.subplots(3)
-            Noise = np.abs(np.std(np.real(np.fft.fft(data))[int(data.size/2)-3:int(data.size/2)+3]))
-            SNR=np.max(np.abs(np.fft.fft(data)))/Noise
-            dt = params['rx_t']
-            fig.suptitle('Spin Echo [n={:d}, lo_freq={:f} Mhz]\nSNR={:f}'.format(nSamples,lo_freq,SNR))
-            t_axis = np.linspace(0, dt * nSamples, nSamples)  # us    
-            ax1.plot(t_axis, np.abs(data)*3.3)
-            ax1.set_ylabel('voltage [V]')
-            ax2.set_xlabel('time [us]')
-            ax2.plot(t_axis, data.real*3.3)
-            ax2.set_ylabel('voltage [V]')
-            f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))
-            ax3.plot(f_axis,np.abs(np.fft.fftshift(np.fft.fft(data))/np.sqrt(nSamples)))
-            plt.show()
-            fig.tight_layout()
-        data2d[k,:] = data
+        data2d[k,:] = rxd['rx0'][adc_pad:]
         if True:
             if k == 0:
                 plt.figure(1)
@@ -116,23 +100,12 @@ if __name__ == "__main__":
     from datetime import datetime
     now = datetime.now()
     current_time = now.strftime("%y-%d-%m %H_%M_%S")
-    filename = f"data2d se Nx {nSamples} Ny {Ny} TR {TR} {current_time}.npy"
+    filename = f"data2d radial Nx {nSamples} Nspokes {Nspokes} TR {TR} {current_time}.npy"
     if os.path.exists(filename):
         os.remove(filename)
     np.save(filename,data2d)
     plt.close()
     plt.ioff()
-    plt.figure(1)
-    plt.subplot(1, 3, 1)
-    plt.imshow(10*np.log(np.abs(data2d)),aspect='auto',interpolation='none', origin='lower')
-    plt.subplot(1, 3, 2)
-    plt.imshow(np.angle(data2d),aspect='auto',interpolation='none')
-    plt.subplot(1, 3, 3)
-    img = np.abs(np.fft.fftshift(np.fft.fft2(np.fft.fftshift(data2d))))
-    plt.imshow(img, aspect='auto',cmap='gray',interpolation='none')
-    plt.show()
-    
-    # st()    
 
   
 

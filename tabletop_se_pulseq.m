@@ -18,8 +18,13 @@ seq=mr.Sequence(sys);              % Create a new sequence object
 
 % Create HF pulses
 rf90duration=0.08e-3
-rf90 = mr.makeBlockPulse(pi/2, 'duration', rf90duration, 'sys', sys);
-rf180 = mr.makeBlockPulse(pi, 'duration', rf90duration*2, 'sys',sys);
+%sliceThickness=10e-3
+%[rf90, gz] = mr.makeSincPulse(pi/2, 'duration', rf90duration,'apodization',0.5,'SliceThickness',sliceThickness, 'sys', sys);
+%[rf180, gz2] = mr.makeSincPulse(pi, 'duration', rf90duration*2,'apodization',0.5, 'SliceThickness',sliceThickness, 'sys',sys);
+rf90 = mr.makeBlockPulse(pi/2, 'duration', rf90duration,...
+    'PhaseOffset', 0, 'sys', sys);
+rf180 = mr.makeBlockPulse(pi, 'duration', rf90duration*2,...
+    'PhaseOffset', pi/2, 'sys',sys);
 
 % ADC event
 adc = mr.makeAdc(Nx,'Duration',round(samplingDuration/Nx/sequencerRasterTime)*Nx*sequencerRasterTime, ...

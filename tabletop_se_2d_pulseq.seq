@@ -14,7 +14,7 @@ Nx 200
 Ny 63 
 TE [s] 0.012 
 TR 5 
-delayTR 4.98481 
+delayTR 4.9848 
 grad_interval] 1e-05 
 rf_interval] 1e-06 
 
@@ -32,8 +32,8 @@ rf_interval] 1e-06
 # id amplitude mag_id phase_id delay freq phase
 # ..        Hz   ....     ....    us   Hz   rad
 [RF]
-1         3125 1 2 500 0 0
-2         3125 3 4 500 0 1.5708
+1         2500 1 2 500 0 0
+2         2500 3 4 500 0 1.5708
 
 # Format of trapezoid gradients:
 # id amplitude rise flat fall delay
@@ -52,35 +52,35 @@ rf_interval] 1e-06
 # Format of delays:
 # id delay (us)
 [DELAYS]
-1 3380
-2 3520
+1 3350
+2 3500
 
 # Sequence Shapes
 [SHAPES]
 
 shape_id 1
-num_samples 80
+num_samples 100
 1
 0
 0
-77
+97
 
 shape_id 2
-num_samples 80
+num_samples 100
 0
 0
-78
+98
 
 shape_id 3
-num_samples 160
+num_samples 200
 1
 0
 0
-157
+197
 
 shape_id 4
-num_samples 160
+num_samples 200
 0
 0
-158
+198
 
