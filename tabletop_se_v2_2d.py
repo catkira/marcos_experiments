@@ -15,7 +15,7 @@ from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.263# MHz
+    lo_freq = 17.261# MHz
     tx_t = 1 # us
     num_grad_channels = 3
     grad_t = 10 # us between [num_grad_channels] channel updates
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     from datetime import datetime
     now = datetime.now()
     current_time = now.strftime("%y-%d-%m %H_%M_%S")
-    filename = f"data2d se v2 {current_time} Nx {nSamples//Ny} Ny {Ny} TR {TR}.npy"
+    filename = f"data2d se v2 {current_time} Nx {Nx} Ny {Ny} TR {TR}.npy"
     if os.path.exists(filename):
         os.remove(filename)
     np.save(filename,rxd['rx0'])

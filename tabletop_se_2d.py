@@ -117,13 +117,15 @@ if __name__ == "__main__":
     from datetime import datetime
     now = datetime.now()
     current_time = now.strftime("%y-%d-%m %H_%M_%S")
-    filename = f"data2d se Nx {nSamples} Ny {Ny} TR {TR} {current_time}.npy"
+    filename = f"data2d se {current_time} Nx {Nx} Ny {Ny} TR {TR}.npy"
     if os.path.exists(filename):
         os.remove(filename)
     np.save(filename,data2d)
     plt.close()
     plt.ioff()
-    oversampling_factor = int(np.round(data2d.shape[1]/194))
+
+    # reconstruction
+    oversampling_factor = int(np.round(data2d.shape[1]/Nx))
     data2d = sig.decimate(data2d, oversampling_factor, ftype='iir', axis=1)    
     plt.figure(1)
     plt.subplot(1, 3, 1)

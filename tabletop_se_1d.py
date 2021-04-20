@@ -15,7 +15,7 @@ from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.268 # MHz
+    lo_freq = 17.261 # MHz
     tx_t = 1 # us
     num_grad_channels = 3
     grad_interval = 10.003 # us between [num_grad_channels] channel updates

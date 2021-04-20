@@ -14,8 +14,8 @@ if __name__ == "__main__":
     current_file = files2[-1]
     print(current_file)
     data2d = np.load(current_file)
-    Nx = 200
-    Ny = 15
+    Nx = 200 # TODO: parse from filename
+    Ny = 63 # TODO: parse from filename
     oversampling_factor = int(np.round(data2d.shape[0]/Nx/Ny))
     data2d = data2d.reshape(Ny,Nx*oversampling_factor)    
     adc_pad = 0
@@ -35,7 +35,6 @@ if __name__ == "__main__":
       data2d = np.multiply(data2d,window_x)
       data2d = np.multiply(data2d,window_y)
 
-    oversampling_factor = 1
     data2d = sig.decimate(data2d, oversampling_factor, ftype='iir', axis=1)
     Nx = data2d.shape[1]
     img = np.abs(np.fft.fftshift(np.fft.fft2(np.fft.fftshift(data2d))))
