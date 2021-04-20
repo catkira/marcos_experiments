@@ -15,7 +15,7 @@ from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.286# MHz
+    lo_freq = 17.263# MHz
     tx_t = 1 # us
     num_grad_channels = 3
     grad_t = 10 # us between [num_grad_channels] channel updates
@@ -71,10 +71,7 @@ if __name__ == "__main__":
     expt.gradb.calibrate(channels=[0,1], max_current=6, num_calibration_points=30, averages=5, poly_degree=5)
 
     rxd, msgs = expt.run()
-    data2d = rxd['rx0'].reshape(200,Ny)
-    adc_pad = 0
-    #data2d=data2d[adc_pad:][:]
-    nSamples = pd['readout_number'] - adc_pad
+    nSamples = pd['readout_number']
     
     from datetime import datetime
     now = datetime.now()
@@ -82,9 +79,15 @@ if __name__ == "__main__":
     filename = f"data2d se v2 Nx {nSamples} Ny {Ny} TR {TR} {current_time}.npy"
     if os.path.exists(filename):
         os.remove(filename)
-    np.save(filename,data2d)
+    np.save(filename,rxd['rx0'])
     plt.close()
     plt.ioff()
+
+    # reconstruction
+    oversampling_factor = int(np.round(rxd['rx0'].shape[0]/Nx/Ny))    
+    data2d = rxd['rx0'].reshape(Nx * oversampling_factor,Ny)
+    adc_pad = 0
+    data2d=data2d[adc_pad:][:]
     plt.figure(1)
     plt.subplot(1, 3, 1)
     plt.imshow(10*np.log(np.abs(data2d)),aspect='auto',interpolation='none', origin='lower')
