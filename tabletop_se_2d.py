@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pdb
 import time
+import scipy.signal as sig
 
 import external
 import experiment as ex
@@ -15,7 +16,7 @@ from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.286# MHz
+    lo_freq = 17.269 # MHz
     tx_t = 1 # us
     num_grad_channels = 3
     grad_t = 10 # us between [num_grad_channels] channel updates
@@ -122,6 +123,8 @@ if __name__ == "__main__":
     np.save(filename,data2d)
     plt.close()
     plt.ioff()
+    oversampling_factor = int(np.round(data2d.shape[1]/194))
+    data2d = sig.decimate(data2d, oversampling_factor, ftype='iir', axis=1)    
     plt.figure(1)
     plt.subplot(1, 3, 1)
     plt.imshow(10*np.log(np.abs(data2d)),aspect='auto',interpolation='none', origin='lower')

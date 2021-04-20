@@ -6,10 +6,10 @@ sequencerRasterTime = 7E-9; % make sure all times are a multiple of sequencer ra
 grad_interval = 10E-6;
 rf_interval = 1E-6;
 
-fov=10e-3; Nx=200; Ny=63;   % Define FOV and resolution
+fov=12e-3; Nx=200; Ny=63;   % Define FOV and resolution
 TE=12e-3; % [s]
 TR=5; % [s]     
-oversamplingFactor = 1;
+readoutOversamplingFactor = 4;
 
 gxFlatTime = 4e-3;
 
@@ -34,7 +34,7 @@ rf180 = mr.makeBlockPulse(pi, 'duration', rf90duration*2,...
 % Define other gradients and ADC events
 deltak=1/fov;
 kWidth=deltak*Nx;
-kHeight=deltak*Ny;
+kHeight=deltak*Ny;  % dont oversample phase direction
 gx = mr.makeTrapezoid('x','FlatArea',kWidth,'FlatTime',gxFlatTime,'sys',sys);
 fprintf('Sequence bandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov);
 fprintf('Pixelbandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov/Nx);
@@ -42,8 +42,8 @@ gx.delay = 0; % assumes rfDeadTime > gx.riseTime !!
 gxPre = mr.makeTrapezoid('x','Area',gx.area/2,'Duration',gx.flatTime/2,'sys',sys);
 gy_area = kHeight/2;
 gy = mr.makeTrapezoid('y','Area',gy_area,'Duration',gx.flatTime/2,'sys',sys);
-Ny = round(Ny * oversamplingFactor);
-adc = mr.makeAdc(round(oversamplingFactor*Nx),'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
+Ny = round(Ny);
+adc = mr.makeAdc(round(readoutOversamplingFactor*Nx),'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
 
 % Calculate timing
 delayTE1 = ceil((TE/2 - (mr.calcDuration(rf90)-rf90.delay)/2 ...

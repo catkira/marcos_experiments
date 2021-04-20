@@ -8,10 +8,10 @@ from scipy.interpolate import griddata
 if __name__ == "__main__":
 
     files = listdir("./")
-    files2 = [f for f in files if f.find("data2d se") != -1]
+    files2 = [f for f in files if f.find("data2d se Nx") != -1]
 
     # 2 cylinder decent
-    current_file = files2[2]
+    current_file = files2[-1]
     print(current_file)
     data2d = np.load(current_file)
 
@@ -29,7 +29,7 @@ if __name__ == "__main__":
       data2d = np.multiply(data2d,window_x)
       data2d = np.multiply(data2d,window_y)
 
-    oversampling_factor = 1
+    oversampling_factor = int(np.round(data2d.shape[1]/194))
     data2d = sig.decimate(data2d, oversampling_factor, ftype='iir', axis=1)
     Nx = data2d.shape[1]
     img = np.abs(np.fft.fftshift(np.fft.fft2(np.fft.fftshift(data2d))))
