@@ -8,10 +8,10 @@ from scipy.interpolate import griddata
 if __name__ == "__main__":
 
     files = listdir("./")
-    files2 = [f for f in files if f.find("data2d se") != -1]
+    files2 = [f for f in files if f.find("data2d se v2") != -1]
 
     # 2 cylinder decent
-    current_file = files2[2]
+    current_file = files2[-1]
     print(current_file)
     data2d = np.load(current_file)
 

@@ -10,7 +10,9 @@ if __name__ == "__main__":
     files = listdir("./")
     files2 = [f for f in files if f.find("data2d radial") != -1]
 
-    current_file = files2[-1]
+    # 2: decent star
+    # 6: decent star with oversampling
+    current_file = files2[6]
     print(current_file)
     data2d = np.load(current_file)
 
@@ -29,8 +31,8 @@ if __name__ == "__main__":
       data2d = np.multiply(data2d,window_y)
 
     r_len = 1
-    oversampling_factor = 4
-    if True:
+    oversampling_factor = int(np.round(data2d.shape[1]/196))
+    if False:
         data2d = sig.decimate(data2d, oversampling_factor, ftype='iir', axis=1)
         Nx = data2d.shape[1]
         points2d = np.zeros( (Nspokes * Nx, 2) )
@@ -46,7 +48,8 @@ if __name__ == "__main__":
         img = np.abs(np.fft.fftshift(np.fft.fft2(np.fft.fftshift(data2dgridded))))
     else:
         data2d = sig.decimate(data2d, oversampling_factor, ftype='iir', axis=1)
-        theta = np.linspace(0., 180., Nspokes, endpoint=False)        
-        img = iradon(np.swapaxes(np.abs(data2d),0,1), theta=theta, filter_name='ramp')
+        sinogram = np.abs(np.fft.fftshift(np.fft.fft(np.fft.fftshift(data2d), axis=1))) 
+        theta = np.linspace(0., 180., Nspokes, endpoint=False)    
+        img = iradon(np.swapaxes(sinogram,0,1), theta=theta, filter_name='hann')
     plt.imshow(img, aspect='auto',cmap='gray',interpolation='none')
     plt.show()
