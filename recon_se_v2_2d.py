@@ -14,6 +14,12 @@ if __name__ == "__main__":
     current_file = files2[-1]
     print(current_file)
     data2d = np.load(current_file)
+    Nx = 200
+    Ny = 15
+    oversampling_factor = int(np.round(data2d.shape[0]/Nx/Ny))
+    data2d = data2d.reshape(Ny,Nx*oversampling_factor)    
+    adc_pad = 0
+    data2d=data2d[adc_pad:][:]    
 
     plt.figure(1)
     plt.subplot(1, 3, 1)

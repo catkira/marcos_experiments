@@ -59,7 +59,7 @@ if __name__ == "__main__":
     od, pd = psi.interpret("tabletop_se_v2_2d_pulseq.seq")   
 
     TR = pd['TR']
-    Nx = pd['Nx']
+    Nx = int(pd['Nx'])
     Ny = int(pd['Ny'])
 
     expt = ex.Experiment(lo_freq=lo_freq,
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     from datetime import datetime
     now = datetime.now()
     current_time = now.strftime("%y-%d-%m %H_%M_%S")
-    filename = f"data2d se v2 Nx {nSamples} Ny {Ny} TR {TR} {current_time}.npy"
+    filename = f"data2d se v2 {current_time} Nx {nSamples//Ny} Ny {Ny} TR {TR}.npy"
     if os.path.exists(filename):
         os.remove(filename)
     np.save(filename,rxd['rx0'])
@@ -85,7 +85,7 @@ if __name__ == "__main__":
 
     # reconstruction
     oversampling_factor = int(np.round(rxd['rx0'].shape[0]/Nx/Ny))    
-    data2d = rxd['rx0'].reshape(Nx * oversampling_factor,Ny)
+    data2d = rxd['rx0'].reshape(Ny, Nx * oversampling_factor)
     adc_pad = 0
     data2d=data2d[adc_pad:][:]
     plt.figure(1)

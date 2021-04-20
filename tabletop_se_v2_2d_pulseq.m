@@ -6,7 +6,7 @@ sequencerRasterTime = 7E-9; % make sure all times are a multiple of sequencer ra
 grad_interval = 10E-6;
 rf_interval = 1E-6;
 
-fov=12e-3; Nx=200; Ny=15;   % Define FOV and resolution
+fov=12e-3; Nx=200; Ny=63;   % Define FOV and resolution
 TE=12e-3; % [s]
 TR=5; % [s]     
 readoutOversamplingFactor = 4;
