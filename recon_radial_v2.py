@@ -27,7 +27,7 @@ if __name__ == "__main__":
     oversampling_factor = int(np.round(data2d.shape[0]/Nx/Nr))
     data2d = data2d.reshape(Nr,Nx*oversampling_factor)    
     adc_pad = 6
-    data2d=data2d[adc_pad:][:]  
+    data2d=data2d[:,adc_pad:]  
 
     plt.figure(1)
     plt.subplot(1, 3, 1)
@@ -43,16 +43,17 @@ if __name__ == "__main__":
       data2d = np.multiply(data2d,window_x)
       data2d = np.multiply(data2d,window_y)
 
-    r_len = 1
     if False:
         data2d = sig.decimate(data2d, oversampling_factor, ftype='iir', axis=1)
-        points2d = np.zeros( (Nspokes * Nx, 2) )
+        Nx_truncated = data2d.shape[1]
+        points2d = np.zeros( (Nspokes * Nx_truncated, 2) )
+        r_len = 1
         for k, alpha in enumerate(np.linspace(0,np.pi,Nspokes,endpoint=False)):        
-            rpoints = np.linspace(-r_len, r_len, Nx)
-            points2d[Nx * k : Nx * (k + 1), 0] = rpoints * np.cos(alpha)
-            points2d[Nx * k : Nx * (k + 1), 1] = rpoints * np.sin(alpha)
-
-        grid_points = int(Nx)
+            rpoints = np.linspace(-r_len, r_len, Nx_truncated)
+            points2d[Nx_truncated * k : Nx_truncated * (k + 1), 0] = rpoints * np.cos(alpha)
+            points2d[Nx_truncated * k : Nx_truncated * (k + 1), 1] = rpoints * np.sin(alpha)
+        grid_oversampling_factor = 1
+        grid_points = int(Nx_truncated)*grid_oversampling_factor
         grid_x, grid_y = np.mgrid[-r_len:r_len:grid_points*(1j), -r_len:r_len:grid_points*(1j)]
         data2dgridded = griddata(points2d, data2d.flatten(), (grid_x, grid_y),fill_value=0,method='linear')
         data2dgridded = data2dgridded.reshape((grid_points,grid_points))
