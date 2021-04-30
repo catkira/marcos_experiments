@@ -6,7 +6,6 @@ sequencerRasterTime = 7E-9; % make sure all times are a multiple of sequencer ra
 
 fov=10e-3; Nx=128; Ny=1;       % Define FOV and resolution
 TE=12e-3;
-TR=3;                 
 
 gxFlatTime = 4e-3;
 

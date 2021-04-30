@@ -13,9 +13,10 @@ TR=5; % [s]
 oversamplingFactor = 4;
 
 gxFlatTime = 4e-3;  % = adc read time
-rf90duration=0.08e-3;
+rf90duration=0.1e-3;
 rf180duration=2*rf90duration;
 sliceThickness = 10;
+use_slice = 0;
 
 % set system limits
 maxGrad = 200; % [mT/m], value for tabletop coils and gpa fhdo
@@ -28,9 +29,14 @@ sys = mr.opts('MaxGrad', maxGrad, 'GradUnit', 'mT/m', ...
 seq=mr.Sequence(sys);              % Create a new sequence object
 
 % Create HF pulses, 500 us delay for tx gate
-[rf90, gs] = mr.makeBlockPulse(pi/2, 'duration', rf90duration,...
-    'PhaseOffset', 0, 'sys', sys, 'SliceThickness', sliceThickness);
-gs.channel='z'; % change it to X because we want sagittal orientation
+if use_slice == 1
+    [rf90, gs] = mr.makeBlockPulse(pi/2, 'duration', rf90duration,...
+        'PhaseOffset', 0, 'sys', sys, 'SliceThickness', sliceThickness);
+    gs.channel='z'; % change it to X because we want sagittal orientation
+else
+    rf90 = mr.makeBlockPulse(pi/2, 'duration', rf90duration,...
+        'PhaseOffset', 0, 'sys', sys);    
+end
 
 rf180 = mr.makeBlockPulse(pi, 'duration', rf180duration,...
     'PhaseOffset', pi/2, 'sys', sys);
@@ -59,7 +65,11 @@ fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 
 delta=pi / Nspokes;            % angular increment;
 for i=(1-Ndummy):Nspokes
-    seq.addBlock(rf90, gs);
+    if use_slice == 1
+        seq.addBlock(rf90, gs);
+    else
+        seq.addBlock(rf90);
+    end
     seq.addBlock(mr.makeDelay(delayTE1));
     seq.addBlock(mr.rotate('z',delta*(i-1),gyPre)); 
     seq.addBlock(rf180);

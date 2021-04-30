@@ -55,7 +55,7 @@ if __name__ == "__main__":
     plt.imshow(10*np.log(np.abs(data2d)),aspect='auto',interpolation='none', origin='lower')
     plt.subplot(1, 3, 2)
     plt.imshow(np.angle(data2d),aspect='auto',interpolation='none')
-    if True:
+    if False:
         Nx_truncated = data2d.shape[1]
         #print(np.angle(data2d[:,int(Nx_truncated/2)]))        
         points2d = np.zeros((Nspokes * Nx_truncated, 2))
