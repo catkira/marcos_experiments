@@ -35,6 +35,12 @@ if __name__ == "__main__":
         for k in np.arange(1,Nspokes):
             delta = np.angle(data2d[k,center_index]) - phase
             data2d[k,:] *= np.exp(-1j*delta)
+    if True:
+        # plot peak distribution
+        plt.figure(3)
+        peaks = np.argmax(np.abs(data2d), axis=1)
+        plt.plot(peaks)
+
     data2d = sig.decimate(data2d, oversampling_factor, ftype='fir', axis=1)   
 
     if False:
