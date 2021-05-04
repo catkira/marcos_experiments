@@ -2,7 +2,6 @@ addpath('../pulseq/matlab')
 close all
 clear
 gamma = 42.57E6;
-sequencerRasterTime = 7E-9; % make sure all times are a multiple of sequencer raster time
 
 fov=10e-3; Nx=128; Ny=1;       % Define FOV and resolution
 TE=12e-3;
@@ -11,12 +10,13 @@ gxFlatTime = 4e-3;
 
 % set system limits
 maxGrad = 125; % [mT/m], value for tabletop coils and gpa fhdo
+spA=1000; % spoiler area in 1/m (=Hz/m*s)
 rfDeadTime = 500e-6; % [us], minicircuits PA needs 500 us to turn on
 adcDeadTime = 0;
 sys = mr.opts('MaxGrad', maxGrad, 'GradUnit', 'mT/m', ...
-    'MaxSlew', 300, 'SlewUnit', 'T/m/s', ...
+    'MaxSlew', 500, 'SlewUnit', 'T/m/s', ...
     'rfDeadTime', rfDeadTime, 'adcDeadTime', adcDeadTime, ...
-    'rfRasterTime', 1.003e-6, 'gradRasterTime',10.003e-6);
+    'rfRasterTime', 1e-6, 'gradRasterTime',10e-6);
 seq=mr.Sequence(sys);              % Create a new sequence object
 
 % Create HF pulses, 500 us delay for tx gate
@@ -33,15 +33,17 @@ fprintf('Sequence bandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov);
 fprintf('Pixelbandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov/Nx);
 gx.delay = 0; % assumes rfDeadTime > gx.riseTime !!
 gxPre = mr.makeTrapezoid('x','Area',gx.area/2,'Duration',gx.flatTime/2,'sys',sys);
+g_sp = mr.makeTrapezoid('x','Area',spA,'Duration',0.5e-3,'system',sys);
 oversamplingFactor = 1;
 adc = mr.makeAdc(oversamplingFactor*Nx,'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
 
 % Calculate timing
+delayTE1_2 = 1e-3;
 delayTE1 = ceil((TE/2 - (mr.calcDuration(rf90)-rf90.delay)/2 ...
-    - mr.calcDuration(gxPre)...
-    - rf180.delay - (mr.calcDuration(rf180)-rf180.delay)/2)/seq.gradRasterTime)*seq.gradRasterTime;
+    - mr.calcDuration(gxPre) -  mr.calcDuration(g_sp)...
+    - rf180.delay - (mr.calcDuration(rf180)-rf180.delay)/2 - delayTE1_2)/seq.gradRasterTime)*seq.gradRasterTime;
 delayTE2 = ceil((TE/2 - (mr.calcDuration(rf180) - rf180.delay)/2 ...
-    - mr.calcDuration(gx)/2 )/seq.gradRasterTime)*seq.gradRasterTime;
+    - mr.calcDuration(gx)/2  -  mr.calcDuration(g_sp))/seq.gradRasterTime)*seq.gradRasterTime;
 fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 
 % Loop over phase encodes and define sequence blocks
@@ -50,7 +52,10 @@ for i=1:Ny
         seq.addBlock(rf90);
         seq.addBlock(mr.makeDelay(delayTE1(c)));
         seq.addBlock(gxPre);
+        seq.addBlock(mr.makeDelay(delayTE1_2(c)));
+        seq.addBlock(g_sp);
         seq.addBlock(rf180);
+        seq.addBlock(g_sp);
         seq.addBlock(mr.makeDelay(delayTE2(c)));
         seq.addBlock(gx,adc);
     end

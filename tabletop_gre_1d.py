@@ -15,10 +15,10 @@ from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.268 # MHz
+    lo_freq = 17.275 # MHz
     tx_t = 1 # us
     num_grad_channels = 3
-    grad_interval = 10 # us between [num_grad_channels] channel updates
+    grad_interval = 10.003 # us between [num_grad_channels] channel updates
 
     gamma = 42570000 # Hz/T
 
@@ -57,7 +57,7 @@ if __name__ == "__main__":
                         tx_t=tx_t,
                         grad_t=grad_interval,
                         grad_max=grad_max)
-    od, pd = psi.interpret("tabletop_se_1d_pulseq.seq")         
+    od, pd = psi.interpret("tabletop_gre_1d_pulseq.seq")         
     #od['grad_vy'] = od['grad_vy'][0] + grad_interval/3, od['grad_vy'][1]
     #od['grad_vz'] = od['grad_vz'][0] + 2*grad_interval/3, od['grad_vz'][1]  
          
@@ -83,13 +83,13 @@ if __name__ == "__main__":
     nSamples = len(data)
     dt = pd['rx_t']    
     fig, (ax1, ax2, ax3) = plt.subplots(3)
-    fig.suptitle('Spin Echo [n={:d}, lo_freq={:f} Mhz]\n'.format(nSamples,lo_freq))
+    fig.suptitle('Gradient Echo [n={:d}, lo_freq={:f} Mhz]\n'.format(nSamples,lo_freq))
     t_axis = np.linspace(0, dt * nSamples, nSamples)  # us    
-    ax1.plot(t_axis, np.abs(data)*33)
-    ax1.set_ylabel('voltage [mV]')
+    ax1.plot(t_axis, np.abs(data)*3.3)
+    ax1.set_ylabel('voltage [V]')
     ax2.set_xlabel('time [us]')
-    ax2.plot(t_axis, data.real*33)
-    ax2.set_ylabel('voltage [mV]')
+    ax2.plot(t_axis, data.real*3.3)
+    ax2.set_ylabel('voltage [V]')
     #f_axis = np.linspace(-1/dt*nSamples,1/dt*nSamples,nSamples)
     #nFFT_window = 60
     #f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]

@@ -15,7 +15,7 @@ from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.269 # MHz
+    lo_freq = 17.268 # MHz
     tx_t = 1 # us
     grad_t = 10 #
 
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     
     from datetime import datetime
     now = datetime.now()
-    current_time = now.strftime("%y-%d-%m %H_%M_%S")
+    current_time = now.strftime("%y-%m-%d %H_%M_%S")
     filename = f"data2d radial v2 {current_time} Nspokes {Nspokes} Nx {Nx} TR {TR} SliceThickness {sliceThickness}.npy"
     if os.path.exists(filename):
         os.remove(filename)

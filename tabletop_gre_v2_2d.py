@@ -15,10 +15,10 @@ from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.268 # MHz
+    lo_freq = 17.275# MHz
     tx_t = 1 # us
     num_grad_channels = 3
-    grad_interval = 10 # us between [num_grad_channels] channel updates
+    grad_t = 10 # us between [num_grad_channels] channel updates
 
     gamma = 42570000 # Hz/T
 
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     hf_PA_gain = 20 # dB
 
     #grad_max_Hz_per_m = max_dac_voltage * gpa_current_per_volt * grad_B_per_m_per_current * gamma	
-    grad_max_Hz_per_m = 13E6 # experimental value
+    grad_max_Hz_per_m = 15E6 # experimental value
     print('gradient max_B_per_m = {:f} mT/m'.format(grad_max_Hz_per_m/gamma*1e3))	
     print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
 
@@ -50,55 +50,54 @@ if __name__ == "__main__":
 
     grad_max = grad_max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
     rf_amp_max = hf_max_Hz_per_m # factor used to normalize RF amplitude, should be max value of system used!
-    tx_warmup = 0 # already handled by delay in RF block
-    adc_pad = 85 # padding to prevent junk in rx buffer
+    #tx_warmup = 0 # already handled by delay in RF block
     psi = PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=rf_amp_max,
                         tx_t=tx_t,
-                        grad_t=grad_interval,
+                        grad_t=grad_t,
                         grad_max=grad_max)
-    od, pd = psi.interpret("tabletop_se_1d_pulseq.seq")         
-    #od['grad_vy'] = od['grad_vy'][0] + grad_interval/3, od['grad_vy'][1]
-    #od['grad_vz'] = od['grad_vz'][0] + 2*grad_interval/3, od['grad_vz'][1]  
-         
+    od, pd = psi.interpret("tabletop_gre_v2_2d_pulseq.seq")   
+
+    TR = pd['TR']
+    Nx = int(pd['Nx'])
+    Ny = int(pd['Ny'])
+
     expt = ex.Experiment(lo_freq=lo_freq,
                          rx_t=pd['rx_t'],
                          init_gpa=True,
-                         gpa_fhdo_offset_time=grad_interval/3) 
+                         gpa_fhdo_offset_time=grad_t/3) 
     expt.add_flodict(od)
 
     expt.gradb.calibrate(channels=[0,1], max_current=6, num_calibration_points=30, averages=5, poly_degree=5)
 
     rxd, msgs = expt.run()
+    nSamples = pd['readout_number']
+    
+    from datetime import datetime
+    now = datetime.now()
+    current_time = now.strftime("%y-%d-%m %H_%M_%S")
+    filename = f"data2d gre v2 {current_time} Nx {Nx} Ny {Ny} TR {TR}.npy"
+    if os.path.exists(filename):
+        os.remove(filename)
+    np.save(filename,rxd['rx0'])
+    plt.close()
+    plt.ioff()
 
-    # from datetime import datetime
-    # now = datetime.now()
-    # current_time = now.strftime("%y-%d-%m %H_%M_%S")
-    # filename = f"data1d ben Nx {nSamples} {current_time}.npz"
-    # if os.path.exists(filename):
-    #     os.remove(filename)
-    # np.savez(filename,data=data,dt=dt,nSamples=int(nSamples),lo_freq=lo_freq,data1d=data)
-
-    data = rxd['rx0'][6:]
-    nSamples = len(data)
-    dt = pd['rx_t']    
-    fig, (ax1, ax2, ax3) = plt.subplots(3)
-    fig.suptitle('Spin Echo [n={:d}, lo_freq={:f} Mhz]\n'.format(nSamples,lo_freq))
-    t_axis = np.linspace(0, dt * nSamples, nSamples)  # us    
-    ax1.plot(t_axis, np.abs(data)*33)
-    ax1.set_ylabel('voltage [mV]')
-    ax2.set_xlabel('time [us]')
-    ax2.plot(t_axis, data.real*33)
-    ax2.set_ylabel('voltage [mV]')
-    #f_axis = np.linspace(-1/dt*nSamples,1/dt*nSamples,nSamples)
-    #nFFT_window = 60
-    #f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]
-    #ax3.plot(f_axis,np.abs(np.fft.fftshift(np.fft.fft(data))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]/np.sqrt(nSamples)))
-    f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))
-    ax3.plot(f_axis,np.abs(np.fft.fftshift(np.fft.fft(data))/np.sqrt(nSamples)))
+    # reconstruction
+    oversampling_factor = int(np.round(rxd['rx0'].shape[0]/Nx/Ny))    
+    data2d = rxd['rx0'].reshape(Ny, Nx * oversampling_factor)
+    adc_pad = 0
+    data2d=data2d[adc_pad:][:]
+    plt.figure(1)
+    plt.subplot(1, 3, 1)
+    plt.imshow(10*np.log(np.abs(data2d)),aspect='auto',interpolation='none', origin='lower')
+    plt.subplot(1, 3, 2)
+    plt.imshow(np.angle(data2d),aspect='auto',interpolation='none')
+    plt.subplot(1, 3, 3)
+    img = np.abs(np.fft.fftshift(np.fft.fft2(np.fft.fftshift(data2d))))
+    plt.imshow(img, aspect='auto',cmap='gray',interpolation='none')
     plt.show()
-    fig.tight_layout()
-
+    
     # st()    
 
   
