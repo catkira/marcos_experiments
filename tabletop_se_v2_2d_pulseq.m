@@ -14,7 +14,7 @@ sliceThickness = 10;
 use_slice = 0;
 
 gxFlatTime = 4e-3;
-spA=0; % spoiler area in 1/m (=Hz/m*s)
+spA=1000; % spoiler area in 1/m (=Hz/m*s)
 
 % set system limits
 maxGrad = 125; % [mT/m], value for tabletop coils and gpa fhdo
