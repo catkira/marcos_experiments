@@ -45,6 +45,7 @@ rf180 = mr.makeBlockPulse(pi, 'duration', rf180duration,...
 % Define other gradients and ADC events
 deltak=1/fov;
 kWidth=deltak*Nx;
+kWidth=0;
 gx = mr.makeTrapezoid('x','FlatArea',kWidth,'FlatTime',gxFlatTime,'sys',sys);
 gy = mr.makeTrapezoid('y','FlatArea',kWidth,'FlatTime',gxFlatTime,'sys',sys);
 fprintf('Sequence bandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov);
@@ -63,7 +64,7 @@ delayTE2 = ceil((TE/2 - (mr.calcDuration(rf180) - rf180.delay)/2 ...
 delayTR = TR - TE -rf90.delay -mr.calcDuration(rf90)/2 - mr.calcDuration(gx)/2;
 fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 
-delta=pi / Nspokes;            % angular increment;
+delta = pi / Nspokes;            % angular increment;
 for i=(1-Ndummy):Nspokes
     if use_slice == 1
         seq.addBlock(rf90, gs);

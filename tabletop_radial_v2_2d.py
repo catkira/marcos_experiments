@@ -11,11 +11,13 @@ import time
 import external
 import experiment as ex
 import os
+import scipy.io as sio
+from shutil import copyfile
 from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.268 # MHz
+    lo_freq = 17.283 # MHz
     tx_t = 1 # us
     grad_t = 10 #
 
@@ -44,23 +46,31 @@ if __name__ == "__main__":
     print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
 
     #hf_max_Hz_per_m = np.sqrt(1/50 * 10**(hf_PA_gain/10) / R_coil) * hf_B_per_m_current * gamma
-    hf_max_Hz_per_m = 3000 # experimental value, needs to take into account coil tuning! (do flip-angle calibration)
+    hf_max_Hz_per_m = 3400 # experimental value, needs to take into account coil tuning! (do flip-angle calibration)
     print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
 
     grad_max = grad_max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
     rf_amp_max = hf_max_Hz_per_m # factor used to normalize RF amplitude, should be max value of system used!
     #tx_warmup = 0 # already handled by delay in RF block
+    seq_file = "tabletop_radial_v2_2d_pulseq.seq"
+
     psi = PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=rf_amp_max,
                         tx_t=tx_t,
                         grad_t=grad_t,
                         grad_max=grad_max)
-    od, pd = psi.interpret("tabletop_radial_v2_2d_pulseq.seq")   
+    od, pd = psi.interpret(seq_file)   
 
     TR = pd['TR']
     Nx = pd['Nx']
     Nspokes = int(pd['Nspokes'])
     sliceThickness = int(pd['SliceThickness'])
+
+    from datetime import datetime
+    now = datetime.now()
+    current_time = now.strftime("%y-%m-%d %H_%M_%S")
+    filename = f"data2d radial v2 {current_time} Nspokes {Nspokes} Nx {Nx} TR {TR} SliceThickness {sliceThickness}"
+    copyfile(seq_file,filename+".seq")        
 
     expt = ex.Experiment(lo_freq=lo_freq,
                          rx_t=pd['rx_t'],
@@ -73,13 +83,8 @@ if __name__ == "__main__":
     rxd, msgs = expt.run()
     nSamples = pd['readout_number']
     
-    from datetime import datetime
-    now = datetime.now()
-    current_time = now.strftime("%y-%m-%d %H_%M_%S")
-    filename = f"data2d radial v2 {current_time} Nspokes {Nspokes} Nx {Nx} TR {TR} SliceThickness {sliceThickness}.npy"
-    if os.path.exists(filename):
-        os.remove(filename)
-    np.save(filename,rxd['rx0'])
+    np.save(filename + ".npy",rxd['rx0'])
+    sio.savemat(filename + ".mat",rxd)
     plt.close()
     plt.ioff()
 

@@ -15,7 +15,7 @@ from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.275 # MHz
+    lo_freq = 17.282 # MHz
     tx_t = 1 # us
     num_grad_channels = 3
     grad_interval = 10.003 # us between [num_grad_channels] channel updates
@@ -45,7 +45,7 @@ if __name__ == "__main__":
     print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
 
     #hf_max_Hz_per_m = np.sqrt(1/50 * 10**(hf_PA_gain/10) / R_coil) * hf_B_per_m_current * gamma
-    hf_max_Hz_per_m = 3000 # experimental value
+    hf_max_Hz_per_m = 3400 # experimental value
     print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
 
     grad_max = grad_max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	

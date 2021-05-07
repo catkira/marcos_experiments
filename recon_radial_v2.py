@@ -8,7 +8,7 @@ from scipy.interpolate import griddata
 if __name__ == "__main__":
 
     files = listdir("./")
-    files2 = [f for f in files if f.find("data2d radial v2 ") != -1]
+    files2 = [f for f in files if f.find("data2d radial v2 ") != -1 and f.find(".npy") != -1]
 
     # 2: decent star
     # 6: decent star with oversampling
@@ -82,7 +82,7 @@ if __name__ == "__main__":
                 img[k] = img[k][:]*(np.abs((np.arange(img.shape[1])-img.shape[1]/2) + 1j*(k-img.shape[0]/2))/Nspokes + offset)
     else:
         sinogram = np.abs(np.fft.fftshift(np.fft.fft(np.fft.fftshift(data2d), axis=1))) 
-        theta = np.linspace(0., 180., Nspokes, endpoint=False)    
+        theta = np.linspace(0., 360., Nspokes, endpoint=False)    
         img = iradon(np.swapaxes(sinogram,0,1), theta=theta, filter_name='hann')
     
     plt.figure(1)

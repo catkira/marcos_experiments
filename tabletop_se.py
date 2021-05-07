@@ -15,7 +15,7 @@ from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.261 # MHz
+    lo_freq = 17.289 # MHz
     #lo_freq = 1 # MHz  # only for debugging on scope
     tx_t = 1 # us
     num_grad_channels = 3
@@ -45,7 +45,7 @@ if __name__ == "__main__":
     print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
 
     #hf_max_Hz_per_m = np.sqrt(1/50 * 10**(hf_PA_gain/10) / R_coil) * hf_B_per_m_current * gamma
-    hf_max_Hz_per_m = 4200 # experimental value
+    hf_max_Hz_per_m = 3400 # experimental value
     print(hf_max_Hz_per_m)
     print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
 
@@ -79,10 +79,10 @@ if __name__ == "__main__":
     dt = pd['rx_t']
     t_axis = np.linspace(0, dt * nSamples, nSamples)  # us    
     ax1.plot(t_axis, np.abs(data)*3.3)
-    ax1.set_ylabel('voltage [V]')
+    ax1.set_ylabel('voltage [mV]')
     ax2.set_xlabel('time [us]')
     ax2.plot(t_axis, data.real*3.3)
-    ax2.set_ylabel('voltage [V]')
+    ax2.set_ylabel('voltage [mV]')
     #f_axis = np.linspace(-1/dt*nSamples,1/dt*nSamples,nSamples)
     #nFFT_window = 127
     #f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]

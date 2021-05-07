@@ -4,9 +4,9 @@ clear
 gamma = 42.57E6;
 
 fov=10e-3; Nx=128; Ny=1;       % Define FOV and resolution
-TE=3e-3;
+TE=2.3e-3;
 
-gxFlatTime = 2.e-3;
+gxFlatTime = 2e-3;
 
 % set system limits
 maxGrad = 250; % [mT/m], value for tabletop coils and gpa fhdo
@@ -30,7 +30,7 @@ fprintf('Sequence bandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov);
 fprintf('Pixelbandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov/Nx);
 gx.delay = 0; % assumes rfDeadTime > gx.riseTime !!
 gxPre = mr.makeTrapezoid('x','Area',-gx.area/2,'Duration',gx.flatTime/2,'sys',sys);
-oversamplingFactor = 4;
+oversamplingFactor = 10;
 adc = mr.makeAdc(oversamplingFactor*Nx,'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
 
 % Calculate timing
