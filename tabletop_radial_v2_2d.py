@@ -65,11 +65,12 @@ if __name__ == "__main__":
     Nx = pd['Nx']
     Nspokes = int(pd['Nspokes'])
     sliceThickness = int(pd['SliceThickness'])
+    angle = int(pd['angle'])
 
     from datetime import datetime
     now = datetime.now()
     current_time = now.strftime("%y-%m-%d %H_%M_%S")
-    filename = f"data2d radial v2 {current_time} Nspokes {Nspokes} Nx {Nx} TR {TR} SliceThickness {sliceThickness}"
+    filename = f"data2d radial v2 {current_time} Nspokes {Nspokes} Nx {Nx} TR {TR} angle {angle} SliceThickness {sliceThickness}"
     copyfile(seq_file,filename+".seq")        
 
     expt = ex.Experiment(lo_freq=lo_freq,

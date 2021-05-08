@@ -10,6 +10,7 @@ fov=10e-3; Nx=200; Nspokes=80;       % Define FOV and resolution
 Ndummy=2;                            % number of dummy scans
 TE=12e-3; % [s]
 TR=5; % [s]     
+angle=180;
 oversamplingFactor = 4;
 
 gxFlatTime = 4e-3;  % = adc read time
@@ -35,7 +36,8 @@ if use_slice == 1
     gs.channel='z'; % change it to X because we want sagittal orientation
 else
     rf90 = mr.makeBlockPulse(pi/2, 'duration', rf90duration,...
-        'PhaseOffset', 0, 'sys', sys);    
+        'PhaseOffset', 0, 'sys', sys); 
+    sliceThickness = 0;
 end
 
 rf180 = mr.makeBlockPulse(pi, 'duration', rf180duration,...
@@ -64,7 +66,7 @@ delayTE2 = ceil((TE/2 - (mr.calcDuration(rf180) - rf180.delay)/2 ...
 delayTR = TR - TE -rf90.delay -mr.calcDuration(rf90)/2 - mr.calcDuration(gx)/2;
 fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 
-delta = pi / Nspokes;            % angular increment;
+delta = angle/360*2*pi / Nspokes;            % angular increment;
 for i=(1-Ndummy):Nspokes
     if use_slice == 1
         seq.addBlock(rf90, gs);
@@ -93,8 +95,9 @@ seq.setDefinition('TR', TR);
 seq.setDefinition('Nx', Nx);
 seq.setDefinition('Nspokes', Nspokes);
 seq.setDefinition('Bandwidth [Hz]', 1/adc.dwell);
-seq.setDefinition('grad_interval]', grad_interval);
-seq.setDefinition('rf_interval]', rf_interval);
+seq.setDefinition('grad_interval', grad_interval);
+seq.setDefinition('rf_interval', rf_interval);
+seq.setDefinition('angle', angle);
 
 seq.plot();
 

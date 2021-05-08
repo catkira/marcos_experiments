@@ -12,11 +12,12 @@ FOV 0.01 0.01
 Name se_2d 
 Nspokes 80 
 Nx 200 
-SliceThickness 10 
+SliceThickness 0 
 TE [s] 0.012 
 TR 5 
-grad_interval] 1e-05 
-rf_interval] 1e-06 
+angle 180 
+grad_interval 1e-05 
+rf_interval 1e-06 
 
 # Format of blocks:
 #  #  D RF  GX  GY  GZ ADC EXT

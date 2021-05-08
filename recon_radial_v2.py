@@ -18,6 +18,7 @@ if __name__ == "__main__":
 
     Nx = 200 # default value
     Nspokes = 80 # default value
+    angle = 360
     tokens = current_file.split(" ")
     for n in np.arange(1,len(tokens)):
         if tokens[n] == "Nx":
@@ -82,7 +83,7 @@ if __name__ == "__main__":
                 img[k] = img[k][:]*(np.abs((np.arange(img.shape[1])-img.shape[1]/2) + 1j*(k-img.shape[0]/2))/Nspokes + offset)
     else:
         sinogram = np.abs(np.fft.fftshift(np.fft.fft(np.fft.fftshift(data2d), axis=1))) 
-        theta = np.linspace(0., 360., Nspokes, endpoint=False)    
+        theta = np.linspace(0., angle, Nspokes, endpoint=False)    
         img = iradon(np.swapaxes(sinogram,0,1), theta=theta, filter_name='hann')
     
     plt.figure(1)
