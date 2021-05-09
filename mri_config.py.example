@@ -1,0 +1,31 @@
+lo_freq = 17.283 # MHz
+
+gamma = 42570000 # Hz/T    
+if True:
+    grad_max_Hz_per_m = 15E6 # experimental value
+else:
+    # value for tabletopMRI  gradient coil
+    grad_B_per_m_per_current = 0.02 # [T/m/A], approximate value for tabletop gradient coil
+
+    # values for gpa fhdo
+    gpa_current_per_volt = 2.5 # gpa fhdo 6A configuration
+    max_dac_voltage = 2.5
+    grad_max_Hz_per_m = max_dac_voltage * gpa_current_per_volt * grad_B_per_m_per_current * gamma	
+
+
+if True:
+    hf_max_Hz_per_m = 3200 # experimental value
+else:    
+    # values of tabletop coil
+    R_coil = 2
+    hf_B_per_m_current = 2.483E-4 # [T/A] theoretical value
+
+    # values for red pitaya 
+    hf_max_dac_voltage = 1 # +-
+
+    # HF-PA
+    hf_PA_gain = 20 # dB
+    
+    hf_max_Hz_per_m = np.sqrt(1/50 * 10**(hf_PA_gain/10) / R_coil) * hf_B_per_m_current * gamma    
+
+max_grad_current = 6 # amps
