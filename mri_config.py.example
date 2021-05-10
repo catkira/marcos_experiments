@@ -1,3 +1,5 @@
+data_path = "data"
+
 lo_freq = 17.283 # MHz
 
 gamma = 42570000 # Hz/T    
