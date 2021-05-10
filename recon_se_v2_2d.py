@@ -4,21 +4,23 @@ from os import listdir
 import scipy.signal as sig
 from skimage.transform import iradon
 from scipy.interpolate import griddata
+from mri_config import data_path
+import os.path
 
 if __name__ == "__main__":
 
-    files = listdir("./")
-    files2 = [f for f in files if f.find("data2d se v2") != -1]
+    files = listdir(os.path.join(data_path,"./"))
+    files2 = [f for f in files if f.find("se_v2_2d") != -1 and f.find(".npy") != -1]
 
     # 2 cylinder decent
     current_file = files2[-1]
     print(current_file)
-    data2d = np.load(current_file)
+    data2d = np.load(os.path.join(data_path,current_file))
     Nx = 200 # TODO: parse from filename
-    Ny = 63 # TODO: parse from filename
+    Ny = 80 # TODO: parse from filename
     oversampling_factor = int(np.round(data2d.shape[0]/Nx/Ny))
     data2d = data2d.reshape(Ny,Nx*oversampling_factor)    
-    adc_pad = 0
+    adc_pad = 6
     data2d=data2d[adc_pad:][:]    
 
     plt.figure(1)

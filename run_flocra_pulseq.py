@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 import pdb
 import time
 import argparse
-from mri_config import lo_freq, grad_max_Hz_per_m, hf_max_Hz_per_m, gamma
+import os.path
+from mri_config import lo_freq, grad_max_Hz_per_m, hf_max_Hz_per_m, gamma, max_grad_current, data_path
 
 import external
 import experiment as ex
@@ -51,7 +52,8 @@ if __name__ == "__main__":
     else:
         Ny = int(pd['Ny'])
         filename = f"{seq_file[:-4]} {current_time} Ny {Ny} Nx {Nx} TR {TR} SliceThickness {sliceThickness}"
-    copyfile(seq_file,filename+".seq")        
+    copyfile(seq_file,os.path.join(data_path,filename+".seq"))        
+    copyfile(seq_file[:-4]+".m",os.path.join(data_path,filename+".m"))
 
     expt = ex.Experiment(lo_freq=lo_freq,
                          rx_t=pd['rx_t'],
@@ -64,7 +66,7 @@ if __name__ == "__main__":
     rxd, msgs = expt.run()
     nSamples = pd['readout_number']
     
-    np.save(filename + ".npy",rxd['rx0'])
-    sio.savemat(filename + ".mat",rxd)
+    np.save(os.path.join(data_path,filename) + ".npy",rxd['rx0'])
+    sio.savemat(os.path.join(data_path,filename) + ".mat",rxd)
     plt.close()
     plt.ioff()

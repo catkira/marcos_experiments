@@ -4,17 +4,19 @@ from os import listdir
 import scipy.signal as sig
 from skimage.transform import iradon
 from scipy.interpolate import griddata
+import os.path
+from mri_config import data_path
 
 if __name__ == "__main__":
 
-    files = listdir("./")
-    files2 = [f for f in files if f.find("data2d radial v2 ") != -1 and f.find(".npy") != -1]
+    files = listdir(os.path.join(data_path,"./"))
+    files2 = [f for f in files if f.find("radial_v2_2d") != -1 and f.find(".npy") != -1]
 
     # 2: decent star
     # 6: decent star with oversampling
     current_file = files2[-1]
     print(current_file)
-    data2d = np.load(current_file)
+    data2d = np.load(os.path.join(data_path,current_file))
 
     Nx = 200 # default value
     Nspokes = 80 # default value
