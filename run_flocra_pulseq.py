@@ -6,7 +6,7 @@ import pdb
 import time
 import argparse
 import os.path
-from mri_config import lo_freq, grad_max_Hz_per_m, hf_max_Hz_per_m, gamma, max_grad_current, data_path
+from mri_config import lo_freq, grad_max_Hz_per_m, hf_max_Hz_per_m, gamma, max_grad_current, grad_max_x_Hz_per_m, grad_max_y_Hz_per_m, grad_max_z_Hz_per_m, data_path, shim
 
 import external
 import experiment as ex
@@ -35,7 +35,10 @@ if __name__ == "__main__":
                         rf_amp_max=hf_max_Hz_per_m,
                         tx_t=tx_t,
                         grad_t=grad_t,
-                        grad_max=grad_max_Hz_per_m)
+                        grad_max=grad_max_Hz_per_m,
+                        gx_max=grad_max_x_Hz_per_m,
+                        gy_max=grad_max_y_Hz_per_m,
+                        gz_max=grad_max_z_Hz_per_m)
     od, pd = psi.interpret(seq_file)   
 
     TR = pd['TR']
@@ -55,10 +58,19 @@ if __name__ == "__main__":
     copyfile(seq_file,os.path.join(data_path,filename+".seq"))        
     copyfile(seq_file[:-4]+".m",os.path.join(data_path,filename+".m"))
 
+    if True:
+        # Shim
+        grads = ['grad_vx', 'grad_vy', 'grad_vz']
+        for ch in range(3):
+            od[grads[ch]] = (np.concatenate((np.array([10.0]), od[grads[ch]][0])), np.concatenate((np.array([0]), od[grads[ch]][1])))
+            od[grads[ch]] = (od[grads[ch]][0], od[grads[ch]][1] + shim[ch])
+
+
     expt = ex.Experiment(lo_freq=lo_freq,
                          rx_t=pd['rx_t'],
                          init_gpa=True,
-                         gpa_fhdo_offset_time=grad_t/3) 
+                         gpa_fhdo_offset_time=grad_t/3,
+                         flush_old_rx=True) 
     expt.add_flodict(od)
 
     expt.gradb.calibrate(channels=[0,1,2], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)

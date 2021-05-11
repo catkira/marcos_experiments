@@ -13,7 +13,7 @@ import os
 #from pulseq_assembler import PSAssembler
 from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
-from mri_config import lo_freq, grad_max_Hz_per_m, hf_max_Hz_per_m, gamma
+from mri_config import lo_freq, grad_max_Hz_per_m, hf_max_Hz_per_m, gamma, shim
 
 if __name__ == "__main__":
     tx_t = 1 # us
@@ -32,12 +32,22 @@ if __name__ == "__main__":
                         grad_t=grad_interval,
                         grad_max=grad_max) # very large, just for testing
     od, pd = psi.interpret("tabletop_se_pulseq.seq")         
+
+
+    if True:
+        # Shim
+        grads = ['grad_vx', 'grad_vy', 'grad_vz']
+        for ch in range(3):
+            #od[grads[ch]] = (np.concatenate((np.array([10.0]), od[grads[ch]][0])), np.concatenate((np.array([0]), od[grads[ch]][1])))
+            #od[grads[ch]] = (od[grads[ch]][1], od[grads[ch]][1] + shim[ch])
+            od[grads[ch]] = (np.array([10.0]), np.array([shim[ch]]))
+
     expt = ex.Experiment(lo_freq=lo_freq,
                          rx_t=pd['rx_t'],
                          init_gpa=True,
                          gpa_fhdo_offset_time=grad_interval/3) 
     expt.add_flodict(od)
-    #expt.gradb.calibrate(channels=[0,1], max_current=6, num_calibration_points=30, averages=5, poly_degree=5)
+    expt.gradb.calibrate(channels=[0,1,2], max_current=6, num_calibration_points=30, averages=5, poly_degree=5)
 
     rxd, msgs = expt.run()
 
@@ -53,10 +63,10 @@ if __name__ == "__main__":
     dt = pd['rx_t']
     t_axis = np.linspace(0, dt * nSamples, nSamples)  # us    
     ax1.plot(t_axis, np.abs(data)*3.3)
-    ax1.set_ylabel('voltage [mV]')
+    ax1.set_ylabel('abs [mV]')
     ax2.set_xlabel('time [us]')
     ax2.plot(t_axis, data.real*3.3)
-    ax2.set_ylabel('voltage [mV]')
+    ax2.set_ylabel('real [mV]')
     #f_axis = np.linspace(-1/dt*nSamples,1/dt*nSamples,nSamples)
     #nFFT_window = 127
     #f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]

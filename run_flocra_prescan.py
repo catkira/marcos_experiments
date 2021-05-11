@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     rxd, msgs = expt.run()
     nSamples_orig = pd['readout_number']
-    data = rxd['rx0'][6:]
+    data = rxd['rx0'][:]
     nSamples = len(data)    
     dt = pd['rx_t'] 
 
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     plt.show()
     fig.tight_layout()
     max_peak_index = np.argmax(fft_data[peaks])
-    new_lo_freq = round(lo_freq + f_axis[peaks[max_peak_index]]*1e-6,4)
+    new_lo_freq = round(lo_freq + f_axis[peaks[max_peak_index]]*1e-6,5)
     print(F"detected lamor frequency at {new_lo_freq} MHz")
 
     # write new lo_freq to mri_config.py

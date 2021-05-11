@@ -11,6 +11,7 @@ TR=5; % [s]
 readoutOversamplingFactor = 4;
 sliceThickness = 10;
 use_slice = 0;
+turbo_factor = 5;
 
 gxFlatTime = 3e-3;
 rf90duration=0.1e-3;
@@ -82,6 +83,13 @@ for n=1:Ny
     seq.addBlock(g_sp);    
     seq.addBlock(mr.makeDelay(delayTE2));
     seq.addBlock(gx,adc);
+    for m=1:turbo_factor
+        ### TODO
+        gy = mr.makeTrapezoid('y','Area',gy_area*phase_factor(n),'Duration',gx.flatTime/2,'sys',sys);    
+        seq.addBlock(gy);
+        seq.addBlock(rf180);
+        seq.addBlock(gx,adc);    
+    end
     seq.addBlock(mr.makeDelay(delayTR));
 end
 

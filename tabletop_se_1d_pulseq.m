@@ -6,15 +6,15 @@ gamma = 42.57E6;
 fov=10e-3; Nx=128; Ny=1;       % Define FOV and resolution
 TE=12e-3;
 
-gxFlatTime = 4e-3;
+gxFlatTime = 3e-3;
 
 % set system limits
-maxGrad = 125; % [mT/m], value for tabletop coils and gpa fhdo
-spA=1000; % spoiler area in 1/m (=Hz/m*s)
+maxGrad = 400; % [mT/m], value for tabletop coils and gpa fhdo
+spA=2000; % spoiler area in 1/m (=Hz/m*s)
 rfDeadTime = 500e-6; % [us], minicircuits PA needs 500 us to turn on
 adcDeadTime = 0;
 sys = mr.opts('MaxGrad', maxGrad, 'GradUnit', 'mT/m', ...
-    'MaxSlew', 500, 'SlewUnit', 'T/m/s', ...
+    'MaxSlew', 800, 'SlewUnit', 'T/m/s', ...
     'rfDeadTime', rfDeadTime, 'adcDeadTime', adcDeadTime, ...
     'rfRasterTime', 1e-6, 'gradRasterTime',10e-6);
 seq=mr.Sequence(sys);              % Create a new sequence object

@@ -1,8 +1,17 @@
 lo_freq = 17.283 # MHz
 
+# Shim
+shim_x = 0.0
+shim_y = 0.0
+shim_z = 0.0
+shim = (shim_x, shim_y, shim_z)
+
 gamma = 42570000 # Hz/T    
 if True:
     grad_max_Hz_per_m = 15E6 # experimental value
+    grad_max_x_Hz_per_m = 15E6
+    grad_max_y_Hz_per_m = 15E6
+    grad_max_z_Hz_per_m = 15E6    
 else:
     # value for tabletopMRI  gradient coil
     grad_B_per_m_per_current = 0.02 # [T/m/A], approximate value for tabletop gradient coil

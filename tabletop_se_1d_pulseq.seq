@@ -7,7 +7,7 @@ minor 3
 revision 1
 
 [DEFINITIONS]
-Bandwidth [Hz] 32000 
+Bandwidth [Hz] 42666.6667 
 FOV 0.01 0.01 
 Name se 
 Nx 128 
@@ -37,22 +37,22 @@ TE [s] 0.012
 # id amplitude rise flat fall delay
 # ..      Hz/m   us   us   us    us
 [TRAP]
- 1  3.65714e+06 180 1640 180   0
- 2   2.7027e+06 130  240 130   0
- 3      3.2e+06 160 4000 160   0
+ 1  4.94617e+06 150 1200 150   0
+ 2  6.45161e+06 190  120 190   0
+ 3  4.26667e+06 130 3000 130   0
 
 # Format of ADC events:
 # id num dwell delay freq phase
 # ..  ..    ns    us   Hz   rad
 [ADC]
-1 128 31250 160 0 0
+1 128 23438 130 0 0
 
 # Format of delays:
 # id delay (us)
 [DELAYS]
-1 1860
+1 2360
 2 1000
-3 3240
+3 3770
 
 # Sequence Shapes
 [SHAPES]
