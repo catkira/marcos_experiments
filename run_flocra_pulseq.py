@@ -76,6 +76,8 @@ if __name__ == "__main__":
     expt.gradb.calibrate(channels=[0,1,2], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)
 
     rxd, msgs = expt.run()
+    expt.gradb.init_hw()  # set gradient currents back to zero
+
     nSamples = pd['readout_number']
     
     np.save(os.path.join(data_path,filename) + ".npy",rxd['rx0'])

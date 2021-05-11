@@ -10,7 +10,8 @@ import os.path
 if __name__ == "__main__":
 
     files = listdir(os.path.join(data_path,"./"))
-    files2 = [f for f in files if f.find("se_v2_2d") != -1 and f.find(".npy") != -1]
+    #files2 = [f for f in files if f.find("se_v2_2d") != -1 and f.find(".npy") != -1]
+    files2 = [f for f in files if f.find("gre_v2_2d") != -1 and f.find(".npy") != -1]
 
     # 2 cylinder decent
     current_file = files2[-1]
@@ -18,6 +19,12 @@ if __name__ == "__main__":
     data2d = np.load(os.path.join(data_path,current_file))
     Nx = 200 # TODO: parse from filename
     Ny = 80 # TODO: parse from filename
+    tokens = current_file.split(" ")
+    for n in np.arange(1,len(tokens)):
+        if tokens[n] == "Nx":
+            Nx = int(float(tokens[n+1]))
+        if tokens[n] == "Ny":
+            Ny = int(float(tokens[n+1]))    
     oversampling_factor = int(np.round(data2d.shape[0]/Nx/Ny))
     data2d = data2d.reshape(Ny,Nx*oversampling_factor)    
     adc_pad = 6

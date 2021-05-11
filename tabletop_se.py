@@ -50,6 +50,7 @@ if __name__ == "__main__":
     expt.gradb.calibrate(channels=[0,1,2], max_current=6, num_calibration_points=30, averages=5, poly_degree=5)
 
     rxd, msgs = expt.run()
+    expt.gradb.init_hw()  # set gradient currents back to zero
 
 
     data = rxd['rx0']

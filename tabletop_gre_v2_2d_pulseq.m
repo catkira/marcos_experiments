@@ -6,19 +6,21 @@ sequencerRasterTime = 7E-9; % make sure all times are a multiple of sequencer ra
 grad_interval = 10E-6;
 rf_interval = 1E-6;
 
-fov=12e-3; Nx=200; Ny=63;   % Define FOV and resolution
-TE=3.5e-3;
+fov=12e-3; Nx=128; Ny=80;   % Define FOV and resolution
 TR=5;
+TE=2.2e-3;
 
-gxFlatTime = 3e-3;
+gxFlatTime = 2e-3;
 readoutOversamplingFactor = 4;
+sliceThickness = 10;
+use_slice = 0;
 
 % set system limits
 maxGrad = 400; % [mT/m], value for tabletop coils and gpa fhdo
 rfDeadTime = 500e-6; % [us], minicircuits PA needs 500 us to turn on
 adcDeadTime = 0;
 sys = mr.opts('MaxGrad', maxGrad, 'GradUnit', 'mT/m', ...
-    'MaxSlew', 400, 'SlewUnit', 'T/m/s', ...
+    'MaxSlew', 1200, 'SlewUnit', 'T/m/s', ...
     'rfDeadTime', rfDeadTime, 'adcDeadTime', adcDeadTime, ...
     'rfRasterTime', rf_interval, 'gradRasterTime', grad_interval);
 seq=mr.Sequence(sys);              % Create a new sequence object
@@ -61,7 +63,7 @@ end
 
 
 %% prepare sequence export
-seq.setDefinition('Name', 'se_2d');
+seq.setDefinition('Name', 'gre_2d');
 seq.setDefinition('FOV', [fov fov]);
 seq.setDefinition('TE [s]', TE);
 seq.setDefinition('TR', TR);
@@ -70,6 +72,7 @@ seq.setDefinition('Ny', Ny);
 seq.setDefinition('Bandwidth [Hz]', 1/adc.dwell);
 seq.setDefinition('grad_interval]', grad_interval);
 seq.setDefinition('rf_interval]', rf_interval);
+seq.setDefinition('SliceThickness', sliceThickness);
 
 seq.plot();
 
