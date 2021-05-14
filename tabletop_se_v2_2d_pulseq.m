@@ -16,6 +16,7 @@ gxFlatTime = 3e-3;
 rf90duration=0.1e-3;
 rf180duration=2*rf90duration;
 spA=2000; % spoiler area in 1/m (=Hz/m*s)
+Ndummy = 0;
 
 % set system limits
 maxGrad = 400; % [mT/m], value for tabletop coils and gpa fhdo
@@ -38,7 +39,7 @@ else
         'PhaseOffset', 0, 'sys', sys);    
 end
 rf180 = mr.makeBlockPulse(pi, 'duration', rf90duration*2,...
-    'PhaseOffset', pi/2, 'sys',sys);
+    'PhaseOffset', pi/2, 'sys',sys, 'use','refocusing');
 
 
 % Define other gradients and ADC events
@@ -65,7 +66,7 @@ delayTE2 = ceil((TE/2 - (mr.calcDuration(rf180) - rf180.delay)/2 ...
 delayTR = TR - TE -rf90.delay -mr.calcDuration(rf90)/2 - mr.calcDuration(gx)/2;
 fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 
-extra_delay = 1e-3
+extra_delay = 1e-3;
 phase_factor = linspace(-1,1,Ny);
 for n=1:Ny
     if use_slice == 1
@@ -102,3 +103,11 @@ seq.plot();
 
 seq.write('tabletop_se_v2_2d_pulseq.seq')       % Write to pulseq file
 parsemr('tabletop_se_v2_2d_pulseq.seq');
+
+
+% calculate k-space but only use it to check timing
+[ktraj_adc, t_adc, ktraj, t_ktraj, t_excitation, t_refocusing] = seq.calculateKspacePP();
+if Ndummy==0
+    assert(abs(t_refocusing(1)-t_excitation(1)-TE/2)<1e-6); % check that the refocusing happens at the 1/2 of TE
+    assert(abs(t_adc(Nx*readoutOversamplingFactor/2)-t_excitation(1)-TE)<adc.dwell); % check that the echo happens as close as possible to the middle of the ADC elent
+end
