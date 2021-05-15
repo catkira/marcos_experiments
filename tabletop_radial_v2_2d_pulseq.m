@@ -66,14 +66,14 @@ adc = mr.makeAdc(round(oversampling_factor*Nx),'Duration',gx.flatTime,'Delay',gx
 
 % Calculate timing
 delayTE1 = round((TE/2 - (mr.calcDuration(rf90)-rf90.delay)/2 ...
-    - mr.calcDuration(gxPre)...
+    - mr.calcDuration(gxPre) -  mr.calcDuration(g_sp)...
     - rf180.delay - (mr.calcDuration(rf180)-rf180.delay)/2)/sequencerRasterTime)*sequencerRasterTime;
 delayTE2 = round((TE/2 - (mr.calcDuration(rf180) - rf180.delay)/2 ...
-    - mr.calcDuration(gx)/2 )/sequencerRasterTime)*sequencerRasterTime;
+    - mr.calcDuration(gx)/2 -  mr.calcDuration(g_sp))/sequencerRasterTime)*sequencerRasterTime;
 delayTR = round((TR - TE -rf90.delay -(mr.calcDuration(rf90) - rf90.delay)/2 - mr.calcDuration(gx)/2)/sequencerRasterTime)*sequencerRasterTime;
 fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 
-extra_delay = ceil(1e-3/seq.gradRasterTime)*seq.gradRasterTime;
+extra_delay = ceil(1e-3/sequencerRasterTime)*sequencerRasterTime;
 delta = angle/360*2*pi / Nspokes;            % angular increment;
 for i=(1-Ndummy):Nspokes
     if use_slice == 1
@@ -84,7 +84,9 @@ for i=(1-Ndummy):Nspokes
     seq.addBlock(mr.makeDelay(delayTE1 - extra_delay));
     seq.addBlock(mr.rotate('z',delta*(i-1),gyPre)); 
     seq.addBlock(mr.makeDelay(extra_delay));
+    seq.addBlock(g_sp);    
     seq.addBlock(rf180);
+    seq.addBlock(g_sp);
     seq.addBlock(mr.makeDelay(delayTE2));
     if (i>0)
         seq.addBlock(mr.rotate('z',delta*(i-1),gy,adc));
@@ -95,14 +97,14 @@ for i=(1-Ndummy):Nspokes
 end
 
 % some checks
-calculated_t_ref = (mr.calcDuration(rf90) - rf90.delay)/2 ...
+calculated_t_ref = (mr.calcDuration(rf90) - rf90.delay)/2 + mr.calcDuration(g_sp) ...
     + delayTE1 + mr.calcDuration(gxPre) + rf180.delay + (mr.calcDuration(rf180) - rf180.delay)/2;
 assert(abs(calculated_t_ref - TE/2) < sequencerRasterTime)
-calulatedTE = (mr.calcDuration(rf90) - rf90.delay)/2 ...
+calulatedTE = (mr.calcDuration(rf90) - rf90.delay)/2 + 2*mr.calcDuration(g_sp)...
     + delayTE1 + mr.calcDuration(gxPre) + mr.calcDuration(rf180) + delayTE2 ...
     + mr.calcDuration(gx)/2;
 assert(abs(calulatedTE - TE) < sequencerRasterTime)
-calulatedTE2 = (mr.calcDuration(rf90) - rf90.delay)/2 ...
+calulatedTE2 = (mr.calcDuration(rf90) - rf90.delay)/2 + 2*mr.calcDuration(g_sp) ...
     + delayTE1 + mr.calcDuration(gxPre) + mr.calcDuration(rf180) + delayTE2 ...
     + adc.delay + adc.dwell*adc.numSamples/2;
 assert(abs(calulatedTE2 - TE) < sequencerRasterTime)

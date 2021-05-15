@@ -2,21 +2,26 @@ close all
 clear
 gamma = 42.57E6;
 sequencerRasterTime = 1/(122.88E6); % make sure all times are a multiple of sequencer raster time
-grad_interval = 10E-6;
-rf_interval = 1E-6;
+grad_interval = ceil(10E-6/sequencerRasterTime)*sequencerRasterTime;
+rf_interval = ceil(1E-6/sequencerRasterTime)*sequencerRasterTime;
 
 fov=10e-3; Nx=200; Ny=80;   % Define FOV and resolution
 TE=12e-3; % [s]
 TR=5; % [s]     
-readoutOversamplingFactor = 4;
+oversampling_factor = 4;
 sliceThickness = 10;
 use_slice = 0;
 sp_amplitude = 2000; % spoiler area in 1/m (=Hz/m*s)
 sp_duration = ceil(0.5E-3/sequencerRasterTime)*sequencerRasterTime;
 
 
-gxFlatTime = ceil(3e-3/sequencerRasterTime)*sequencerRasterTime;;
-rf90duration=ceil(0.1e-3/sequencerRasterTime)*sequencerRasterTime;
+requested_gxFlatTime = 3e-3;  % = adc read time [s]
+requested_rf90duration = 0.1e-3;
+% put the dwell time and rf90duration on a 2*sequencerRasterTime raster, so that
+% mr.calcDuration(gx)/2 and rf90duration/2 are still on the sequencer raster 
+dwellTime = ceil(requested_gxFlatTime/(Nx*oversampling_factor)/(2*sequencerRasterTime))*(2*sequencerRasterTime);
+gxFlatTime = dwellTime * Nx * oversampling_factor;
+rf90duration=ceil(requested_rf90duration/(2*sequencerRasterTime))*(2*sequencerRasterTime);
 rf180duration=2*rf90duration;
 
 % set system limits
@@ -56,7 +61,7 @@ g_sp = mr.makeTrapezoid('x','Area',sp_amplitude,'Duration',sp_duration,'system',
 gy_area = kHeight/2;
 gy = mr.makeTrapezoid('y','Area',gy_area,'Duration',gx.flatTime/2,'sys',sys);
 Ny = round(Ny);
-adc = mr.makeAdc(round(readoutOversamplingFactor*Nx),'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
+adc = mr.makeAdc(round(oversampling_factor*Nx),'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
 
 % Calculate timing
 delayTE1 = round((TE/2 - (mr.calcDuration(rf90)-rf90.delay)/2 ...
@@ -67,7 +72,7 @@ delayTE2 = round((TE/2 - (mr.calcDuration(rf180) - rf180.delay)/2 ...
 delayTR = TR - TE -rf90.delay -(mr.calcDuration(rf90) - rf90.delay)/2 - mr.calcDuration(gx)/2;
 fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 
-extra_delay = 1e-3
+extra_delay = ceil(1e-3/sequencerRasterTime)*sequencerRasterTime;
 phase_factor = linspace(-1,1,Ny);
 for n=1:Ny
     if use_slice == 1
@@ -87,6 +92,18 @@ for n=1:Ny
     seq.addBlock(mr.makeDelay(delayTR));
 end
 
+% some checks
+calculated_t_ref = (mr.calcDuration(rf90) - rf90.delay)/2 + mr.calcDuration(g_sp) ...
+    + delayTE1 + mr.calcDuration(gxPre) + rf180.delay + (mr.calcDuration(rf180) - rf180.delay)/2;
+assert(abs(calculated_t_ref - TE/2) < sequencerRasterTime)
+calulatedTE = (mr.calcDuration(rf90) - rf90.delay)/2 + 2*mr.calcDuration(g_sp)...
+    + delayTE1 + mr.calcDuration(gxPre) + mr.calcDuration(rf180) + delayTE2 ...
+    + mr.calcDuration(gx)/2;
+assert(abs(calulatedTE - TE) < sequencerRasterTime)
+calulatedTE2 = (mr.calcDuration(rf90) - rf90.delay)/2 + 2*mr.calcDuration(g_sp) ...
+    + delayTE1 + mr.calcDuration(gxPre) + mr.calcDuration(rf180) + delayTE2 ...
+    + adc.delay + adc.dwell*adc.numSamples/2;
+assert(abs(calulatedTE2 - TE) < sequencerRasterTime)
 
 %% prepare sequence export
 seq.setDefinition('Name', 'se_2d');
