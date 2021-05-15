@@ -1,26 +1,34 @@
 close all
 clear
 gamma = 42.57E6;
-sequencerRasterTime = 7E-9; % make sure all times are a multiple of sequencer raster time
-grad_interval = 10E-6;
-rf_interval = 1E-6;
+sequencerRasterTime = 1/(122.88E6); % make sure all times are a multiple of sequencer raster time
+grad_interval = ceil(10E-6/sequencerRasterTime)*sequencerRasterTime;
+rf_interval = ceil(1E-6/sequencerRasterTime)*sequencerRasterTime;
 
 fov=10e-3; Nx=200; Ny=80;   % Define FOV and resolution
-TE=12e-3; % [s]
+Ndummy = 2;
 TR=5; % [s]     
-readoutOversamplingFactor = 4;
+ETL=8;
+ESP=10e-3;
+oversampling_factor = 4;
 sliceThickness = 10;
 use_slice = 0;
-turbo_factor = 5;
+sp_amplitude = 2000; % spoiler area in 1/m (=Hz/m*s)
+sp_duration = ceil(0.5E-3/sequencerRasterTime)*sequencerRasterTime;
 
-gxFlatTime = 3e-3;
-rf90duration=0.1e-3;
+
+requested_gxFlatTime = 3e-3;  % = adc read time [s]
+requested_rf90duration = 0.1e-3;
+% put the dwell time and rf90duration on a 2*sequencerRasterTime raster, so that
+% mr.calcDuration(gx)/2 and rf90duration/2 are still on the sequencer raster 
+dwellTime = ceil(requested_gxFlatTime/(Nx*oversampling_factor)/(2*sequencerRasterTime))*(2*sequencerRasterTime);
+gxFlatTime = dwellTime * Nx * oversampling_factor;
+rf90duration=ceil(requested_rf90duration/(2*sequencerRasterTime))*(2*sequencerRasterTime);
 rf180duration=2*rf90duration;
-spA=2000; % spoiler area in 1/m (=Hz/m*s)
 
 % set system limits
 maxGrad = 400; % [mT/m], value for tabletop coils and gpa fhdo
-rfDeadTime = 500e-6; % [us], minicircuits PA needs 500 us to turn on
+rfDeadTime = ceil(500e-6/sequencerRasterTime)*sequencerRasterTime; % [us], minicircuits PA needs 500 us to turn on
 adcDeadTime = 0;
 sys = mr.opts('MaxGrad', maxGrad, 'GradUnit', 'mT/m', ...
     'MaxSlew', 800, 'SlewUnit', 'T/m/s', ...
@@ -39,7 +47,7 @@ else
         'PhaseOffset', 0, 'sys', sys);    
 end
 rf180 = mr.makeBlockPulse(pi, 'duration', rf90duration*2,...
-    'PhaseOffset', pi/2, 'sys',sys);
+    'PhaseOffset', pi/2, 'use','refocusing', 'sys',sys);
 
 
 % Define other gradients and ADC events
@@ -51,62 +59,73 @@ fprintf('Sequence bandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov);
 fprintf('Pixelbandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov/Nx);
 gx.delay = 0; % assumes rfDeadTime > gx.riseTime !!
 gxPre = mr.makeTrapezoid('x','Area',gx.area/2,'Duration',gx.flatTime/2,'sys',sys);
-g_sp = mr.makeTrapezoid('x','Area',spA,'Duration',0.5e-3,'system',sys);
+g_sp = mr.makeTrapezoid('x','Area',sp_amplitude,'Duration',sp_duration,'system',sys);
 gy_area = kHeight/2;
 gy = mr.makeTrapezoid('y','Area',gy_area,'Duration',gx.flatTime/2,'sys',sys);
 Ny = round(Ny);
-adc = mr.makeAdc(round(readoutOversamplingFactor*Nx),'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
+adc = mr.makeAdc(round(oversampling_factor*Nx),'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
 
 % Calculate timing
-delayTE1 = ceil((TE/2 - (mr.calcDuration(rf90)-rf90.delay)/2 ...
-    - mr.calcDuration(gxPre) -  mr.calcDuration(g_sp)...
-    - rf180.delay - (mr.calcDuration(rf180)-rf180.delay)/2)/seq.gradRasterTime)*seq.gradRasterTime;
-delayTE2 = ceil((TE/2 - (mr.calcDuration(rf180) - rf180.delay)/2 ...
-    - mr.calcDuration(gx)/2  -  mr.calcDuration(g_sp))/seq.gradRasterTime)*seq.gradRasterTime;
-delayTR = TR - TE -rf90.delay -mr.calcDuration(rf90)/2 - mr.calcDuration(gx)/2;
+delayTE3 = 0.5E-3;
+delayTE = round((ESP/2 - (mr.calcDuration(rf90) - rf90.delay)/2 ...
+    - mr.calcDuration(gxPre) - mr.calcDuration(g_sp) ...
+    - rf180.delay - (mr.calcDuration(rf180) - rf180.delay)/2)/sequencerRasterTime)*sequencerRasterTime;
+delayTE1 = round((ESP/2 -  mr.calcDuration(gx)/2 - gx.flatTime/2 ...
+    - mr.calcDuration(g_sp) - rf180.delay - (mr.calcDuration(rf180) - rf180.delay)/2)/sequencerRasterTime)*sequencerRasterTime;
+delayTE2 = round((ESP/2 - (mr.calcDuration(rf180) - rf180.delay)/2 ...
+    - mr.calcDuration(gx)/2  -  mr.calcDuration(g_sp) -  mr.calcDuration(gy))/sequencerRasterTime)*sequencerRasterTime;
+delayTR = TR - ETL*ESP -rf90.delay -(mr.calcDuration(rf90) - rf90.delay)/2 - mr.calcDuration(gx)/2;
 fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 
-extra_delay = 1e-3
 phase_factor = linspace(-1,1,Ny);
-for n=1:Ny
+n = 1;
+while n <= Ny
+    if n>Ny
+        break
+    end    
     if use_slice == 1
         seq.addBlock(rf90, gs);
     else
         seq.addBlock(rf90);
     end
-    seq.addBlock(mr.makeDelay(delayTE1 - extra_delay));
-    gy = mr.makeTrapezoid('y','Area',gy_area*phase_factor(n),'Duration',gx.flatTime/2,'sys',sys);    
-    seq.addBlock(gxPre,gy);
-    seq.addBlock(mr.makeDelay(extra_delay));
-    seq.addBlock(g_sp);    
-    seq.addBlock(rf180);
-    seq.addBlock(g_sp);    
-    seq.addBlock(mr.makeDelay(delayTE2));
-    seq.addBlock(gx,adc);
-    for m=1:turbo_factor
-        ### TODO
+    seq.addBlock(mr.makeDelay(delayTE));
+    seq.addBlock(gxPre);
+    for m=1:ETL  
+        if n>Ny
+            break
+        end
         gy = mr.makeTrapezoid('y','Area',gy_area*phase_factor(n),'Duration',gx.flatTime/2,'sys',sys);    
-        seq.addBlock(gy);
+        gy_rev = mr.makeTrapezoid('y','Area',-gy_area*phase_factor(n),'Duration',gx.flatTime/2,'sys',sys);    
+        if m ~= 1
+            seq.addBlock(mr.makeDelay(delayTE1));
+        end
+        seq.addBlock(g_sp);    
         seq.addBlock(rf180);
-        seq.addBlock(gx,adc);    
+        seq.addBlock(g_sp);    
+        seq.addBlock(mr.makeDelay(delayTE2));
+        seq.addBlock(gy);        
+        seq.addBlock(gx,adc);
+        seq.addBlock(gy_rev);
+        n = n+1;
     end
     seq.addBlock(mr.makeDelay(delayTR));
 end
 
 
 %% prepare sequence export
-seq.setDefinition('Name', 'se_2d');
+seq.setDefinition('Name', 'tse_2d');
 seq.setDefinition('FOV', [fov fov]);
-seq.setDefinition('TE [s]', TE);
+seq.setDefinition('ESP [s]', ESP);
+seq.setDefinition('ELT', ETL);
 seq.setDefinition('TR', TR);
 seq.setDefinition('Nx', Nx);
 seq.setDefinition('Ny', Ny);
 seq.setDefinition('Bandwidth [Hz]', 1/adc.dwell);
-seq.setDefinition('grad_interval]', grad_interval);
-seq.setDefinition('rf_interval]', rf_interval);
+seq.setDefinition('grad_t', grad_interval);
+seq.setDefinition('tx_t', rf_interval);
 seq.setDefinition('SliceThickness', sliceThickness);
 
 seq.plot();
 
-seq.write('tabletop_se_v2_2d_pulseq.seq')       % Write to pulseq file
-parsemr('tabletop_se_v2_2d_pulseq.seq');
+seq.write('tabletop_tse_pulseq.seq')       % Write to pulseq file
+parsemr('tabletop_tse_pulseq.seq');

@@ -6,6 +6,7 @@ grad_interval = ceil(10E-6/sequencerRasterTime)*sequencerRasterTime;
 rf_interval = ceil(1E-6/sequencerRasterTime)*sequencerRasterTime;
 
 fov=10e-3; Nx=200; Ny=80;   % Define FOV and resolution
+Ndummy = 2;
 TE=12e-3; % [s]
 TR=5; % [s]     
 oversampling_factor = 4;
@@ -74,21 +75,29 @@ fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 
 extra_delay = ceil(1e-3/sequencerRasterTime)*sequencerRasterTime;
 phase_factor = linspace(-1,1,Ny);
-for n=1:Ny
+for n=(1-Ndummy):Ny
     if use_slice == 1
         seq.addBlock(rf90, gs);
     else
         seq.addBlock(rf90);
     end
     seq.addBlock(mr.makeDelay(delayTE1 - extra_delay));
-    gy = mr.makeTrapezoid('y','Area',gy_area*phase_factor(n),'Duration',gx.flatTime/2,'sys',sys);    
+    if (n>0)
+        gy = mr.makeTrapezoid('y','Area',gy_area*phase_factor(n),'Duration',gx.flatTime/2,'sys',sys);    
+    else
+        gy = mr.makeTrapezoid('y','Area',gy_area*phase_factor(1),'Duration',gx.flatTime/2,'sys',sys);    
+    end
     seq.addBlock(gxPre,gy);
     seq.addBlock(mr.makeDelay(extra_delay));
     seq.addBlock(g_sp);    
     seq.addBlock(rf180);
     seq.addBlock(g_sp);    
     seq.addBlock(mr.makeDelay(delayTE2));
-    seq.addBlock(gx,adc);
+    if (n>0)
+        seq.addBlock(gx,adc);
+    else
+        seq.addBlock(gx);
+    end    
     seq.addBlock(mr.makeDelay(delayTR));
 end
 
@@ -113,8 +122,8 @@ seq.setDefinition('TR', TR);
 seq.setDefinition('Nx', Nx);
 seq.setDefinition('Ny', Ny);
 seq.setDefinition('Bandwidth [Hz]', 1/adc.dwell);
-seq.setDefinition('grad_t]', grad_interval);
-seq.setDefinition('tx_t]', rf_interval);
+seq.setDefinition('grad_t', grad_interval);
+seq.setDefinition('tx_t', rf_interval);
 seq.setDefinition('SliceThickness', sliceThickness);
 
 seq.plot();
