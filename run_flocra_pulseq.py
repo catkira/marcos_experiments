@@ -23,9 +23,6 @@ if __name__ == "__main__":
     args = parser.parse_args()                    
     print(F"seq file: {args.seq}")
 
-    tx_t = 1 # us
-    grad_t = 10 #
-
     print('gradient max_B_per_m = {:f} mT/m'.format(grad_max_Hz_per_m/gamma*1e3))	
     print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
     print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
@@ -33,8 +30,6 @@ if __name__ == "__main__":
     seq_file = args.seq[0]
     psi = PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=hf_max_Hz_per_m,
-                        tx_t=tx_t,
-                        grad_t=grad_t,
                         grad_max=grad_max_Hz_per_m,
                         gx_max=grad_max_x_Hz_per_m,
                         gy_max=grad_max_y_Hz_per_m,

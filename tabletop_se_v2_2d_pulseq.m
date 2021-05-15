@@ -1,7 +1,7 @@
 close all
 clear
 gamma = 42.57E6;
-sequencerRasterTime = 7E-9; % make sure all times are a multiple of sequencer raster time
+sequencerRasterTime = 1/(122.88E6); % make sure all times are a multiple of sequencer raster time
 grad_interval = 10E-6;
 rf_interval = 1E-6;
 
@@ -11,15 +11,17 @@ TR=5; % [s]
 readoutOversamplingFactor = 4;
 sliceThickness = 10;
 use_slice = 0;
+sp_amplitude = 2000; % spoiler area in 1/m (=Hz/m*s)
+sp_duration = ceil(0.5E-3/sequencerRasterTime)*sequencerRasterTime;
 
-gxFlatTime = 3e-3;
-rf90duration=0.1e-3;
+
+gxFlatTime = ceil(3e-3/sequencerRasterTime)*sequencerRasterTime;;
+rf90duration=ceil(0.1e-3/sequencerRasterTime)*sequencerRasterTime;
 rf180duration=2*rf90duration;
-spA=2000; % spoiler area in 1/m (=Hz/m*s)
 
 % set system limits
 maxGrad = 400; % [mT/m], value for tabletop coils and gpa fhdo
-rfDeadTime = 500e-6; % [us], minicircuits PA needs 500 us to turn on
+rfDeadTime = ceil(500e-6/sequencerRasterTime)*sequencerRasterTime; % [us], minicircuits PA needs 500 us to turn on
 adcDeadTime = 0;
 sys = mr.opts('MaxGrad', maxGrad, 'GradUnit', 'mT/m', ...
     'MaxSlew', 800, 'SlewUnit', 'T/m/s', ...
@@ -38,7 +40,7 @@ else
         'PhaseOffset', 0, 'sys', sys);    
 end
 rf180 = mr.makeBlockPulse(pi, 'duration', rf90duration*2,...
-    'PhaseOffset', pi/2, 'sys',sys);
+    'PhaseOffset', pi/2, 'use','refocusing', 'sys',sys);
 
 
 % Define other gradients and ADC events
@@ -50,19 +52,19 @@ fprintf('Sequence bandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov);
 fprintf('Pixelbandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov/Nx);
 gx.delay = 0; % assumes rfDeadTime > gx.riseTime !!
 gxPre = mr.makeTrapezoid('x','Area',gx.area/2,'Duration',gx.flatTime/2,'sys',sys);
-g_sp = mr.makeTrapezoid('x','Area',spA,'Duration',0.5e-3,'system',sys);
+g_sp = mr.makeTrapezoid('x','Area',sp_amplitude,'Duration',sp_duration,'system',sys);
 gy_area = kHeight/2;
 gy = mr.makeTrapezoid('y','Area',gy_area,'Duration',gx.flatTime/2,'sys',sys);
 Ny = round(Ny);
 adc = mr.makeAdc(round(readoutOversamplingFactor*Nx),'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
 
 % Calculate timing
-delayTE1 = ceil((TE/2 - (mr.calcDuration(rf90)-rf90.delay)/2 ...
+delayTE1 = round((TE/2 - (mr.calcDuration(rf90)-rf90.delay)/2 ...
     - mr.calcDuration(gxPre) -  mr.calcDuration(g_sp)...
-    - rf180.delay - (mr.calcDuration(rf180)-rf180.delay)/2)/seq.gradRasterTime)*seq.gradRasterTime;
-delayTE2 = ceil((TE/2 - (mr.calcDuration(rf180) - rf180.delay)/2 ...
-    - mr.calcDuration(gx)/2  -  mr.calcDuration(g_sp))/seq.gradRasterTime)*seq.gradRasterTime;
-delayTR = TR - TE -rf90.delay -mr.calcDuration(rf90)/2 - mr.calcDuration(gx)/2;
+    - rf180.delay - (mr.calcDuration(rf180)-rf180.delay)/2)/sequencerRasterTime)*sequencerRasterTime;
+delayTE2 = round((TE/2 - (mr.calcDuration(rf180) - rf180.delay)/2 ...
+    - mr.calcDuration(gx)/2  -  mr.calcDuration(g_sp))/sequencerRasterTime)*sequencerRasterTime;
+delayTR = TR - TE -rf90.delay -(mr.calcDuration(rf90) - rf90.delay)/2 - mr.calcDuration(gx)/2;
 fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 
 extra_delay = 1e-3
@@ -94,8 +96,8 @@ seq.setDefinition('TR', TR);
 seq.setDefinition('Nx', Nx);
 seq.setDefinition('Ny', Ny);
 seq.setDefinition('Bandwidth [Hz]', 1/adc.dwell);
-seq.setDefinition('grad_interval]', grad_interval);
-seq.setDefinition('rf_interval]', rf_interval);
+seq.setDefinition('grad_t]', grad_interval);
+seq.setDefinition('tx_t]', rf_interval);
 seq.setDefinition('SliceThickness', sliceThickness);
 
 seq.plot();
