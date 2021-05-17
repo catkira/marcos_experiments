@@ -28,8 +28,9 @@ if __name__ == "__main__":
             Ny = int(float(tokens[n+1]))    
     oversampling_factor = int(np.round(data2d.shape[0]/Nx/Ny))
     data2d = data2d.reshape(Ny,Nx*oversampling_factor)    
+
     adc_pad = 6
-    data2d=data2d[adc_pad:][:]    
+    data2d=data2d[:,adc_pad:]    
 
     plt.figure(1)
     plt.subplot(1, 3, 1)
