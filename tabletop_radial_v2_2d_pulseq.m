@@ -4,8 +4,6 @@ gamma = 42.57E6;
 sequencerRasterTime = 1/(122.88E6); % make sure all times are a multiple of sequencer raster time
 grad_interval = ceil(10E-6/sequencerRasterTime)*sequencerRasterTime;
 rf_interval = ceil(1E-6/sequencerRasterTime)*sequencerRasterTime;
-grad_interval = 10E-6
-rf_interval = 1E-6
 
 fov=10e-3; Nx=200; Nspokes=80;       % Define FOV and resolution
 Ndummy=0;                            % number of dummy scans
@@ -120,8 +118,8 @@ seq.setDefinition('TR', TR);
 seq.setDefinition('Nx', Nx);
 seq.setDefinition('Nspokes', Nspokes);
 seq.setDefinition('Bandwidth [Hz]', 1/adc.dwell);
-%seq.setDefinition('grad_t', grad_interval);
-%seq.setDefinition('tx_t', rf_interval);
+seq.setDefinition('grad_t', grad_interval*1E6);
+seq.setDefinition('tx_t', rf_interval*1E6);
 seq.setDefinition('angle', angle);
 
 seq.plot();

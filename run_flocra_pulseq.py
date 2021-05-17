@@ -31,8 +31,6 @@ if __name__ == "__main__":
     psi = PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=hf_max_Hz_per_m,
                         grad_max=grad_max_Hz_per_m,
-                        tx_t = 1E-6,
-                        grad_t = 10E-6,
                         gx_max=grad_max_x_Hz_per_m,
                         gy_max=grad_max_y_Hz_per_m,
                         gz_max=grad_max_z_Hz_per_m)

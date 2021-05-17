@@ -122,8 +122,8 @@ seq.setDefinition('TR', TR);
 seq.setDefinition('Nx', Nx);
 seq.setDefinition('Ny', Ny);
 seq.setDefinition('Bandwidth [Hz]', 1/adc.dwell);
-seq.setDefinition('grad_t', grad_interval);
-seq.setDefinition('tx_t', rf_interval);
+seq.setDefinition('grad_t', grad_interval*1E6);
+seq.setDefinition('tx_t', rf_interval*1E6);
 seq.setDefinition('SliceThickness', sliceThickness);
 
 seq.plot();
