@@ -129,4 +129,14 @@ seq.setDefinition('SliceThickness', sliceThickness);
 seq.plot();
 
 seq.write('tabletop_se_v2_2d_pulseq.seq')       % Write to pulseq file
-parsemr('tabletop_se_v2_2d_pulseq.seq');
+%parsemr('tabletop_se_v2_2d_pulseq.seq');
+
+%[ktraj_adc, ktraj, t_excitation, t_refocusing] = seq.calculateKspace();
+[ktraj_adc, t_adc, ktraj, t_ktraj, t_excitation, t_refocusing] = seq.calculateKspacePP();
+
+% plot k-spaces
+
+%figure; plot(ktraj'); % plot the entire k-space trajectory
+figure; plot(ktraj(1,:),ktraj(2,:),'b',...
+             ktraj_adc(1,:),ktraj_adc(2,:),'r.'); % a 2D plot
+axis('equal'); % enforce aspect ratio for the correct trajectory display

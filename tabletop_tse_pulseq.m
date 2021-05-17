@@ -66,7 +66,6 @@ Ny = round(Ny);
 adc = mr.makeAdc(round(oversampling_factor*Nx),'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
 
 % Calculate timing
-delayTE3 = 0.5E-3;
 delayTE = round((ESP/2 - (mr.calcDuration(rf90) - rf90.delay)/2 ...
     - mr.calcDuration(gxPre) - mr.calcDuration(g_sp) ...
     - rf180.delay - (mr.calcDuration(rf180) - rf180.delay)/2)/sequencerRasterTime)*sequencerRasterTime;
@@ -128,4 +127,14 @@ seq.setDefinition('SliceThickness', sliceThickness);
 seq.plot();
 
 seq.write('tabletop_tse_pulseq.seq')       % Write to pulseq file
-parsemr('tabletop_tse_pulseq.seq');
+%parsemr('tabletop_tse_pulseq.seq');
+
+%[ktraj_adc, ktraj, t_excitation, t_refocusing] = seq.calculateKspace();
+[ktraj_adc, t_adc, ktraj, t_ktraj, t_excitation, t_refocusing] = seq.calculateKspacePP();
+
+% plot k-spaces
+
+%figure; plot(ktraj'); % plot the entire k-space trajectory
+figure; plot(ktraj(1,:),ktraj(2,:),'b',...
+             ktraj_adc(1,:),ktraj_adc(2,:),'r.'); % a 2D plot
+axis('equal'); % enforce aspect ratio for the correct trajectory display

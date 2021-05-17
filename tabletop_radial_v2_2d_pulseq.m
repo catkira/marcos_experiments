@@ -135,3 +135,10 @@ if Ndummy==0
     assert(abs(t_refocusing(1)-t_excitation(1)-TE/2)<1e-6); % check that the refocusing happens at the 1/2 of TE
     assert(abs(t_adc(Nx*oversampling_factor/2)-t_excitation(1)-TE)<adc.dwell); % check that the echo happens as close as possible to the middle of the ADC elent
 end
+
+% plot k-spaces
+
+%figure; plot(ktraj'); % plot the entire k-space trajectory
+figure; plot(ktraj(1,:),ktraj(2,:),'b',...
+             ktraj_adc(1,:),ktraj_adc(2,:),'r.'); % a 2D plot
+axis('equal'); % enforce aspect ratio for the correct trajectory display
