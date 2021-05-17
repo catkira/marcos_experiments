@@ -2,6 +2,7 @@ addpath('../pulseq/matlab')
 close all
 clear
 gamma = 42.57E6;
+tx_t = 1E-6;
 
 fov=10e-3; Nx=128; Ny=1;       % Define FOV and resolution
 TE=12e-3;
@@ -16,7 +17,7 @@ adcDeadTime = 0;
 sys = mr.opts('MaxGrad', maxGrad, 'GradUnit', 'mT/m', ...
     'MaxSlew', 800, 'SlewUnit', 'T/m/s', ...
     'rfDeadTime', rfDeadTime, 'adcDeadTime', adcDeadTime, ...
-    'rfRasterTime', 1e-6, 'gradRasterTime',10e-6);
+    'rfRasterTime', tx_t, 'gradRasterTime',10e-6);
 seq=mr.Sequence(sys);              % Create a new sequence object
 
 % Create HF pulses, 500 us delay for tx gate
@@ -68,6 +69,7 @@ seq.setDefinition('FOV', [fov fov]);
 seq.setDefinition('TE [s]', TE);
 seq.setDefinition('Nx', Nx);
 seq.setDefinition('Bandwidth [Hz]', 1/adc.dwell);
+seq.setDefinition('tx_t', tx_t);
 
 seq.plot();
 

@@ -16,10 +16,8 @@ from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
 
 if __name__ == "__main__":
-    lo_freq = 17.263 # MHz
-    tx_t = 1 # us
+    lo_freq = 17.281 # MHz
     num_grad_channels = 3
-    grad_t = 10 # us between [num_grad_channels] channel updates
 
     gamma = 42570000 # Hz/T
 
@@ -54,8 +52,6 @@ if __name__ == "__main__":
     #tx_warmup = 0 # already handled by delay in RF block
     psi = PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=rf_amp_max,
-                        tx_t=tx_t,
-                        grad_t=grad_t,
                         grad_max=grad_max)
     od, pd = psi.interpret("tabletop_se_2d_pulseq.seq")   
 
@@ -67,7 +63,7 @@ if __name__ == "__main__":
     expt = ex.Experiment(lo_freq=lo_freq,
                          rx_t=pd['rx_t'],
                          init_gpa=True,
-                         gpa_fhdo_offset_time=grad_t/3) 
+                         gpa_fhdo_offset_time=pd['grad_t']/3) 
     expt.add_flodict(od)
 
     expt.gradb.calibrate(channels=[0,1], max_current=6, num_calibration_points=30, averages=5, poly_degree=5)

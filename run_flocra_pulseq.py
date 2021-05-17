@@ -31,6 +31,8 @@ if __name__ == "__main__":
     psi = PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=hf_max_Hz_per_m,
                         grad_max=grad_max_Hz_per_m,
+                        tx_t = 1E-6,
+                        grad_t = 10E-6,
                         gx_max=grad_max_x_Hz_per_m,
                         gy_max=grad_max_y_Hz_per_m,
                         gz_max=grad_max_z_Hz_per_m)
@@ -51,7 +53,7 @@ if __name__ == "__main__":
         Ny = int(pd['Ny'])
         filename = f"{seq_file[:-4]} {current_time} Ny {Ny} Nx {Nx} TR {TR} SliceThickness {sliceThickness}"
     copyfile(seq_file,os.path.join(data_path,filename+".seq"))        
-    copyfile(seq_file[:-4]+".m",os.path.join(data_path,filename+".m"))
+    #copyfile(seq_file[:-4]+".m",os.path.join(data_path,filename+".m"))
 
     if True:
         # Shim
@@ -64,7 +66,7 @@ if __name__ == "__main__":
     expt = ex.Experiment(lo_freq=lo_freq,
                          rx_t=pd['rx_t'],
                          init_gpa=True,
-                         gpa_fhdo_offset_time=grad_t/3,
+                         gpa_fhdo_offset_time=pd['grad_t']/3,
                          flush_old_rx=True) 
     expt.add_flodict(od)
 

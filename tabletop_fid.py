@@ -16,9 +16,6 @@ st = pdb.set_trace
 from mri_config import lo_freq, grad_max_Hz_per_m, hf_max_Hz_per_m, gamma, shim, max_grad_current
 
 if __name__ == "__main__":
-    tx_t = 1 # us
-    grad_interval = 10.003 # us between [num_grad_channels] channel updates
-
     print('gradient max_B_per_m = {:f} mT/m'.format(grad_max_Hz_per_m/gamma*1e3))	
     print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
     print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
@@ -28,11 +25,9 @@ if __name__ == "__main__":
     #tx_warmup = 0 # already handled by delay in RF block
     psi = PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=rf_amp_max,
-                        tx_t=tx_t,
-                        grad_t=grad_interval,
                         grad_max=grad_max) # very large, just for testing
     od, pd = psi.interpret("tabletop_fid_pulseq.seq")         
-
+    grad_interval = pd['grad_t']
 
     # Shim
     grads = ['grad_vx', 'grad_vy', 'grad_vz']
