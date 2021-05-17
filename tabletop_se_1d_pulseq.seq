@@ -12,7 +12,8 @@ FOV 0.01 0.01
 Name se 
 Nx 128 
 TE [s] 0.012 
-tx_t 1e-06 
+grad_t 10 
+tx_t 1 
 
 # Format of blocks:
 #  #  D RF  GX  GY  GZ ADC EXT

@@ -9,8 +9,8 @@ revision 1
 [DEFINITIONS]
 Name fid 
 Nx 256 
-grad_t 1e-05 
-tx_t 1e-06 
+grad_t 10 
+tx_t 1 
 
 # Format of blocks:
 #  #  D RF  GX  GY  GZ ADC EXT

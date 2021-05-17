@@ -37,8 +37,8 @@ seq.addBlock(adc);
 %% prepare sequence export
 seq.setDefinition('Name', 'fid');
 seq.setDefinition('Nx', Nx);
-seq.setDefinition('tx_t', tx_t);
-seq.setDefinition('grad_t', grad_t);
+seq.setDefinition('tx_t', tx_t*1E6);
+seq.setDefinition('grad_t', grad_t*1E6);
 
 seq.plot();
 

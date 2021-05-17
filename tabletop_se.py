@@ -41,7 +41,8 @@ if __name__ == "__main__":
                          rx_t=pd['rx_t'],
                          init_gpa=True,
                          gpa_fhdo_offset_time=grad_interval/3,
-                         flush_old_rx=True) 
+                         flush_old_rx=True,
+                         halt_and_reset=True) 
     expt.add_flodict(od)
     expt.gradb.calibrate(channels=[0,1,2], max_current=6, num_calibration_points=30, averages=5, poly_degree=5)
 

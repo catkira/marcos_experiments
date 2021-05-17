@@ -1,6 +1,6 @@
 close all
 clear
-gamma = 42.57E6;
+%gamma = 42.57E6;
 sequencerRasterTime = 1/(122.88E6); % make sure all times are a multiple of sequencer raster time
 grad_interval = ceil(10E-6/sequencerRasterTime)*sequencerRasterTime;
 rf_interval = ceil(1E-6/sequencerRasterTime)*sequencerRasterTime;

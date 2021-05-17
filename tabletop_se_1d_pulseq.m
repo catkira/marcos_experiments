@@ -3,6 +3,7 @@ close all
 clear
 gamma = 42.57E6;
 tx_t = 1E-6;
+grad_t = 10E-6;
 
 fov=10e-3; Nx=128; Ny=1;       % Define FOV and resolution
 TE=12e-3;
@@ -69,7 +70,8 @@ seq.setDefinition('FOV', [fov fov]);
 seq.setDefinition('TE [s]', TE);
 seq.setDefinition('Nx', Nx);
 seq.setDefinition('Bandwidth [Hz]', 1/adc.dwell);
-seq.setDefinition('tx_t', tx_t);
+seq.setDefinition('tx_t', tx_t*1E6);
+seq.setDefinition('grad_t', grad_t*1E6);
 
 seq.plot();
 
