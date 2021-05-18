@@ -63,12 +63,16 @@ if __name__ == "__main__":
 
     expt = ex.Experiment(lo_freq=lo_freq,
                          rx_t=pd['rx_t'],
-                         init_gpa=True,
+                         init_gpa=False,
                          gpa_fhdo_offset_time=pd['grad_t']/3,
                          flush_old_rx=True,
-                         halt_and_reset=True,
-                         grad_max_update_rate = 0.2) # in MSPS
+                         halt_and_reset=False,
+                         grad_max_update_rate = 0.2,
+                         prev_socket = 1) # in MSPS
     expt.add_flodict(od)
+    expt.plot_sequence()
+    plt.show()
+    exit()
 
     expt.gradb.calibrate(channels=[0,1,2], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)
 

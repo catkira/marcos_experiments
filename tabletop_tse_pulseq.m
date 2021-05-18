@@ -46,10 +46,10 @@ else
         'PhaseOffset', 0, 'sys', sys);    
 end
 rf180 = mr.makeBlockPulse(pi, 'duration', rf180duration,...
-    'PhaseOffset', pi/2, 'use','refocusing', 'sys',sys);
+    'PhaseOffset', pi/2, 'use', 'refocusing', 'sys',sys);
 
 
-% Define other gradients and ADC events
+%% Define other gradients and ADC events
 deltak=1/fov;
 kWidth=deltak*Nx;
 kHeight=deltak*Ny;
@@ -61,25 +61,23 @@ gxPre = mr.makeTrapezoid('x','Area',gx.area/2,'Duration',gx.flatTime/2,'sys',sys
 g_sp = mr.makeTrapezoid('x','Area',sp_amplitude,'Duration',sp_duration,'system',sys);
 gy_area = kHeight/2;
 gy = mr.makeTrapezoid('y','Area',gy_area,'Duration',gx.flatTime/2,'sys',sys);
-Ny = round(Ny);
-adc = mr.makeAdc(round(oversampling_factor*Nx),'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
+adc_duration = dwellTime * Nx * oversampling_factor;
+adc_delay = (mr.calcDuration(gx) - adc_duration)/2 - 1/2*grad_interval; % - 1/2*grad_interval is needed because first sample is already in the ramp
+adc = mr.makeAdc(round(oversampling_factor*Nx),'Duration',adc_duration,'Delay',adc_delay,'sys',sys);
 
-% Calculate timing
-%sequencerRasterTime = grad_interval;
+%% Calculate delays
 delayTE = round((ESP/2 - mr.calcRfCenter(rf90) ...
     - mr.calcDuration(gxPre) - mr.calcDuration(g_sp) ...
     - rf180.delay - mr.calcRfCenter(rf180))/sequencerRasterTime)*sequencerRasterTime;
 delayTE1 = round((ESP/2 -  mr.calcDuration(gx)/2 - gx.flatTime/2 ...
     - mr.calcDuration(g_sp) - rf180.delay - mr.calcRfCenter(rf180))/sequencerRasterTime)*sequencerRasterTime;
-delayTE2 = round((ESP/2 - (mr.calcDuration(rf180) - rf180.delay) ...
+delayTE2 = round((ESP/2 - mr.calcRfCenter(rf180) ...
     - mr.calcDuration(gx)/2  -  mr.calcDuration(g_sp) -  mr.calcDuration(gy))/sequencerRasterTime)*sequencerRasterTime;
 delayTR = TR - ETL*ESP - mr.calcDuration(rf90) - mr.calcDuration(gx)/2;
 fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 
-% weird timing error
-delayTE = delayTE + dwellTime*35;
-
-phase_factor = linspace(-1,1,Ny)*gy_area * 0;  % disable phase for testing
+%% assemble sequence
+phase_factor = linspace(-1,1,Ny)*gy_area;  % disable phase for testing
 n = 1 - Ndummy;
 while n <= Ny
     if use_slice == 1
@@ -122,6 +120,20 @@ while n <= Ny
     seq.addBlock(mr.makeDelay(delayTR));
 end
 
+%% some checks
+% time of first echo should be at ESP + rf90.delay + mr.calcRfCenter(rf90)
+t_1st_echo = mr.calcDuration(rf90) + delayTE + mr.calcDuration(gxPre) + mr.calcDuration(g_sp) ...
+    + mr.calcDuration(rf180) +  mr.calcDuration(g_sp) + delayTE2 + mr.calcDuration(gy) ...
+    + mr.calcDuration(gx)/2;
+assert(abs(t_1st_echo - (ESP + rf90.delay + mr.calcRfCenter(rf90))) < sequencerRasterTime) 
+% center of 2nd 180deg pulse should be at t_first_echo + ESP/2
+t_2nd_rf180 = t_1st_echo + mr.calcDuration(gx)/2 + mr.calcDuration(gy_rev) + delayTE1 ...
+    + mr.calcDuration(g_sp) + rf180.delay + mr.calcRfCenter(rf180);
+assert(abs(t_2nd_rf180 - (t_1st_echo + ESP/2)) < sequencerRasterTime)
+% center of 2nd echo should be at t_1st_echo + ESP
+t_2nd_echo = t_2nd_rf180 + mr.calcRfCenter(rf180) + mr.calcDuration(g_sp) ...
+    + delayTE2 + mr.calcDuration(gy) + mr.calcDuration(gx)/2;
+assert(abs(t_2nd_echo - (t_1st_echo + ESP)) < sequencerRasterTime)
 
 %% prepare sequence export
 seq.setDefinition('Name', 'tse_2d');
@@ -141,6 +153,7 @@ seq.plot();
 seq.write('tabletop_tse_pulseq.seq')       % Write to pulseq file
 %parsemr('tabletop_tse_pulseq.seq');
 
+%% plot trajectory
 %[ktraj_adc, ktraj, t_excitation, t_refocusing] = seq.calculateKspace();
 [ktraj_adc, t_adc, ktraj, t_ktraj, t_excitation, t_refocusing] = seq.calculateKspacePP();
 

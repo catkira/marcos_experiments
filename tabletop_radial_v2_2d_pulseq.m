@@ -1,12 +1,11 @@
 close all
 clear
-%gamma = 42.57E6;
 sequencerRasterTime = 1/(122.88E6); % make sure all times are a multiple of sequencer raster time
 grad_interval = ceil(10E-6/sequencerRasterTime)*sequencerRasterTime;
 rf_interval = ceil(1E-6/sequencerRasterTime)*sequencerRasterTime;
 
 fov=10e-3; Nx=200; Nspokes=80;       % Define FOV and resolution
-Ndummy=0;                            % number of dummy scans
+Ndummy=5;                            % number of dummy scans
 TE=ceil(12e-3/sequencerRasterTime)*sequencerRasterTime; % [s]
 TR=5; % [s]     
 angle=360;
@@ -65,12 +64,12 @@ g_sp = mr.makeTrapezoid('x','Area',sp_amplitude,'Duration',sp_duration,'system',
 adc = mr.makeAdc(round(oversampling_factor*Nx),'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
 
 % Calculate timing
-delayTE1 = round((TE/2 - (mr.calcDuration(rf90)-rf90.delay)/2 ...
+delayTE1 = round((TE/2 - mr.calcRfCenter(rf90) ...
     - mr.calcDuration(gxPre) -  mr.calcDuration(g_sp)...
-    - rf180.delay - (mr.calcDuration(rf180)-rf180.delay)/2)/sequencerRasterTime)*sequencerRasterTime;
-delayTE2 = round((TE/2 - (mr.calcDuration(rf180) - rf180.delay)/2 ...
+    - rf180.delay - mr.calcRfCenter(rf180))/sequencerRasterTime)*sequencerRasterTime;
+delayTE2 = round((TE/2 - mr.calcRfCenter(rf180) ...
     - mr.calcDuration(gx)/2 -  mr.calcDuration(g_sp))/sequencerRasterTime)*sequencerRasterTime;
-delayTR = round((TR - TE -rf90.delay -(mr.calcDuration(rf90) - rf90.delay)/2 - mr.calcDuration(gx)/2)/sequencerRasterTime)*sequencerRasterTime;
+delayTR = round((TR - TE -rf90.delay -mr.calcRfCenter(rf90) - mr.calcDuration(gx)/2)/sequencerRasterTime)*sequencerRasterTime;
 fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 
 extra_delay = ceil(1e-3/sequencerRasterTime)*sequencerRasterTime;
@@ -96,7 +95,7 @@ for i=(1-Ndummy):Nspokes
     seq.addBlock(mr.makeDelay(delayTR));
 end
 
-% some checks
+%% some checks
 calculated_t_ref = (mr.calcDuration(rf90) - rf90.delay)/2 + mr.calcDuration(g_sp) ...
     + delayTE1 + mr.calcDuration(gxPre) + rf180.delay + (mr.calcDuration(rf180) - rf180.delay)/2;
 assert(abs(calculated_t_ref - TE/2) < sequencerRasterTime)
@@ -129,6 +128,7 @@ seq.write('tabletop_radial_v2_2d_pulseq.seq')       % Write to pulseq file
 % some more checks
 parsemr('tabletop_radial_v2_2d_pulseq.seq');
 
+%% plot trajectory
 % calculate k-space but only use it to check timing
 [ktraj_adc, t_adc, ktraj, t_ktraj, t_excitation, t_refocusing] = seq.calculateKspacePP();
 if Ndummy==0
