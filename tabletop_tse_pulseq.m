@@ -5,15 +5,15 @@ sequencerRasterTime = 1/(122.88E6); % make sure all times are a multiple of sequ
 grad_interval = ceil(10E-6/sequencerRasterTime)*sequencerRasterTime;
 rf_interval = ceil(1E-6/sequencerRasterTime)*sequencerRasterTime;
 
-fov=10e-3; Nx=200; Ny=80;   % Define FOV and resolution
-Ndummy = 2;
+fov=10e-3; Nx=200; Ny=128;   % Define FOV and resolution
 TR=5; % [s]     
 ETL=8;
-ESP=10e-3;
+ESP=9e-3;
+Ndummy = 1*ETL;
 oversampling_factor = 4;
 sliceThickness = 10;
 use_slice = 0;
-sp_amplitude = 2000; % spoiler area in 1/m (=Hz/m*s)
+sp_amplitude = 0; % spoiler area in 1/m (=Hz/m*s)
 sp_duration = ceil(0.5E-3/sequencerRasterTime)*sequencerRasterTime;
 
 
@@ -22,7 +22,7 @@ requested_rf90duration = 0.1e-3;
 % put the dwell time and rf90duration on a 2*sequencerRasterTime raster, so that
 % mr.calcDuration(gx)/2 and rf90duration/2 are still on the sequencer raster 
 dwellTime = ceil(requested_gxFlatTime/(Nx*oversampling_factor)/(2*sequencerRasterTime))*(2*sequencerRasterTime);
-gxFlatTime = dwellTime * Nx * oversampling_factor;
+gxFlatTime = ceil((dwellTime * Nx * oversampling_factor)/(2*grad_interval))*(2*grad_interval);
 rf90duration=ceil(requested_rf90duration/(2*sequencerRasterTime))*(2*sequencerRasterTime);
 rf180duration=2*rf90duration;
 
@@ -37,16 +37,15 @@ sys = mr.opts('MaxGrad', maxGrad, 'GradUnit', 'mT/m', ...
 seq=mr.Sequence(sys);              % Create a new sequence object
 
 % Create HF pulses, 500 us delay for tx gate
-rf90duration=0.1e-3;
 if use_slice == 1
     [rf90, gs] = mr.makeBlockPulse(pi/2, 'duration', rf90duration,...
         'PhaseOffset', 0, 'sys', sys, 'SliceThickness', sliceThickness);
     gs.channel='z'; % change it to X because we want sagittal orientation
 else
-    rf90 = mr.makeBlockPulse(pi/2, 'duration', rf180duration,...
+    rf90 = mr.makeBlockPulse(pi/2, 'duration', rf90duration,...
         'PhaseOffset', 0, 'sys', sys);    
 end
-rf180 = mr.makeBlockPulse(pi, 'duration', rf90duration*2,...
+rf180 = mr.makeBlockPulse(pi, 'duration', rf180duration,...
     'PhaseOffset', pi/2, 'use','refocusing', 'sys',sys);
 
 
@@ -66,22 +65,23 @@ Ny = round(Ny);
 adc = mr.makeAdc(round(oversampling_factor*Nx),'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
 
 % Calculate timing
-delayTE = round((ESP/2 - (mr.calcDuration(rf90) - rf90.delay)/2 ...
+%sequencerRasterTime = grad_interval;
+delayTE = round((ESP/2 - mr.calcRfCenter(rf90) ...
     - mr.calcDuration(gxPre) - mr.calcDuration(g_sp) ...
-    - rf180.delay - (mr.calcDuration(rf180) - rf180.delay)/2)/sequencerRasterTime)*sequencerRasterTime;
+    - rf180.delay - mr.calcRfCenter(rf180))/sequencerRasterTime)*sequencerRasterTime;
 delayTE1 = round((ESP/2 -  mr.calcDuration(gx)/2 - gx.flatTime/2 ...
-    - mr.calcDuration(g_sp) - rf180.delay - (mr.calcDuration(rf180) - rf180.delay)/2)/sequencerRasterTime)*sequencerRasterTime;
-delayTE2 = round((ESP/2 - (mr.calcDuration(rf180) - rf180.delay)/2 ...
+    - mr.calcDuration(g_sp) - rf180.delay - mr.calcRfCenter(rf180))/sequencerRasterTime)*sequencerRasterTime;
+delayTE2 = round((ESP/2 - (mr.calcDuration(rf180) - rf180.delay) ...
     - mr.calcDuration(gx)/2  -  mr.calcDuration(g_sp) -  mr.calcDuration(gy))/sequencerRasterTime)*sequencerRasterTime;
-delayTR = TR - ETL*ESP -rf90.delay -(mr.calcDuration(rf90) - rf90.delay)/2 - mr.calcDuration(gx)/2;
+delayTR = TR - ETL*ESP - mr.calcDuration(rf90) - mr.calcDuration(gx)/2;
 fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 
-phase_factor = linspace(-1,1,Ny);
-n = 1;
+% weird timing error
+delayTE = delayTE + dwellTime*35;
+
+phase_factor = linspace(-1,1,Ny)*gy_area * 0;  % disable phase for testing
+n = 1 - Ndummy;
 while n <= Ny
-    if n>Ny
-        break
-    end    
     if use_slice == 1
         seq.addBlock(rf90, gs);
     else
@@ -90,11 +90,13 @@ while n <= Ny
     seq.addBlock(mr.makeDelay(delayTE));
     seq.addBlock(gxPre);
     for m=1:ETL  
-        if n>Ny
-            break
+        if n > 0
+            gy = mr.makeTrapezoid('y','Area',phase_factor(n),'Duration',gx.flatTime/2,'sys',sys);    
+            gy_rev = mr.makeTrapezoid('y','Area',-phase_factor(n),'Duration',gx.flatTime/2,'sys',sys);    
+        else
+            gy = mr.makeTrapezoid('y','Area',phase_factor(1),'Duration',gx.flatTime/2,'sys',sys);    
+            gy_rev = mr.makeTrapezoid('y','Area',-phase_factor(1),'Duration',gx.flatTime/2,'sys',sys);    
         end
-        gy = mr.makeTrapezoid('y','Area',gy_area*phase_factor(n),'Duration',gx.flatTime/2,'sys',sys);    
-        gy_rev = mr.makeTrapezoid('y','Area',-gy_area*phase_factor(n),'Duration',gx.flatTime/2,'sys',sys);    
         if m ~= 1
             seq.addBlock(mr.makeDelay(delayTE1));
         end
@@ -102,11 +104,21 @@ while n <= Ny
         seq.addBlock(rf180);
         seq.addBlock(g_sp);    
         seq.addBlock(mr.makeDelay(delayTE2));
-        seq.addBlock(gy);        
-        seq.addBlock(gx,adc);
+        seq.addBlock(gy);      
+        if n > 0
+            seq.addBlock(gx,adc);
+        else
+            seq.addBlock(gx);
+        end
         seq.addBlock(gy_rev);
         n = n+1;
+        if n > Ny
+            break
+        end    
     end
+    if n >= Ny
+        break
+    end    
     seq.addBlock(mr.makeDelay(delayTR));
 end
 

@@ -36,7 +36,7 @@ if __name__ == "__main__":
     plt.subplot(1, 3, 1)
     plt.imshow(10*np.log(np.abs(data2d)),aspect='auto',interpolation='none', origin='lower')
     plt.subplot(1, 3, 2)
-    plt.imshow(np.angle(data2d),aspect='auto',interpolation='none')
+    plt.imshow(np.angle(data2d),aspect='auto',interpolation='none',origin='lower')
     plt.subplot(1, 3, 3)
     Nspokes = data2d.shape[0]
     if False:
