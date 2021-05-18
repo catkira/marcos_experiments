@@ -69,10 +69,6 @@ if __name__ == "__main__":
                          halt_and_reset=True,
                          grad_max_update_rate = 0.2) # in MSPS
     expt.add_flodict(od)
-    
-    #expt.plot_sequence()
-    #plt.show()
-    #exit()
 
     expt.gradb.calibrate(channels=[0,1,2], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)
 
