@@ -121,12 +121,11 @@ seq.setDefinition('grad_t', grad_interval*1E6);
 seq.setDefinition('tx_t', rf_interval*1E6);
 seq.setDefinition('angle', angle);
 
-seq.plot();
 seq.write('tabletop_radial_v2_2d_pulseq.seq')       % Write to pulseq file
 
 
 % some more checks
-parsemr('tabletop_radial_v2_2d_pulseq.seq');
+%parsemr('tabletop_radial_v2_2d_pulseq.seq');
 
 %% plot trajectory
 % calculate k-space but only use it to check timing

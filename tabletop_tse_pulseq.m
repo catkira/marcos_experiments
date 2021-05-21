@@ -2,8 +2,8 @@ close all
 clear
 gamma = 42.57E6;
 sequencerRasterTime = 1/(122.88E6); % make sure all times are a multiple of sequencer raster time
-grad_interval = ceil(10E-6/sequencerRasterTime)*sequencerRasterTime;
-rf_interval = ceil(1E-6/sequencerRasterTime)*sequencerRasterTime;
+grad_interval = 10E-6;
+rf_interval = 1E-6;
 
 fov=10e-3; Nx=200; Ny=128;   % Define FOV and resolution
 TR=5; % [s]     
@@ -14,7 +14,7 @@ oversampling_factor = 4;
 sliceThickness = 10;
 use_slice = 0;
 sp_amplitude = 0; % spoiler area in 1/m (=Hz/m*s)
-sp_duration = ceil(0.5E-3/sequencerRasterTime)*sequencerRasterTime;
+sp_duration = 0.5E-3;
 
 
 requested_gxFlatTime = 3e-3;  % = adc read time [s]
@@ -28,7 +28,7 @@ rf180duration=2*rf90duration;
 
 % set system limits
 maxGrad = 400; % [mT/m], value for tabletop coils and gpa fhdo
-rfDeadTime = ceil(500e-6/sequencerRasterTime)*sequencerRasterTime; % [us], minicircuits PA needs 500 us to turn on
+rfDeadTime = 500e-6; % [us], minicircuits PA needs 500 us to turn on
 adcDeadTime = 0;
 sys = mr.opts('MaxGrad', maxGrad, 'GradUnit', 'mT/m', ...
     'MaxSlew', 800, 'SlewUnit', 'T/m/s', ...
@@ -66,13 +66,13 @@ adc_delay = (mr.calcDuration(gx) - adc_duration)/2 - 1/2*grad_interval; % - 1/2*
 adc = mr.makeAdc(round(oversampling_factor*Nx),'Duration',adc_duration,'Delay',adc_delay,'sys',sys);
 
 %% Calculate delays
-delayTE = round((ESP/2 - mr.calcRfCenter(rf90) ...
+delayTE = ESP/2 - mr.calcRfCenter(rf90) ...
     - mr.calcDuration(gxPre) - mr.calcDuration(g_sp) ...
-    - rf180.delay - mr.calcRfCenter(rf180))/sequencerRasterTime)*sequencerRasterTime;
-delayTE1 = round((ESP/2 -  mr.calcDuration(gx)/2 - gx.flatTime/2 ...
-    - mr.calcDuration(g_sp) - rf180.delay - mr.calcRfCenter(rf180))/sequencerRasterTime)*sequencerRasterTime;
-delayTE2 = round((ESP/2 - mr.calcRfCenter(rf180) ...
-    - mr.calcDuration(gx)/2  -  mr.calcDuration(g_sp) -  mr.calcDuration(gy))/sequencerRasterTime)*sequencerRasterTime;
+    - rf180.delay - mr.calcRfCenter(rf180);
+delayTE1 = ESP/2 -  mr.calcDuration(gx)/2 - gx.flatTime/2 ...
+    - mr.calcDuration(g_sp) - rf180.delay - mr.calcRfCenter(rf180);
+delayTE2 = ESP/2 - mr.calcRfCenter(rf180) ...
+    - mr.calcDuration(gx)/2  -  mr.calcDuration(g_sp) -  mr.calcDuration(gy);
 delayTR = TR - ETL*ESP - mr.calcDuration(rf90) - mr.calcDuration(gx)/2;
 fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 

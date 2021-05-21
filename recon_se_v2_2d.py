@@ -9,6 +9,7 @@ import os.path
 
 if __name__ == "__main__":
 
+    data_path = 'D:\\Sciebo\\LEMB\\TabletopMRI\\tse analysis\\'
     files = listdir(os.path.join(data_path,"./"))
     #files2 = [f for f in files if f.find("se_v2_2d") != -1 and f.find(".npy") != -1]
     files2 = [f for f in files if f.find("tse_") != -1 and f.find(".npy") != -1]
