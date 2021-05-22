@@ -98,7 +98,11 @@ if __name__ == "__main__":
         filename = f"{seq_file[:-4]} {current_time} Nspokes {Nspokes} Nx {Nx} TR {TR} angle {angle} SliceThickness {sliceThickness}"
     else:
         Ny = int(pd['Ny'])
-        filename = f"{seq_file[:-4]} {current_time} Ny {Ny} Nx {Nx} TR {TR} SliceThickness {sliceThickness}"
+        if seq_file.find("tse") != -1:
+            filename = f"{seq_file[:-4]} {current_time} Ny {Ny} Nx {Nx} TR {TR} SliceThickness {sliceThickness}"
+        else
+            filename = f"{seq_file[:-4]} {current_time} Ny {Ny} Nx {Nx} TR {TR} ETL {pd['ETL']} SliceThickness {sliceThickness}"
+    filename = os.path.basename(filename)
     copyfile(seq_file,os.path.join(data_path,filename+".seq"))        
     #copyfile(seq_file[:-4]+".m",os.path.join(data_path,filename+".m"))
 
@@ -121,25 +125,36 @@ if __name__ == "__main__":
 
     if args.plot_only == 1:
         if args.scope_csv != 0:
-            scope_data = np.genfromtxt(args.scope_csv[0], delimiter=',')
+            ##### settings
+            grad_delay = -50*8E-3 # us
+            global_delay = 0.015 #us
+            channels = [[1,'scope_ix'],[0,'scope_txgate'],[2,'scope_rx'],[3,'scope_vx']]
+            #####
+            scope_info = np.genfromtxt(args.scope_csv[0], delimiter=':',usecols=(0,1), dtype=str)
+            scope_info = dict(scope_info)
+            scope_wf = np.genfromtxt(args.scope_csv[0].replace(".csv",".Wfm.csv"), delimiter=',')
             fig, axes = plt.subplots(4, 1, figsize=(12,8), sharex='col')
             (txs, grads, rxs, ios) = axes
             expt.plot_sequence(axes = axes)
-            t_scope = np.linspace(0,0.0372399*1E6,num=scope_data.shape[0])
-            channels = [[1,'scope_vx'],[0,'scope_txgate'],[2,'scope_rx'],[3,'scope_vy']]
+            t_scope = np.linspace(float(scope_info['XStart'])*1E6,float(scope_info['XStop'])*1E6,num=scope_wf.shape[0])
+            t_scope = t_scope - global_delay
             lines = np.array([])
             for channel in channels:
-                if "scope_v" in channel[1]:
-                    grad = (scope_data[:,channel[0]] - 2.5 - (scope_data[1000,1] - 2.5))/2.5*2
-                    lines = np.append(lines, grads.step(t_scope, grad, where='post', label=channel[1]))
+                if "scope_v" in channel[1] or "scope_i" in channel[1]:
+                    align_index = abs(int(float(scope_info['XStart']) / float(scope_info['Resolution']))) + 1000  # assumes grad amplitude is 0 at start
+                    grad = (scope_wf[:,channel[0]] - 2.5 - (scope_wf[align_index,channel[0]] - 2.5))/2.5
+                    if "scope_i" in channel[1]:
+                        grad *= 2
+                    lines = np.append(lines, grads.step(t_scope - grad_delay, grad, where='post', label=channel[1]))
                 if "scope_txgate" in channel[1]:
-                    tx_gate = scope_data[:,channel[0]]/5 
+                    tx_gate = scope_wf[:,channel[0]]/5 
                     lines = np.append(lines, ios.step(t_scope, tx_gate, where='post', label=channel[1]))
                 if "scope_rx" in channel[1]:
-                    rx = scope_data[:,channel[0]]
+                    rx = scope_wf[:,channel[0]]
                     lines = np.append(lines, rxs.step(t_scope, rx, where='post', label=channel[1]))
-                axes[channel[0]].legend()
-                axes[channel[0]].grid(True)
+            for axis in axes:
+                axis.legend()
+                axis.grid(True)
             mplcursors.cursor(lines,multiple=True) # or just mplcursors.cursor()            
         else:
             expt.plot_sequence()

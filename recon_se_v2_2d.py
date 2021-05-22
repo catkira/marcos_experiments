@@ -9,14 +9,15 @@ import os.path
 
 if __name__ == "__main__":
 
-    data_path = 'D:\\Sciebo\\LEMB\\TabletopMRI\\tse analysis\\'
+    #data_path = 'D:\\Sciebo\\LEMB\\TabletopMRI\\tse analysis\\'
+    data_path = 'D:\\Sciebo\\LEMB\\TabletopMRI\\measurements\\'
     files = listdir(os.path.join(data_path,"./"))
     #files2 = [f for f in files if f.find("se_v2_2d") != -1 and f.find(".npy") != -1]
     files2 = [f for f in files if f.find("tse_") != -1 and f.find(".npy") != -1]
     #files2 = [f for f in files if f.find("gre_v2_2d") != -1 and f.find(".npy") != -1]
 
     # 2 cylinder decent
-    current_file = files2[-1]
+    current_file = files2[-5]
     print(current_file)
     data2d = np.load(os.path.join(data_path,current_file))
     Nx = 200 # TODO: parse from filename
@@ -27,11 +28,24 @@ if __name__ == "__main__":
             Nx = int(float(tokens[n+1]))
         if tokens[n] == "Ny":
             Ny = int(float(tokens[n+1]))    
+        if tokens[n] == "ETL":
+            ETL = int(float(tokens[n+1]))    
     oversampling_factor = int(np.round(data2d.shape[0]/Nx/Ny))
     data2d = data2d.reshape(Ny,Nx*oversampling_factor)    
 
     adc_pad = 6
     data2d=data2d[:,adc_pad:]    
+
+    ETL=8
+    if "tse" in current_file:
+        nex = int(Ny / ETL)
+        pe_steps=np.arange(Ny)
+        pe_steps_interleaved = np.reshape(pe_steps, (ETL, nex)).astype('int'); 
+        data2d_sorted = np.empty_like(data2d)
+        for n in range(nex):
+            for m in range(ETL):
+                data2d_sorted[pe_steps_interleaved[m,n]] = data2d[n*ETL + m,:]
+        data2d = data2d_sorted
 
     plt.figure(1)
     plt.subplot(1, 3, 1)

@@ -8,22 +8,22 @@ rf_interval = 1E-6;
 fov=10e-3; Nx=200; Ny=128;   % Define FOV and resolution
 TR=5; % [s]     
 ETL=8;
-ESP=9e-3;
-Ndummy = 1*ETL;
+ESP=10e-3;
+Ndummy = 0*ETL;
 oversampling_factor = 4;
 sliceThickness = 10;
 use_slice = 0;
 sp_amplitude = 0; % spoiler area in 1/m (=Hz/m*s)
 sp_duration = 0.5E-3;
 
+assert(mod(Ny,ETL) == 0)
 
-requested_gxFlatTime = 3e-3;  % = adc read time [s]
-requested_rf90duration = 0.1e-3;
+
+gxFlatTime = 3e-3;  % = adc read time [s]
+rf90duration = 0.1e-3;
 % put the dwell time and rf90duration on a 2*sequencerRasterTime raster, so that
 % mr.calcDuration(gx)/2 and rf90duration/2 are still on the sequencer raster 
-dwellTime = ceil(requested_gxFlatTime/(Nx*oversampling_factor)/(2*sequencerRasterTime))*(2*sequencerRasterTime);
-gxFlatTime = ceil((dwellTime * Nx * oversampling_factor)/(2*grad_interval))*(2*grad_interval);
-rf90duration=ceil(requested_rf90duration/(2*sequencerRasterTime))*(2*sequencerRasterTime);
+dwellTime = gxFlatTime/(Nx*oversampling_factor);
 rf180duration=2*rf90duration;
 
 % set system limits
@@ -57,7 +57,7 @@ gx = mr.makeTrapezoid('x','FlatArea',kWidth,'FlatTime',gxFlatTime,'sys',sys);
 fprintf('Sequence bandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov);
 fprintf('Pixelbandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov/Nx);
 gx.delay = 0; % assumes rfDeadTime > gx.riseTime !!
-gxPre = mr.makeTrapezoid('x','Area',gx.area/2,'Duration',gx.flatTime/2,'sys',sys);
+gxPre = mr.makeTrapezoid('x','Area',gx.area/2,'Duration',mr.calcDuration(gx),'sys',sys);
 g_sp = mr.makeTrapezoid('x','Area',sp_amplitude,'Duration',sp_duration,'system',sys);
 gy_area = kHeight/2;
 gy = mr.makeTrapezoid('y','Area',gy_area,'Duration',gx.flatTime/2,'sys',sys);
@@ -77,9 +77,11 @@ delayTR = TR - ETL*ESP - mr.calcDuration(rf90) - mr.calcDuration(gx)/2;
 fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 
 %% assemble sequence
-phase_factor = linspace(-1,1,Ny)*gy_area;  % disable phase for testing
-n = 1 - Ndummy;
-while n <= Ny
+nex = Ny / ETL;
+pe_steps=(1:(ETL*nex))-0.5*ETL*nex-1;
+pe_steps_interleaved = reshape(pe_steps, [nex, ETL]); 
+phase_areas = pe_steps_interleaved * deltak;
+for n = 1-Ndummy:nex
     if use_slice == 1
         seq.addBlock(rf90, gs);
     else
@@ -89,11 +91,11 @@ while n <= Ny
     seq.addBlock(gxPre);
     for m=1:ETL  
         if n > 0
-            gy = mr.makeTrapezoid('y','Area',phase_factor(n),'Duration',gx.flatTime/2,'sys',sys);    
-            gy_rev = mr.makeTrapezoid('y','Area',-phase_factor(n),'Duration',gx.flatTime/2,'sys',sys);    
+            gy = mr.makeTrapezoid('y','Area',phase_areas(n,m),'Duration',gx.flatTime/2,'sys',sys);    
+            gy_rev = mr.makeTrapezoid('y','Area',-phase_areas(n,m),'Duration',gx.flatTime/2,'sys',sys);    
         else
-            gy = mr.makeTrapezoid('y','Area',phase_factor(1),'Duration',gx.flatTime/2,'sys',sys);    
-            gy_rev = mr.makeTrapezoid('y','Area',-phase_factor(1),'Duration',gx.flatTime/2,'sys',sys);    
+            gy = mr.makeTrapezoid('y','Area',phase_areas(1,1),'Duration',gx.flatTime/2,'sys',sys);    
+            gy_rev = mr.makeTrapezoid('y','Area',-phase_areas(1,1),'Duration',gx.flatTime/2,'sys',sys);    
         end
         if m ~= 1
             seq.addBlock(mr.makeDelay(delayTE1));
@@ -109,15 +111,10 @@ while n <= Ny
             seq.addBlock(gx);
         end
         seq.addBlock(gy_rev);
-        n = n+1;
-        if n > Ny
-            break
-        end    
     end
-    if n >= Ny
-        break
+    if n < (nex-1)
+        seq.addBlock(mr.makeDelay(delayTR));
     end    
-    seq.addBlock(mr.makeDelay(delayTR));
 end
 
 %% some checks
@@ -139,7 +136,7 @@ assert(abs(t_2nd_echo - (t_1st_echo + ESP)) < sequencerRasterTime)
 seq.setDefinition('Name', 'tse_2d');
 seq.setDefinition('FOV', [fov fov]);
 seq.setDefinition('ESP [s]', ESP);
-seq.setDefinition('ELT', ETL);
+seq.setDefinition('ETL', ETL);
 seq.setDefinition('TR', TR);
 seq.setDefinition('Nx', Nx);
 seq.setDefinition('Ny', Ny);
