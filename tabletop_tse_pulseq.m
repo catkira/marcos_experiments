@@ -7,9 +7,9 @@ rf_interval = 1E-6;
 
 fov=10e-3; Nx=200; Ny=128;   % Define FOV and resolution
 TR=5; % [s]     
-ETL=8;
+ETL=16;
 ESP=10e-3;
-Ndummy = 0*ETL;
+Ndummy = 1; % excitations
 oversampling_factor = 4;
 sliceThickness = 10;
 use_slice = 0;
@@ -94,8 +94,8 @@ for n = 1-Ndummy:nex
             gy = mr.makeTrapezoid('y','Area',phase_areas(n,m),'Duration',gx.flatTime/2,'sys',sys);    
             gy_rev = mr.makeTrapezoid('y','Area',-phase_areas(n,m),'Duration',gx.flatTime/2,'sys',sys);    
         else
-            gy = mr.makeTrapezoid('y','Area',phase_areas(1,1),'Duration',gx.flatTime/2,'sys',sys);    
-            gy_rev = mr.makeTrapezoid('y','Area',-phase_areas(1,1),'Duration',gx.flatTime/2,'sys',sys);    
+            gy = mr.makeTrapezoid('y','Area',phase_areas(1,m),'Duration',gx.flatTime/2,'sys',sys);    
+            gy_rev = mr.makeTrapezoid('y','Area',-phase_areas(1,m),'Duration',gx.flatTime/2,'sys',sys);    
         end
         if m ~= 1
             seq.addBlock(mr.makeDelay(delayTE1));
@@ -108,11 +108,11 @@ for n = 1-Ndummy:nex
         if n > 0
             seq.addBlock(gx,adc);
         else
-            seq.addBlock(gx);
+            seq.addBlock(gx,adc);
         end
         seq.addBlock(gy_rev);
     end
-    if n < (nex-1)
+    if n < nex
         seq.addBlock(mr.makeDelay(delayTR));
     end    
 end
@@ -140,6 +140,7 @@ seq.setDefinition('ETL', ETL);
 seq.setDefinition('TR', TR);
 seq.setDefinition('Nx', Nx);
 seq.setDefinition('Ny', Ny);
+seq.setDefinition('Ndummy', Ndummy);
 seq.setDefinition('Bandwidth [Hz]', 1/adc.dwell);
 seq.setDefinition('grad_t', grad_interval*1E6);
 seq.setDefinition('tx_t', rf_interval*1E6);

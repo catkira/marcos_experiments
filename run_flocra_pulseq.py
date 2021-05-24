@@ -98,13 +98,14 @@ if __name__ == "__main__":
         filename = f"{seq_file[:-4]} {current_time} Nspokes {Nspokes} Nx {Nx} TR {TR} angle {angle} SliceThickness {sliceThickness}"
     else:
         Ny = int(pd['Ny'])
+        Ndummy = int(pd['Ndummy'])
         if seq_file.find("tse") != -1:
+            filename = f"{seq_file[:-4]} {current_time} Ny {Ny} Nx {Nx} TR {TR} ETL {pd['ETL']} Ndummy {Ndummy} SliceThickness {sliceThickness}"
+        else:
             filename = f"{seq_file[:-4]} {current_time} Ny {Ny} Nx {Nx} TR {TR} SliceThickness {sliceThickness}"
-        else
-            filename = f"{seq_file[:-4]} {current_time} Ny {Ny} Nx {Nx} TR {TR} ETL {pd['ETL']} SliceThickness {sliceThickness}"
     filename = os.path.basename(filename)
     copyfile(seq_file,os.path.join(data_path,filename+".seq"))        
-    #copyfile(seq_file[:-4]+".m",os.path.join(data_path,filename+".m"))
+    copyfile(seq_file[:-4]+".m",os.path.join(data_path,filename+".m"))
 
     if True and args.plot_only == 0:
         # Shim

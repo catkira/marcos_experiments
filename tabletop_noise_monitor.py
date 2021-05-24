@@ -21,7 +21,7 @@ if __name__ == "__main__":
     psi = PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=rf_amp_max,
                         grad_max=grad_max) # very large, just for testing
-    od, pd = psi.interpret("tabletop_se_pulseq.seq")         
+    od, pd = psi.interpret("tabletop_noise_monitor.seq")         
     grad_interval = pd['grad_t']
 
 
@@ -53,10 +53,6 @@ if __name__ == "__main__":
         ax2.set_xlabel('time [us]')
         ax2.plot(t_axis, data.real*3.3)
         ax2.set_ylabel('real [mV]')
-        #f_axis = np.linspace(-1/dt*nSamples,1/dt*nSamples,nSamples)
-        #nFFT_window = 127
-        #f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]
-        #ax3.plot(f_axis,np.abs(np.fft.fftshift(np.fft.fft(data))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]/np.sqrt(nSamples)))
         f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))
         ax3.plot(f_axis,np.abs(np.fft.fftshift(np.fft.fft(data))/np.sqrt(nSamples)))
         plt.ion()
