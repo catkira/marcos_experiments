@@ -11,8 +11,8 @@ ETL=16;
 ESP=8e-3;
 Ndummy = 1; % excitations
 oversampling_factor = 4;
-sliceThickness = 10;
-use_slice = 0;
+sliceThickness = 5;
+use_slice = 1;
 sp_amplitude = 0; % spoiler area in 1/m (=Hz/m*s)
 sp_duration = 0.5E-3;
 

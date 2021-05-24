@@ -25,7 +25,8 @@ if __name__ == "__main__":
     #tx_warmup = 0 # already handled by delay in RF block
     psi = PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=rf_amp_max,
-                        grad_max=grad_max) # very large, just for testing
+                        grad_max=grad_max, # very large, just for testing
+                        tx_warmup=200)
     od, pd = psi.interpret("tabletop_fid_pulseq.seq")         
     grad_interval = pd['grad_t']
 
