@@ -1,0 +1,33 @@
+# Pulseq sequence file
+# Created by MATLAB mr toolbox
+
+[VERSION]
+major 1
+minor 3
+revision 1
+
+[DEFINITIONS]
+Bandwidth [Hz] 51203.277 
+Name noise_monitor
+
+# Format of blocks:
+#  #  D RF  GX  GY  GZ ADC EXT
+[BLOCKS]
+1  0  0   0   0   0  1  0
+
+
+# Format of ADC events:
+# id num dwell delay freq phase
+# ..  ..    ns    us   Hz   rad
+[ADC]
+1 128 19530 0 0 0
+
+# Format of delays:
+# id delay (us)
+[DELAYS]
+1 5881
+2 5419
+
+
+
+
