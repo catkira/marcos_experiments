@@ -82,7 +82,8 @@ if __name__ == "__main__":
                         grad_max=grad_max_Hz_per_m,
                         gx_max=grad_max_x_Hz_per_m,
                         gy_max=grad_max_y_Hz_per_m,
-                        gz_max=grad_max_z_Hz_per_m)
+                        gz_max=grad_max_z_Hz_per_m,
+                        tx_warmup=200)
     od, pd = psi.interpret(seq_file)   
 
     TR = pd['TR']

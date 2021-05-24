@@ -8,7 +8,7 @@ rf_interval = 1E-6;
 fov=10e-3; Nx=200; Ny=128;   % Define FOV and resolution
 TR=5; % [s]     
 ETL=16;
-ESP=10e-3;
+ESP=8e-3;
 Ndummy = 1; % excitations
 oversampling_factor = 4;
 sliceThickness = 10;
@@ -18,17 +18,14 @@ sp_duration = 0.5E-3;
 
 assert(mod(Ny,ETL) == 0)
 
-
 gxFlatTime = 3e-3;  % = adc read time [s]
 rf90duration = 0.1e-3;
-% put the dwell time and rf90duration on a 2*sequencerRasterTime raster, so that
-% mr.calcDuration(gx)/2 and rf90duration/2 are still on the sequencer raster 
 dwellTime = gxFlatTime/(Nx*oversampling_factor);
 rf180duration=2*rf90duration;
 
 % set system limits
 maxGrad = 400; % [mT/m], value for tabletop coils and gpa fhdo
-rfDeadTime = 500e-6; % [us], minicircuits PA needs 500 us to turn on
+rfDeadTime = 200e-6; % [us], minicircuits PA needs 500 us to turn on, Motorola amp needs 200 us
 adcDeadTime = 0;
 sys = mr.opts('MaxGrad', maxGrad, 'GradUnit', 'mT/m', ...
     'MaxSlew', 800, 'SlewUnit', 'T/m/s', ...
@@ -59,6 +56,11 @@ fprintf('Pixelbandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov/Nx);
 gx.delay = 0; % assumes rfDeadTime > gx.riseTime !!
 gxPre = mr.makeTrapezoid('x','Area',gx.area/2,'Duration',mr.calcDuration(gx),'sys',sys);
 g_sp = mr.makeTrapezoid('x','Area',sp_amplitude,'Duration',sp_duration,'system',sys);
+if sp_amplitude == 0
+    g_sp.riseTime = 0;
+    g_sp.fallTime = 0;
+    g_sp.flatTime = 0;
+end
 gy_area = kHeight/2;
 gy = mr.makeTrapezoid('y','Area',gy_area,'Duration',gx.flatTime/2,'sys',sys);
 adc_duration = dwellTime * Nx * oversampling_factor;
@@ -100,9 +102,13 @@ for n = 1-Ndummy:nex
         if m ~= 1
             seq.addBlock(mr.makeDelay(delayTE1));
         end
-        seq.addBlock(g_sp);    
-        seq.addBlock(rf180);
-        seq.addBlock(g_sp);    
+        if sp_amplitude > 0
+            seq.addBlock(g_sp);    
+            seq.addBlock(rf180);
+            seq.addBlock(g_sp);    
+        else
+            seq.addBlock(rf180);
+        end
         seq.addBlock(mr.makeDelay(delayTE2));
         seq.addBlock(gy);      
         if n > 0
