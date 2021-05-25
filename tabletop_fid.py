@@ -10,6 +10,7 @@ import pdb
 import external
 import experiment as ex
 import os
+import time
 #from pulseq_assembler import PSAssembler
 from flocra_pulseq_interpreter import PSInterpreter
 st = pdb.set_trace
@@ -45,19 +46,19 @@ if __name__ == "__main__":
                          halt_and_reset=True) 
     expt.add_flodict(od)
     expt.gradb.calibrate(channels=[0,1,2], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)
-
+    
+    fig, (ax1, ax2, ax3) = plt.subplots(3)
     rxd, msgs = expt.run()
-    expt.gradb.init_hw()  # set gradient currents back to zero
-
-
     data = rxd['rx0']
     data = data[6:]
     nSamples_orig = pd['readout_number']   
     nSamples = len(data)
-    fig, (ax1, ax2, ax3) = plt.subplots(3)
     fig.suptitle('FID [n={:d}, lo_freq={:f} Mhz]\n')
     dt = pd['rx_t']
     t_axis = np.linspace(0, dt * nSamples, nSamples)  # us    
+    ax1.clear()
+    ax2.clear()
+    ax3.clear()
     ax1.plot(t_axis, np.abs(data)*3.3)
     ax1.set_ylabel('abs [mV]')
     ax2.set_xlabel('time [us]')
@@ -72,6 +73,8 @@ if __name__ == "__main__":
     ax3.set_ylabel('spectrum')
     plt.show()
     fig.tight_layout()
+    
+    expt.gradb.init_hw()  # set gradient currents back to zero
     expt.close_server(True) 
     # st()    
 
