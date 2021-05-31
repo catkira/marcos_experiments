@@ -22,11 +22,11 @@ if __name__ == "__main__":
 
     grad_max = grad_max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
     rf_amp_max = hf_max_Hz_per_m # factor used to normalize RF amplitude, should be max value of system used!
-    #tx_warmup = 0 # already handled by delay in RF block
+    tx_warmup = 200 # already handled by delay in RF block
     psi = flocra_pulseq.interpreter.PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=rf_amp_max,
-                        grad_max=grad_max, # very large, just for testing
-                        tx_warmup=200)
+                        grad_max=grad_max,
+                        tx_warmup=tx_warmup)
     od, pd = psi.interpret("tabletop_fid_pulseq.seq")         
     grad_interval = pd['grad_t']
 

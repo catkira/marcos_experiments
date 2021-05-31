@@ -1,0 +1,31 @@
+# Pulseq sequence file
+# Created by MATLAB mr toolbox
+
+[VERSION]
+major 1
+minor 3
+revision 1
+
+[DEFINITIONS]
+Name coil_check 
+Nx 10000 
+grad_t 10 
+tx_t 1 
+
+# Format of blocks:
+#  #  D RF  GX  GY  GZ ADC EXT
+[BLOCKS]
+1  1  0   0   0   0  0  0
+2  0  0   0   0   0  1  0
+
+# Format of ADC events:
+# id num dwell delay freq phase
+# ..  ..    ns    us   Hz   rad
+[ADC]
+1 10000 98 0 0 0
+
+# Format of delays:
+# id delay (us)
+[DELAYS]
+1 10
+
