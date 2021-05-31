@@ -86,8 +86,8 @@ if __name__ == "__main__":
                         tx_warmup=200)
     od, pd = psi.interpret(seq_file)   
 
-    TR = pd['TR']
-    Nx = pd['Nx']
+    TR = int(pd['TR'])
+    Nx = int(pd['Nx'])
     sliceThickness = int(pd['SliceThickness'])
 
     from datetime import datetime
@@ -101,7 +101,7 @@ if __name__ == "__main__":
         Ny = int(pd['Ny'])
         Ndummy = int(pd['Ndummy'])
         if seq_file.find("tse") != -1:
-            filename = f"{seq_file[:-4]} {current_time} Ny {Ny} Nx {Nx} TR {TR} ETL {pd['ETL']} Ndummy {Ndummy} SliceThickness {sliceThickness}"
+            filename = f"{seq_file[:-4]} {current_time} Ny {Ny} Nx {Nx} TR {TR} ETL {int(pd['ETL'])} Ndummy {Ndummy} SliceThickness {sliceThickness}"
         else:
             filename = f"{seq_file[:-4]} {current_time} Ny {Ny} Nx {Nx} TR {TR} SliceThickness {sliceThickness}"
     filename = os.path.basename(filename)
@@ -112,7 +112,7 @@ if __name__ == "__main__":
         # Shim
         grads = ['grad_vx', 'grad_vy', 'grad_vz']
         for ch in range(3):
-            #od[grads[ch]] = (np.concatenate((np.array([10.0]), od[grads[ch]][0])), np.concatenate((np.array([0]), od[grads[ch]][1])))
+            od[grads[ch]] = (np.concatenate((np.array([10.0]), od[grads[ch]][0])), np.concatenate((np.array([0]), od[grads[ch]][1])))
             od[grads[ch]] = (od[grads[ch]][0], od[grads[ch]][1] + shim[ch])
 
 

@@ -20,8 +20,8 @@ if __name__ == "__main__":
     current_file = files2[-1]
     print(current_file)
     data2d = np.load(os.path.join(data_path,current_file))
-    Nx = 200 # TODO: parse from filename
-    Ny = 80 # TODO: parse from filename
+    Nx = 200 
+    Ny = 80 
     tokens = current_file.split(" ")
     ETL = 1
     Ndummy = 0

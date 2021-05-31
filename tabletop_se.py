@@ -72,6 +72,8 @@ if __name__ == "__main__":
     #ax3.plot(f_axis,np.abs(np.fft.fftshift(np.fft.fft(data))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]/np.sqrt(nSamples)))
     f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))
     ax3.plot(f_axis,np.abs(np.fft.fftshift(np.fft.fft(data))/np.sqrt(nSamples)))
+    ax3.set_ylabel('Spectrum')
+    ax3.set_xlabel('Hz')
     plt.show()
     fig.tight_layout()
     expt.close_server(True) 

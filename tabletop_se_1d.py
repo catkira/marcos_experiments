@@ -11,7 +11,7 @@ import time
 import external
 import experiment as ex
 import os
-from flocra_pulseq_interpreter import PSInterpreter
+import flocra_pulseq.interpreter
 st = pdb.set_trace
 from mri_config import lo_freq, grad_max_Hz_per_m, hf_max_Hz_per_m, gamma, shim, max_grad_current
 
@@ -24,11 +24,12 @@ if __name__ == "__main__":
     print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
     print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
 
-    tx_warmup = 0 # already handled by delay in RF block
+    tx_warmup = 200 # already handled by delay in RF block
     adc_pad = 85 # padding to prevent junk in rx buffer
-    psi = PSInterpreter(rf_center=lo_freq*1e6,
+    psi = flocra_pulseq.interpreter.PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=hf_max_Hz_per_m,
                         tx_t=tx_t,
+                        tx_warmup = tx_warmup,
                         grad_t=grad_interval,
                         grad_max=grad_max_Hz_per_m)
     od, pd = psi.interpret("tabletop_se_1d_pulseq.seq")         
