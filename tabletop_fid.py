@@ -11,8 +11,7 @@ import external
 import experiment as ex
 import os
 import time
-#from pulseq_assembler import PSAssembler
-from flocra_pulseq_interpreter import PSInterpreter
+import flocra_pulseq.interpreter
 st = pdb.set_trace
 from mri_config import lo_freq, grad_max_Hz_per_m, hf_max_Hz_per_m, gamma, shim, max_grad_current
 
@@ -24,7 +23,7 @@ if __name__ == "__main__":
     grad_max = grad_max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
     rf_amp_max = hf_max_Hz_per_m # factor used to normalize RF amplitude, should be max value of system used!
     #tx_warmup = 0 # already handled by delay in RF block
-    psi = PSInterpreter(rf_center=lo_freq*1e6,
+    psi = flocra_pulseq.interpreter.PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=rf_amp_max,
                         grad_max=grad_max, # very large, just for testing
                         tx_warmup=200)
@@ -32,8 +31,8 @@ if __name__ == "__main__":
     grad_interval = pd['grad_t']
 
     # Shim
-    grads = ['grad_vx', 'grad_vy', 'grad_vz']
-    for ch in range(3):
+    grads = ['grad_vx', 'grad_vy', 'grad_vz', 'grad_vz2']
+    for ch in range(4):
         #od[grads[ch]] = (np.concatenate((np.array([10.0]), od[grads[ch]][0])), np.concatenate((np.array([0]), od[grads[ch]][1])))
         #od[grads[ch]] = (od[grads[ch]][1], od[grads[ch]][1] + shim[ch])
         od[grads[ch]] = (np.array([10.0]), np.array([shim[ch]]))
@@ -45,7 +44,7 @@ if __name__ == "__main__":
                          flush_old_rx=True,
                          halt_and_reset=True) 
     expt.add_flodict(od)
-    expt.gradb.calibrate(channels=[0,1,2], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)
+    expt.gradb.calibrate(channels=[0,1,2,3], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)
     
     fig, (ax1, ax2, ax3) = plt.subplots(3)
     rxd, msgs = expt.run()

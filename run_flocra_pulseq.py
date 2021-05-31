@@ -13,7 +13,7 @@ import experiment as ex
 import os
 import scipy.io as sio
 from shutil import copyfile
-from flocra_pulseq_interpreter import PSInterpreter
+import flocra_pulseq.interpreter
 import mplcursors
 st = pdb.set_trace
 
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
 
     seq_file = args.seq[0]
-    psi = PSInterpreter(rf_center=lo_freq*1e6,
+    psi = flocra_pulseq.interpreter.PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=hf_max_Hz_per_m,
                         grad_max=grad_max_Hz_per_m,
                         gx_max=grad_max_x_Hz_per_m,
@@ -112,7 +112,7 @@ if __name__ == "__main__":
         # Shim
         grads = ['grad_vx', 'grad_vy', 'grad_vz']
         for ch in range(3):
-            od[grads[ch]] = (np.concatenate((np.array([10.0]), od[grads[ch]][0])), np.concatenate((np.array([0]), od[grads[ch]][1])))
+            #od[grads[ch]] = (np.concatenate((np.array([10.0]), od[grads[ch]][0])), np.concatenate((np.array([0]), od[grads[ch]][1])))
             od[grads[ch]] = (od[grads[ch]][0], od[grads[ch]][1] + shim[ch])
 
 

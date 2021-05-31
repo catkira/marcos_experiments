@@ -12,7 +12,7 @@ import experiment as ex
 import os
 import scipy.io as sio
 from shutil import copyfile
-from flocra_pulseq_interpreter import PSInterpreter
+import flocra_pulseq.interpreter
 import scipy.signal
 st = pdb.set_trace
 
@@ -29,7 +29,7 @@ if __name__ == "__main__":
     print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
 
     seq_file = "tabletop_prescan_se.seq"
-    psi = PSInterpreter(rf_center=lo_freq*1e6,
+    psi = flocra_pulseq.interpreter.PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=hf_max_Hz_per_m,
                         tx_t=tx_t,
                         grad_t=grad_t,
