@@ -110,9 +110,9 @@ if __name__ == "__main__":
 
     if True and args.plot_only == 0:
         # Shim
-        grads = ['grad_vx', 'grad_vy', 'grad_vz']
-        for ch in range(3):
-            od[grads[ch]] = (np.concatenate((np.array([10.0]), od[grads[ch]][0])), np.concatenate((np.array([0]), od[grads[ch]][1])))
+        grads = ['grad_vx', 'grad_vy', 'grad_vz', 'grad_vz2']
+        for ch in range(4):
+            #od[grads[ch]] = (np.concatenate((np.array([10.0]), od[grads[ch]][0])), np.concatenate((np.array([0]), od[grads[ch]][1])))
             od[grads[ch]] = (od[grads[ch]][0], od[grads[ch]][1] + shim[ch])
 
 
@@ -162,7 +162,7 @@ if __name__ == "__main__":
             expt.plot_sequence()
         plt.show()
     else:
-        expt.gradb.calibrate(channels=[0,1,2], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)
+        expt.gradb.calibrate(channels=[0,1,2,3], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)
 
         rxd, msgs = expt.run()
         expt.gradb.init_hw()  # set gradient currents back to zero

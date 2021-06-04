@@ -31,12 +31,9 @@ if __name__ == "__main__":
 
     if True:
         # Shim
-        grads = ['grad_vx', 'grad_vy', 'grad_vz']
-        for ch in range(3):
-            #od[grads[ch]] = (np.concatenate((np.array([10.0]), od[grads[ch]][0])), np.concatenate((np.array([0]), od[grads[ch]][1])))
-            od[grads[ch]] = (od[grads[ch]][1], od[grads[ch]][1] + shim[ch])
-            #od[grads[ch]] = (np.array([10.0]), np.array([shim[ch]]))
-
+        grads = ['grad_vx', 'grad_vy', 'grad_vz', 'grad_vz2']
+        for ch in range(4):
+            od[grads[ch]] = (od[grads[ch]][0], od[grads[ch]][1] + shim[ch])
 
     expt = ex.Experiment(lo_freq=lo_freq,
                          rx_t=pd['rx_t'],
