@@ -7,7 +7,7 @@ rf_interval = 1E-6;
 
 fov=10e-3; Nx=200; Ny=128;   % Define FOV and resolution
 TR=5; % [s]     
-ETL=16;
+ETL=8;
 ESP=8e-3;
 Ndummy = 1; % excitations
 oversampling_factor = 4;

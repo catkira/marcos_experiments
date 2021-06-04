@@ -9,7 +9,7 @@ import experiment as ex
 import os
 import time
 #from pulseq_assembler import PSAssembler
-from flocra_pulseq_interpreter import PSInterpreter
+import flocra_pulseq.interpreter
 st = pdb.set_trace
 from mri_config import lo_freq, grad_max_Hz_per_m, hf_max_Hz_per_m, gamma, shim
 
@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     grad_max = grad_max_Hz_per_m # factor used to normalize gradient amplitude, should be max value of the gpa used!	
     rf_amp_max = hf_max_Hz_per_m # factor used to normalize RF amplitude, should be max value of system used!
-    psi = PSInterpreter(rf_center=lo_freq*1e6,
+    psi = flocra_pulseq.interpreter.PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=rf_amp_max,
                         grad_max=grad_max) # very large, just for testing
     od, pd = psi.interpret("tabletop_noise_monitor.seq")         
