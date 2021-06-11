@@ -55,10 +55,10 @@ if __name__ == "__main__":
 
     fig.suptitle('Spin Echo [n={:d}, lo_freq={:f} Mhz]\n'.format(nSamples_orig,lo_freq))
     t_axis = np.linspace(0, dt * nSamples, nSamples)  # us    
-    ax1.plot(t_axis, np.abs(data)*33)
+    ax1.plot(t_axis, np.abs(data)*15)
     ax1.set_ylabel('voltage [mV]')
     ax2.set_xlabel('time [us]')
-    ax2.plot(t_axis, data.real*33)
+    ax2.plot(t_axis, data.real*15)
     ax2.set_ylabel('voltage [mV]')
 
     f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))

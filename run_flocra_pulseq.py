@@ -112,7 +112,6 @@ if __name__ == "__main__":
         # Shim
         grads = ['grad_vx', 'grad_vy', 'grad_vz', 'grad_vz2']
         for ch in range(4):
-            #od[grads[ch]] = (np.concatenate((np.array([10.0]), od[grads[ch]][0])), np.concatenate((np.array([0]), od[grads[ch]][1])))
             od[grads[ch]] = (od[grads[ch]][0], od[grads[ch]][1] + shim[ch])
 
 

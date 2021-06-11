@@ -48,10 +48,10 @@ if __name__ == "__main__":
         ax1.clear()
         ax2.clear()
         ax3.clear()
-        ax1.plot(t_axis, np.abs(data)*3.3)
-        ax1.set_ylabel('abs [mV]')
+        ax1.plot(t_axis, np.abs(data)*15)
+        ax1.set_ylabel('abs [mV]')   # 500mVpp is max RP122 can receive
         ax2.set_xlabel('time [us]')
-        ax2.plot(t_axis, data.real*3.3)
+        ax2.plot(t_axis, data.real*15)
         ax2.set_ylabel('real [mV]')
         f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))
         ax3.plot(f_axis,np.abs(np.fft.fftshift(np.fft.fft(data))/np.sqrt(nSamples)))

@@ -57,19 +57,25 @@ if __name__ == "__main__":
     ax1.clear()
     ax2.clear()
     ax3.clear()
-    ax1.plot(t_axis, np.abs(data)*3.3)
+    ax1.plot(t_axis, np.abs(data)*15)
     ax1.set_ylabel('abs [mV]')
     ax2.set_xlabel('time [us]')
-    ax2.plot(t_axis, data.real*3.3)
+    ax2.plot(t_axis, data.real*15)
     ax2.set_ylabel('real [mV]')
     #f_axis = np.linspace(-1/dt*nSamples,1/dt*nSamples,nSamples)
     #nFFT_window = 127
     #f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]
     #ax3.plot(f_axis,np.abs(np.fft.fftshift(np.fft.fft(data))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]/np.sqrt(nSamples)))
-    f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))*1E-3 # kHz
-    ax3.plot(f_axis,np.abs(np.fft.fftshift(np.fft.fft(data))/np.sqrt(nSamples)))
+    f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))*1E-3 + lo_freq*1E3 # kHz
+    fft_data = np.abs(np.fft.fftshift(np.fft.fft(data))/np.sqrt(nSamples))
+    ax3.plot(f_axis - lo_freq*1E3,fft_data)
     ax3.set_ylabel('spectrum')
-    ax3.set_xlabel('kHz')
+    ax3.set_xlabel('kHz LO offset')
+
+    max_peak_index = np.argmax(fft_data)
+    max_peak_freq = round(f_axis[max_peak_index]*1e-3,5)
+    print('coil resonance frequency = {:f} MHz'.format(max_peak_freq))
+
     plt.show()
     fig.tight_layout()
     

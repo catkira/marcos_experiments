@@ -58,11 +58,14 @@ if __name__ == "__main__":
     fig.suptitle('Spin Echo [n={:d}, lo_freq={:f} Mhz]\nSNR={:f}'.format(nSamples_orig,lo_freq,SNR))
     dt = pd['rx_t']
     t_axis = np.linspace(0, dt * nSamples, nSamples)  # us    
-    ax1.plot(t_axis, np.abs(data)*3.3)
+    ax1.plot(t_axis, np.abs(data)*15)
     ax1.set_ylabel('abs [mV]')
     ax2.set_xlabel('time [us]')
-    ax2.plot(t_axis, data.real*3.3)
+    ax2.plot(t_axis, data.real*15)
     ax2.set_ylabel('real [mV]')
+    print('Spin Echo [n={:d}, lo_freq={:f} Mhz]\nSNR = {:f}'.format(nSamples_orig,lo_freq,SNR))
+    print('max abs = {:f} mV'.format(max(np.abs(data)*15)))
+    print('max real = {:f} mV'.format(max(data.real)*15))
     #f_axis = np.linspace(-1/dt*nSamples,1/dt*nSamples,nSamples)
     #nFFT_window = 127
     #f_axis = np.fft.fftshift(np.fft.fftfreq(nSamples,dt*1E-6))[int(nSamples/2)-nFFT_window:int(nSamples/2)+nFFT_window]
