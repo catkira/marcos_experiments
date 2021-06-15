@@ -3,9 +3,11 @@ close all
 clear
 gamma = 42.57E6;
 sequencerRasterTime = 7E-9; % make sure all times are a multiple of sequencer raster time
+grad_interval = 10E-6;
+rf_interval = 1E-6;
 
 TE = 12E-3;
-Nx = 128;
+Nx = 512;
 samplingDuration = 2.5e-3;
 
 % set system limits
@@ -13,7 +15,7 @@ rfDeadTime = 500e-6; % [us], minicircuits PA needs 500 us to turn on
 adcDeadTime = 0;
 sys = mr.opts('rfDeadTime', round(rfDeadTime/sequencerRasterTime)*sequencerRasterTime, ...
     'adcDeadTime', round(adcDeadTime/sequencerRasterTime)*sequencerRasterTime, ...
-    'rfRasterTime', 1.003e-6, 'gradRasterTime',1.003e-6);
+    'rfRasterTime', rf_interval, 'gradRasterTime',grad_interval);
 seq=mr.Sequence(sys);              % Create a new sequence object
 
 % Create HF pulses
@@ -49,6 +51,8 @@ seq.setDefinition('Name', 'se');
 seq.setDefinition('TE [s]', TE);
 seq.setDefinition('Nx', Nx);
 seq.setDefinition('Bandwidth [Hz]', 1/adc.dwell);
+seq.setDefinition('grad_t', grad_interval*1E6);
+seq.setDefinition('tx_t', rf_interval*1E6);
 
 seq.plot();
 

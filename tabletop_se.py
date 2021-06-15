@@ -12,7 +12,7 @@ import experiment as ex
 import os
 import flocra_pulseq.interpreter
 st = pdb.set_trace
-from mri_config import lo_freq, grad_max_Hz_per_m, hf_max_Hz_per_m, gamma, shim
+from mri_config import lo_freq, grad_max_Hz_per_m, grad_max_x_Hz_per_m, grad_max_y_Hz_per_m, grad_max_z_Hz_per_m, hf_max_Hz_per_m, gamma, shim, max_grad_current
 
 if __name__ == "__main__":  
     print('gradient max_B_per_m = {:f} mT/m'.format(grad_max_Hz_per_m/gamma*1e3))	
@@ -24,7 +24,9 @@ if __name__ == "__main__":
     #tx_warmup = 0 # already handled by delay in RF block
     psi = flocra_pulseq.interpreter.PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=rf_amp_max,
-                        grad_max=grad_max,
+                        gx_max=grad_max_x_Hz_per_m,
+                        gy_max=grad_max_y_Hz_per_m,
+                        gz_max=grad_max_z_Hz_per_m,
                         tx_warmup=200)
     od, pd = psi.interpret("tabletop_se_pulseq.seq")         
     grad_interval = pd['grad_t']
@@ -42,7 +44,7 @@ if __name__ == "__main__":
                          flush_old_rx=True,
                          halt_and_reset=True) 
     expt.add_flodict(od)
-    expt.gradb.calibrate(channels=[0,1,2], max_current=6, num_calibration_points=30, averages=5, poly_degree=5)
+    expt.gradb.calibrate(channels=[0,1,2,3], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5, test_cal=False)
 
     rxd, msgs = expt.run()
     expt.gradb.init_hw()  # set gradient currents back to zero

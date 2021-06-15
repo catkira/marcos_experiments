@@ -8,13 +8,14 @@ rf_interval = 1E-6;
 fov=10e-3; Nx=200; Ny=128;   % Define FOV and resolution
 TR=5; % [s]     
 ETL=8;
-ESP=8e-3;
+ESP=8.5e-3;
 Ndummy = 1; % excitations
 oversampling_factor = 4;
 sliceThickness = 5;
 use_slice = 1;
 sp_amplitude = 0; % spoiler area in 1/m (=Hz/m*s)
 sp_duration = 0.5E-3;
+freq_offset = 0;
 
 assert(mod(Ny,ETL) == 0)
 
@@ -33,17 +34,17 @@ sys = mr.opts('MaxGrad', maxGrad, 'GradUnit', 'mT/m', ...
     'rfRasterTime', rf_interval, 'gradRasterTime', grad_interval);
 seq=mr.Sequence(sys);              % Create a new sequence object
 
-% Create HF pulses, 500 us delay for tx gate
+% Create HF pulses
 if use_slice == 1
     [rf90, gs] = mr.makeBlockPulse(pi/2, 'duration', rf90duration,...
-        'PhaseOffset', 0, 'sys', sys, 'SliceThickness', sliceThickness);
-    gs.channel='z'; % change it to X because we want sagittal orientation
+        'PhaseOffset', 0, 'FreqOffset', freq_offset, 'sys', sys, 'SliceThickness', sliceThickness);
+    gs.channel='z'; 
 else
     rf90 = mr.makeBlockPulse(pi/2, 'duration', rf90duration,...
-        'PhaseOffset', 0, 'sys', sys);    
+        'PhaseOffset', 0, 'FreqOffset', freq_offset, 'sys', sys);    
 end
 rf180 = mr.makeBlockPulse(pi, 'duration', rf180duration,...
-    'PhaseOffset', pi/2, 'use', 'refocusing', 'sys',sys);
+    'PhaseOffset', pi/2, 'use', 'refocusing', 'FreqOffset', freq_offset, 'sys', sys);
 
 
 %% Define other gradients and ADC events
@@ -55,7 +56,7 @@ fprintf('Sequence bandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov);
 fprintf('Pixelbandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov/Nx);
 gx.delay = 0; % assumes rfDeadTime > gx.riseTime !!
 gxPre = mr.makeTrapezoid('x','Area',gx.area/2,'Duration',mr.calcDuration(gx),'sys',sys);
-g_sp = mr.makeTrapezoid('x','Area',sp_amplitude,'Duration',sp_duration,'system',sys);
+g_sp = mr.makeTrapezoid('z','Area',sp_amplitude,'Duration',sp_duration,'system',sys);
 if sp_amplitude == 0
     g_sp.riseTime = 0;
     g_sp.fallTime = 0;
@@ -65,7 +66,8 @@ gy_area = kHeight/2;
 gy = mr.makeTrapezoid('y','Area',gy_area,'Duration',gx.flatTime/2,'sys',sys);
 adc_duration = dwellTime * Nx * oversampling_factor;
 adc_delay = (mr.calcDuration(gx) - adc_duration)/2 - 1/2*grad_interval; % - 1/2*grad_interval is needed because first sample is already in the ramp
-adc = mr.makeAdc(round(oversampling_factor*Nx),'Duration',adc_duration,'Delay',adc_delay,'sys',sys);
+adc = mr.makeAdc(round(oversampling_factor*Nx),'Duration',adc_duration,'Delay',...
+    adc_delay,'FreqOffset', freq_offset,'sys',sys);
 
 %% Calculate delays
 delayTE = ESP/2 - mr.calcRfCenter(rf90) ...

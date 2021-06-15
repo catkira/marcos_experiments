@@ -7,10 +7,12 @@ minor 3
 revision 1
 
 [DEFINITIONS]
-Bandwidth [Hz] 51203.277 
+Bandwidth [Hz] 204666.394 
 Name se 
-Nx 128 
+Nx 512 
 TE [s] 0.012 
+grad_t 10 
+tx_t 1 
 
 # Format of blocks:
 #  #  D RF  GX  GY  GZ ADC EXT
@@ -32,13 +34,13 @@ TE [s] 0.012
 # id num dwell delay freq phase
 # ..  ..    ns    us   Hz   rad
 [ADC]
-1 128 19530 0 0 0
+1 512 4886 0 0 0
 
 # Format of delays:
 # id delay (us)
 [DELAYS]
-1 5881
-2 5419
+1 5880
+2 5420
 
 # Sequence Shapes
 [SHAPES]

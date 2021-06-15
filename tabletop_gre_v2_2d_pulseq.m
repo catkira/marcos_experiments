@@ -9,6 +9,7 @@ rf_interval = 1E-6;
 fov=12e-3; Nx=128; Ny=80;   % Define FOV and resolution
 TR=5;
 TE=2.2e-3;
+Ndummy=0
 
 gxFlatTime = 2e-3;
 readoutOversamplingFactor = 4;
@@ -73,6 +74,7 @@ seq.setDefinition('Bandwidth [Hz]', 1/adc.dwell);
 seq.setDefinition('grad_interval]', grad_interval);
 seq.setDefinition('rf_interval]', rf_interval);
 seq.setDefinition('SliceThickness', sliceThickness);
+seq.setDefinition('Ndummy', Ndummy);
 
 seq.plot();
 

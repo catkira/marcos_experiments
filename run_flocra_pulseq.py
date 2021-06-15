@@ -6,7 +6,7 @@ import pdb
 import time
 import argparse
 import os.path
-from mri_config import lo_freq, grad_max_Hz_per_m, hf_max_Hz_per_m, gamma, max_grad_current, grad_max_x_Hz_per_m, grad_max_y_Hz_per_m, grad_max_z_Hz_per_m, data_path, shim
+from mri_config import lo_freq, grad_max_Hz_per_m, hf_max_Hz_per_m, gamma, max_grad_current, grad_max_x_Hz_per_m, grad_max_y_Hz_per_m, grad_max_z_Hz_per_m, grad_max_z2_Hz_per_m, data_path, shim
 
 import external
 import experiment as ex
@@ -79,10 +79,10 @@ if __name__ == "__main__":
     seq_file = args.seq[0]
     psi = flocra_pulseq.interpreter.PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=hf_max_Hz_per_m,
-                        grad_max=grad_max_Hz_per_m,
                         gx_max=grad_max_x_Hz_per_m,
                         gy_max=grad_max_y_Hz_per_m,
                         gz_max=grad_max_z_Hz_per_m,
+                        grad_max=grad_max_z2_Hz_per_m,
                         tx_warmup=200)
     od, pd = psi.interpret(seq_file)   
 
@@ -161,7 +161,7 @@ if __name__ == "__main__":
             expt.plot_sequence()
         plt.show()
     else:
-        expt.gradb.calibrate(channels=[0,1,2,3], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)
+        expt.gradb.calibrate(channels=[0,1,2,3], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5, test_cal=False)
 
         rxd, msgs = expt.run()
         expt.gradb.init_hw()  # set gradient currents back to zero

@@ -10,6 +10,7 @@ revision 1
 Bandwidth [Hz] 256000 
 FOV 0.012 0.012 
 Name gre_2d 
+Ndummy 0 
 Nx 128 
 Ny 80 
 SliceThickness 10 

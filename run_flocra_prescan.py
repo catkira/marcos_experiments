@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import pdb
 import time
 import argparse
-from mri_config import lo_freq, grad_max_Hz_per_m, hf_max_Hz_per_m, gamma, max_grad_current
+from mri_config import lo_freq, grad_max_Hz_per_m, hf_max_Hz_per_m, max_grad_current
 
 import external
 import experiment as ex
@@ -23,27 +23,57 @@ if __name__ == "__main__":
     #args = parser.parse_args()                    
     #print(F"seq file: {args.seq}")
 
-    tx_t = 1 # us
-    grad_t = 10 #
-
     print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
 
     seq_file = "tabletop_prescan_se.seq"
     psi = flocra_pulseq.interpreter.PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=hf_max_Hz_per_m,
-                        tx_t=tx_t,
-                        grad_t=grad_t,
-                        grad_max=grad_max_Hz_per_m)
+                        grad_max=grad_max_Hz_per_m,
+                        tx_warmup=200)
     od, pd = psi.interpret(seq_file)   
     Nx = pd['Nx']    
 
     expt = ex.Experiment(lo_freq=lo_freq,
                          rx_t=pd['rx_t'],
                          init_gpa=True,
-                         gpa_fhdo_offset_time=grad_t/3) 
+                         gpa_fhdo_offset_time=pd['grad_t']/3,
+                         flush_old_rx=True,
+                         halt_and_reset=True,
+                         grad_max_update_rate = 0.2) 
     expt.add_flodict(od)
 
-    expt.gradb.calibrate(channels=[0,1,2], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)
+    expt.gradb.calibrate(channels=[0,1,2,3], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)
+
+    if False:
+        delta_freq = 0.01
+        start_freq = 16.5
+        end_freq = 16.9
+        freqs = np.arange(16.5, 16.9, 0.01)
+        for i in range(len(freqs)):
+            rxd, msgs = expt.run()
+            #expt.set_lo_freq(freqs[i]*1e6)
+            print('lo freq = {:f} MHz'.format(freqs[i]))	
+            nSamples_orig = pd['readout_number']
+            data = rxd['rx0'][:]
+            nSamples = len(data)    
+            dt = pd['rx_t'] 
+
+            t_axis = np.linspace(0, dt * nSamples, nSamples)  # us    
+            if i == 0:
+                data2d = np.zeros((len(freqs),nSamples),dtype=np.complex64)
+                plt.figure(1)
+                plt.subplot(1, 3, 1)
+                im = plt.imshow(10*np.log(np.abs(data2d)),aspect='auto',interpolation='none', origin='lower')
+                plt.ion()
+                plt.show()
+                plt.pause(0.001)
+            else:
+                data2d[i,:] = data
+                im.set_data(10*np.log(np.abs(data2d)))
+                plt.pause(0.001)
+
+            time.sleep(5)
+
 
     rxd, msgs = expt.run()
     nSamples_orig = pd['readout_number']
