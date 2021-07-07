@@ -42,7 +42,8 @@ if __name__ == "__main__":
                          init_gpa=True,
                          gpa_fhdo_offset_time=grad_interval/3,
                          flush_old_rx=True,
-                         halt_and_reset=True) 
+                         halt_and_reset=True,
+                         set_cic_shift=True) 
     expt.add_flodict(od)
     expt.gradb.calibrate(channels=[0,1,2,3], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)
     
