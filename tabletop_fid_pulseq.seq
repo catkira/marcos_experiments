@@ -22,7 +22,7 @@ tx_t 1
 # id amplitude mag_id phase_id delay freq phase
 # ..        Hz   ....     ....    us   Hz   rad
 [RF]
-1         3125 1 2 500 0 0
+1      833.333 1 2 500 0 0
 
 # Format of ADC events:
 # id num dwell delay freq phase
@@ -34,15 +34,15 @@ tx_t 1
 [SHAPES]
 
 shape_id 1
-num_samples 80
+num_samples 300
 1
 0
 0
-77
+297
 
 shape_id 2
-num_samples 80
+num_samples 300
 0
 0
-78
+298
 

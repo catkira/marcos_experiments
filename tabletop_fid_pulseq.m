@@ -17,7 +17,7 @@ sys = mr.opts('rfDeadTime', round(rfDeadTime/sequencerRasterTime)*sequencerRaste
 seq=mr.Sequence(sys);              % Create a new sequence object
 
 % Create HF pulses
-rf90duration=0.08e-3
+rf90duration=0.3e-3
 rf90 = mr.makeBlockPulse(pi/2, 'duration', rf90duration,...
     'PhaseOffset', 0, 'sys', sys);
 

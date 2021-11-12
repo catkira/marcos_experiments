@@ -10,14 +10,14 @@ import os.path
 if __name__ == "__main__":
 
     #data_path = 'D:\\Sciebo\\LEMB\\TabletopMRI\\tse analysis\\'
-    data_path = 'D:\\Sciebo\\LEMB\\TabletopMRI\\measurements\\'
+    data_path = '/mnt/c/Users/Admin/sciebo/LEMB/TabletopMRI/measurements'
     files = listdir(os.path.join(data_path,""))
     #files2 = [f for f in files if f.find("se_v2_2d") != -1 and f.find(".npy") != -1]
     files2 = [f for f in files if f.find("tse_") != -1 and f.find(".npy") != -1]
     #files2 = [f for f in files if f.find("gre_v2_2d") != -1 and f.find(".npy") != -1]
 
     # 2 cylinder decent
-    current_file = files2[-1]
+    current_file = files2[-6]
     print(current_file)
     data2d = np.load(os.path.join(data_path,current_file))
     Nx = 200 

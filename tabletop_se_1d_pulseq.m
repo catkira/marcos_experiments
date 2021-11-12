@@ -6,14 +6,14 @@ tx_t = 1E-6;
 grad_t = 10E-6;
 
 fov=10e-3; Nx=128; Ny=1;       % Define FOV and resolution
-TE=12e-3;
+TE=10e-3;
 
 gxFlatTime = 3e-3;
 
 % set system limits
 maxGrad = 400; % [mT/m], value for tabletop coils and gpa fhdo
 spA=2000; % spoiler area in 1/m (=Hz/m*s)
-rfDeadTime = 500e-6; % [us], minicircuits PA needs 500 us to turn on
+rfDeadTime = 400e-6; % [us], minicircuits PA needs 500 us to turn on
 adcDeadTime = 0;
 sys = mr.opts('MaxGrad', maxGrad, 'GradUnit', 'mT/m', ...
     'MaxSlew', 800, 'SlewUnit', 'T/m/s', ...
@@ -22,7 +22,7 @@ sys = mr.opts('MaxGrad', maxGrad, 'GradUnit', 'mT/m', ...
 seq=mr.Sequence(sys);              % Create a new sequence object
 
 % Create HF pulses, 500 us delay for tx gate
-rf90duration=0.10e-3;
+rf90duration=0.20e-3;
 rf90 = mr.makeBlockPulse(pi/2, 'duration', rf90duration,...
     'PhaseOffset', 0, 'sys', sys);
 rf180 = mr.makeBlockPulse(pi, 'duration', rf90duration*2,...

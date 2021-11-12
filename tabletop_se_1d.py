@@ -24,7 +24,7 @@ if __name__ == "__main__":
     print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
     print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
 
-    tx_warmup = 200 # already handled by delay in RF block
+    tx_warmup = 400 # already handled by delay in RF block
     adc_pad = 85 # padding to prevent junk in rx buffer
     psi = flocra_pulseq.interpreter.PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=hf_max_Hz_per_m,
@@ -36,15 +36,16 @@ if __name__ == "__main__":
 
     if True:
         # Shim
-        grads = ['grad_vx', 'grad_vy', 'grad_vz']
-        for ch in range(3):
-            od[grads[ch]] = (np.concatenate((np.array([10.0]), od[grads[ch]][0])), np.concatenate((np.array([0]), od[grads[ch]][1])))
+        grads = ['grad_vx', 'grad_vy', 'grad_vz', 'grad_vz2']
+        for ch in range(4):
             od[grads[ch]] = (od[grads[ch]][0], od[grads[ch]][1] + shim[ch])
 
     expt = ex.Experiment(lo_freq=lo_freq,
                          rx_t=pd['rx_t'],
                          init_gpa=True,
-                         gpa_fhdo_offset_time=grad_interval/3) 
+                         gpa_fhdo_offset_time=grad_interval/3,
+                         flush_old_rx=True,
+                         halt_and_reset=True) 
     expt.add_flodict(od)
 
     expt.gradb.calibrate(channels=[0,1,2], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)
