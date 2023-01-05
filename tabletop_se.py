@@ -44,7 +44,7 @@ if __name__ == "__main__":
                          flush_old_rx=True,
                          halt_and_reset=True) 
     expt.add_flodict(od)
-    expt.gradb.calibrate(channels=[0,1,2,3], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5, test_cal=False)
+    expt.gradb.calibrate(channels=[0,1], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5, test_cal=False)
 
     rxd, msgs = expt.run()
     expt.gradb.init_hw()  # set gradient currents back to zero

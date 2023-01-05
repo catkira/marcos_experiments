@@ -30,21 +30,22 @@ rf180 = mr.makeBlockPulse(pi, 'duration', rf90duration*2,...
 
 % Define other gradients and ADC events
 deltak=1/fov;
-gx = mr.makeTrapezoid('y','FlatArea',Nx*deltak,'FlatTime',gxFlatTime,'sys',sys);
+gx = mr.makeTrapezoid('x','FlatArea',Nx*deltak,'FlatTime',gxFlatTime,'sys',sys);
 fprintf('Sequence bandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov);
 fprintf('Pixelbandwidth: %.3f Hz\n',gx.amplitude*1E-3*fov/Nx);
 gx.delay = 0; % assumes rfDeadTime > gx.riseTime !!
-gxPre = mr.makeTrapezoid('y','Area',gx.area/2,'Duration',gx.flatTime/2,'sys',sys);
+gxPre = mr.makeTrapezoid('x','Area',gx.area/2,'Duration',gx.flatTime/2,'sys',sys);
+g_sp = mr.makeTrapezoid('x','Area',spA,'Duration',0.5e-3,'system',sys);
 oversamplingFactor = 1;
 adc = mr.makeAdc(oversamplingFactor*Nx,'Duration',gx.flatTime,'Delay',gx.riseTime,'sys',sys);
 
 % Calculate timing
 delayTE1_2 = 1e-3;
 delayTE1 = ceil((TE/2 - (mr.calcDuration(rf90)-rf90.delay)/2 ...
-    - mr.calcDuration(gxPre) ...
+    - mr.calcDuration(gxPre) -  mr.calcDuration(g_sp)...
     - rf180.delay - (mr.calcDuration(rf180)-rf180.delay)/2 - delayTE1_2)/seq.gradRasterTime)*seq.gradRasterTime;
 delayTE2 = ceil((TE/2 - (mr.calcDuration(rf180) - rf180.delay)/2 ...
-    - mr.calcDuration(gx)/2)/seq.gradRasterTime)*seq.gradRasterTime;
+    - mr.calcDuration(gx)/2  -  mr.calcDuration(g_sp))/seq.gradRasterTime)*seq.gradRasterTime;
 fprintf('delay1: %.3f ms \ndelay2: %.3f ms \n',delayTE1*1E3,delayTE2*1E3)
 
 % Loop over phase encodes and define sequence blocks
@@ -54,7 +55,9 @@ for i=1:Ny
         seq.addBlock(mr.makeDelay(delayTE1(c)));
         seq.addBlock(gxPre);
         seq.addBlock(mr.makeDelay(delayTE1_2(c)));
+        seq.addBlock(g_sp);
         seq.addBlock(rf180);
+        seq.addBlock(g_sp);
         seq.addBlock(mr.makeDelay(delayTE2(c)));
         seq.addBlock(gx,adc);
     end

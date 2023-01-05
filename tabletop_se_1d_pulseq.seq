@@ -8,7 +8,7 @@ revision 1
 
 [DEFINITIONS]
 Bandwidth [Hz] 42666.6667 
-FOV 0.01 0.01 
+FOV 0.008 0.008 
 Name se 
 Nx 128 
 TE [s] 0.012 
@@ -20,13 +20,11 @@ tx_t 1
 [BLOCKS]
 1  0  1   0   0   0  0  0
 2  1  0   0   0   0  0  0
-3  0  0   1   0   0  0  0
+3  0  0   0   1   0  0  0
 4  2  0   0   0   0  0  0
-5  0  0   2   0   0  0  0
-6  0  2   0   0   0  0  0
-7  0  0   2   0   0  0  0
-8  3  0   0   0   0  0  0
-9  0  0   3   0   0  1  0
+5  0  2   0   0   0  0  0
+6  3  0   0   0   0  0  0
+7  0  0   0   2   0  1  0
 
 # Format of RF events:
 # id amplitude mag_id phase_id delay freq phase
@@ -39,22 +37,21 @@ tx_t 1
 # id amplitude rise flat fall delay
 # ..      Hz/m   us   us   us    us
 [TRAP]
- 1  4.94617e+06 150 1200 150   0
- 2  6.45161e+06 190  120 190   0
- 3  4.26667e+06 130 3000 130   0
+ 1  6.43257e+06 190 1120 190   0
+ 2  5.33333e+06 160 3000 160   0
 
 # Format of ADC events:
 # id num dwell delay freq phase
 # ..  ..    ns    us   Hz   rad
 [ADC]
-1 128 23438 130 0 0
+1 128 23438 160 0 0
 
 # Format of delays:
 # id delay (us)
 [DELAYS]
-1 2360
+1 2860
 2 1000
-3 3770
+3 4240
 
 # Sequence Shapes
 [SHAPES]
