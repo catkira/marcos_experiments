@@ -30,7 +30,7 @@ if __name__ == "__main__":
                         tx_warmup = tx_warmup,
                         grad_max=grad_max_Hz_per_m)
     od, pd = psi.interpret("tabletop_se_1d_pulseq.seq")
-    grad_interval = pd['grad_t']    
+    grad_interval = pd['grad_t']
 
     if True:
         # Shim

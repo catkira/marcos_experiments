@@ -13,7 +13,6 @@ Name se
 Nx 128 
 TE [s] 0.012 
 grad_t 10 
-tx_t 1 
 
 # Format of blocks:
 #  #  D RF  GX  GY  GZ ADC EXT
