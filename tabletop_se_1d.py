@@ -23,7 +23,6 @@ if __name__ == "__main__":
     print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
 
     tx_warmup = 200 # already handled by delay in RF block
-    adc_pad = 85 # padding to prevent junk in rx buffer
     psi = flocra_pulseq.interpreter.PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=hf_max_Hz_per_m,
                         tx_t=tx_t,
@@ -46,7 +45,7 @@ if __name__ == "__main__":
                          halt_and_reset=True) 
     expt.add_flodict(od)
 
-    expt.gradb.calibrate(channels=[0,1], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)
+    expt.gradb.calibrate(channels=[0, 1, 2], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)
 
     rxd, msgs = expt.run()
 

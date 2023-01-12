@@ -16,6 +16,7 @@ TE [s] 0.012
 TR 5 
 delayTR 4.98487 
 grad_interval] 1e-05 
+oversampling_factor 4 
 rf_interval] 1e-06 
 
 # Format of blocks:

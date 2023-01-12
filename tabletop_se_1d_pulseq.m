@@ -31,7 +31,7 @@ fprintf('Sequence bandwidth: %.3f Hz\n',grad.amplitude*1E-3*fov);
 fprintf('Pixelbandwidth: %.3f Hz\n',grad.amplitude*1E-3*fov/Nx);
 grad.delay = 0; % assumes rfDeadTime > gx.riseTime !!
 gradPre = mr.makeTrapezoid('y','Area',grad.area/2,'Duration',grad.flatTime/2,'sys',sys);
-oversamplingFactor = 1;
+oversamplingFactor = 2;
 adc = mr.makeAdc(oversamplingFactor*Nx,'Duration',grad.flatTime,'Delay',grad.riseTime,'sys',sys);
 
 % Calculate timing

@@ -45,7 +45,7 @@ if __name__ == "__main__":
                          halt_and_reset=True,
                          set_cic_shift=True) 
     expt.add_flodict(od)
-    expt.gradb.calibrate(channels=[0,1,2,3], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)
+    expt.gradb.calibrate(channels=[0, 1, 2], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)
     
     fig, (ax1, ax2, ax3) = plt.subplots(3)
     rxd, msgs = expt.run()

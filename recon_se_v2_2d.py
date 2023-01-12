@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from os import listdir
 import scipy.signal as sig
-from skimage.transform import iradon
 from scipy.interpolate import griddata
 from mri_config import data_path
 import os.path
@@ -10,7 +9,8 @@ import os.path
 if __name__ == "__main__":
 
     #data_path = 'D:\\Sciebo\\LEMB\\TabletopMRI\\tse analysis\\'
-    data_path = 'D:\\Sciebo\\LEMB\\TabletopMRI\\measurements\\'
+    #data_path = 'D:\\Sciebo\\LEMB\\TabletopMRI\\measurements\\'
+    data_path = '/mnt/d/sciebo/LEMB/TabletopMRI/measurements/'
     files = listdir(os.path.join(data_path,""))
     #files2 = [f for f in files if f.find("se_v2_2d") != -1 and f.find(".npy") != -1]
     files2 = [f for f in files if f.find("tse_") != -1 and f.find(".npy") != -1]

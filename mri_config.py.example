@@ -1,23 +1,23 @@
-data_path = "/mnt/c/Users/Admin/sciebo/LEMB/TabletopMRI/measurements" 
+data_path = "/mnt/d/sciebo/LEMB/TabletopMRI/measurements" 
 #data_path = "/mnt/d/Dropbox/ismrm2021pulseq_liveDemo/dataLive/Dortmund_Tabletop"
 
-lo_freq = 17.308 # MHz 
+lo_freq = 17.305 # MHz 
 
 # Shim
-shim_x = -0.0
-shim_y = 0.0
-shim_z = 0.0
+shim_x = 0.01
+shim_y = -0.02
+shim_z = -0.02
 shim_z2 = 0.0
 shim = (shim_x, shim_y, shim_z, shim_z2)
 
 gamma = 42570000 # Hz/T    
-max_grad_current = 6 # amps
+max_grad_current = 8 # amps
 if True:
-    grad_max_Hz_per_m = 6.7E6 # experimental value
-    grad_max_x_Hz_per_m = 6.7E6
-    grad_max_y_Hz_per_m = 6.7E6
-    grad_max_z_Hz_per_m = 6.7E6
-    grad_max_z2_Hz_per_m = 6.7E6
+    grad_max_Hz_per_m = 19E6 # experimental value
+    grad_max_x_Hz_per_m = 19E6
+    grad_max_y_Hz_per_m = 21E6
+    grad_max_z_Hz_per_m = 19E6
+    grad_max_z2_Hz_per_m = 19E6
 else:
     # value for tabletopMRI  gradient coil
     grad_B_per_m_per_current = 0.02 # [T/m/A], approximate value for tabletop gradient coil
@@ -29,7 +29,7 @@ else:
 
 
 if True:
-    hf_max_Hz_per_m = 3200 # experimental value
+    hf_max_Hz_per_m = 19000 # experimental value
 else:    
     # values of tabletop coil
     R_coil = 2

@@ -74,6 +74,7 @@ seq.setDefinition('Ny', Ny);
 seq.setDefinition('Bandwidth [Hz]', 1/adc.dwell);
 seq.setDefinition('grad_interval]', grad_interval);
 seq.setDefinition('rf_interval]', rf_interval);
+seq.setDefinition('oversampling_factor', readoutOversamplingFactor);
 
 seq.plot();
 
