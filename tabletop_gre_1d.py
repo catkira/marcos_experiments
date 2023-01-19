@@ -7,46 +7,50 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pdb
 import time
+from mri_config import lo_freq, grad_max_Hz_per_m, hf_max_Hz_per_m, gamma, shim, max_grad_current
+
 
 import external
 import experiment as ex
 import os
-from flocra_pulseq_interpreter import PSInterpreter
+import flocra_pulseq.interpreter
 st = pdb.set_trace
 from mri_config import lo_freq, grad_max_Hz_per_m, hf_max_Hz_per_m, gamma, shim
 
 if __name__ == "__main__":
     tx_t = 1 # us
     num_grad_channels = 3
-    grad_interval = 10 # us between [num_grad_channels] channel updates
 
     print('gradient max_B_per_m = {:f} mT/m'.format(grad_max_Hz_per_m/gamma*1e3))	
     print('gradient max_Hz_per_m = {:f} MHz/m'.format(grad_max_Hz_per_m/1E6))
     print('HF max_Hz_per_m = {:f} kHz'.format(hf_max_Hz_per_m/1E3))
 
-    tx_warmup = 0 # already handled by delay in RF block
     adc_pad = 85 # padding to prevent junk in rx buffer
-    psi = PSInterpreter(rf_center=lo_freq*1e6,
+    tx_warmup = 200 # already handled by delay in RF block
+    psi = flocra_pulseq.interpreter.PSInterpreter(rf_center=lo_freq*1e6,
                         rf_amp_max=hf_max_Hz_per_m,
                         tx_t=tx_t,
-                        grad_t=grad_interval,
+                        tx_warmup = tx_warmup,
                         grad_max=grad_max_Hz_per_m)
-    od, pd = psi.interpret("tabletop_gre_1d_pulseq.seq")         
+    od, pd = psi.interpret("tabletop_gre_1d_pulseq.seq")
+    grad_interval = pd['grad_t']
+     
 
     if True:
         # Shim
         grads = ['grad_vx', 'grad_vy', 'grad_vz']
         for ch in range(3):
-            od[grads[ch]] = (np.concatenate((np.array([10.0]), od[grads[ch]][0])), np.concatenate((np.array([0]), od[grads[ch]][1])))
             od[grads[ch]] = (od[grads[ch]][0], od[grads[ch]][1] + shim[ch])
 
     expt = ex.Experiment(lo_freq=lo_freq,
                          rx_t=pd['rx_t'],
                          init_gpa=True,
-                         gpa_fhdo_offset_time=grad_interval/3) 
+                         gpa_fhdo_offset_time=grad_interval/3,
+                         flush_old_rx=True,                         
+                         halt_and_reset=True) 
     expt.add_flodict(od)
 
-    expt.gradb.calibrate(channels=[0,1], max_current=6, num_calibration_points=30, averages=5, poly_degree=5)
+    expt.gradb.calibrate(channels=[0, 1, 2], max_current=6, num_calibration_points=30, averages=5, poly_degree=5)
 
     rxd, msgs = expt.run()
     expt.gradb.init_hw()  # set gradient currents back to zero

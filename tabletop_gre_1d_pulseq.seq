@@ -39,7 +39,7 @@ TE [s] 0.0022
 # id num dwell delay freq phase
 # ..  ..    ns    us   Hz   rad
 [ADC]
-1 1280 1563 130 0 0
+1 1280 1562 130 0 0
 
 # Format of delays:
 # id delay (us)
