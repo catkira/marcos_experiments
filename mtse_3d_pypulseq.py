@@ -34,7 +34,8 @@ if __name__ == "__main__":
                         rf_amp_max=hf_max_Hz_per_m,
                         tx_t=tx_t,
                         tx_warmup = tx_warmup,
-                        grad_max=grad_max_Hz_per_m)
+                        grad_max=grad_max_Hz_per_m,
+                        log_level=0)
     # od, pd = psi.interpret("tabletop_se_2d_pulseq.seq")
     od, pd = psi.interpret("2d_tse_ptb.seq")
     # od, pd = psi.interpret("mtse_3d_pypulseq.seq")
@@ -54,8 +55,8 @@ if __name__ == "__main__":
                          halt_and_reset=True) 
     expt.add_flodict(od)
 
-    # expt.plot_sequence()
-    # plt.show()
+    expt.plot_sequence()
+    plt.show()
 
     rxd, msgs = expt.run()
     # data = rxd['rx0'][adc_pad:]
