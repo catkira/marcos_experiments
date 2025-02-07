@@ -53,7 +53,7 @@ if __name__ == "__main__":
                          halt_and_reset=True) 
     expt.add_flodict(od)
 
-    expt.gradb.calibrate(channels=[0, 1, 2], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)
+    # expt.gradb.calibrate(channels=[0, 1, 2], max_current=max_grad_current, num_calibration_points=30, averages=5, poly_degree=5)
 
     adc_pad = 0
     nSamples = int(Nx * oversampling_factor - adc_pad)
