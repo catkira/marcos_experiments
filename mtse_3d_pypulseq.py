@@ -50,7 +50,7 @@ if __name__ == "__main__":
     expt = ex.Experiment(lo_freq=lo_freq,
                          rx_t=pd['rx_t'],
                          init_gpa=True,
-                        #  gpa_fhdo_offset_time=grad_interval/3,
+                         gpa_fhdo_offset_time=grad_interval/3,
                          flush_old_rx=True,                         
                          halt_and_reset=True) 
     expt.add_flodict(od)
@@ -58,9 +58,10 @@ if __name__ == "__main__":
     expt.plot_sequence()
     plt.show()
 
+    expt.gradb.calibrate(channels=[0,1,2,3], max_current=5, num_calibration_points=30, averages=5, poly_degree=5)
+
     rxd, msgs = expt.run()
     # data = rxd['rx0'][adc_pad:]
-
 
     # reconstruction
     if False:
