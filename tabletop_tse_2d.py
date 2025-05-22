@@ -18,7 +18,7 @@ st = pdb.set_trace
 
 if __name__ == "__main__":
     tx_t = 1 # us
-    tx_warmup = 0 # already handled by delay in RF block
+    tx_warmup = 20 # already handled by delay in RF block
     adc_pad = 85 # padding to prevent junk in rx buffer        
     num_grad_channels = 3
 
